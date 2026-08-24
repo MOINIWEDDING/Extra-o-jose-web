@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barro Café — Café de especialidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;0,9..144,700;1,9..144,450;1,9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SVG defs: grain filter + icon sprite -->
+<svg width="0" height="0" style="position:absolute">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise"/>
+    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0"/>
+  </filter>
+  <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.4"/></symbol>
+  <symbol id="ic-pencil" viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></symbol>
+  <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="ic-phone" viewBox="0 0 24 24"><path d="M6 3h3l1.5 4-2 1.5a13 13 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4 6.2 2 2 0 0 1 6 3z"/></symbol>
+  <symbol id="ic-ig" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></symbol>
+  <symbol id="ic-fb" viewBox="0 0 24 24"><path d="M14 21v-7h2.4l.4-3H14V9c0-.9.3-1.5 1.7-1.5H17V4.8C16.6 4.7 15.6 4.6 14.4 4.6c-2.5 0-4.2 1.5-4.2 4.3V11H7.7v3H10.2v7z"/></symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="ic-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+</svg>
+
+<div class="staff-banner">Modo Comensal / Dueño activo — la edición de fotos del sitio está habilitada.</div>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <div class="logo"><span class="dot"></span>Barro Café</div>
+    <nav class="links">
+      <a href="index.html#inicio" class="current">Inicio</a>
+      <a href="index.html#nosotros">Nosotros</a>
+      <a href="index.html#espacio">Espacio</a>
+      <a href="menu.html">Menú</a>
+      <a href="index.html#visitanos">Visítanos</a>
+    </nav>
+    <div class="nav-right" id="navAuthArea"></div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero tex tex-ink" id="inicio">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Café de especialidad · hecho a fuego lento</p>
+      <h1>Un café con<br><em>raíces</em> de barro.</h1>
+      <p class="lede">Tostamos, servimos y diseñamos cada rincón con los mismos materiales: arcilla, terrazo y metal oxidado. Ven a probarlo en una taza.</p>
+      <div class="cta-row">
+        <a href="menu.html" class="btn btn-clay"><svg class="icon"><use href="#ic-chev"/></svg>Ver el menú</a>
+        <a href="#visitanos" class="btn btn-ghost">Cómo llegar</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>2019</b><span>Desde que abrimos</span></div>
+        <div class="stat"><b>100%</b><span>Grano de origen único</span></div>
+        <div class="stat"><b>4.8★</b><span>Valoración de la comunidad</span></div>
+      </div>
+    </div>
+    <div class="collage">
+      <div class="ph chip chip-1" data-img-key="hero">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg>
+        <span class="ph-label">Foto principal del local</span>
+        <button class="ph-edit" data-edit="hero"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+      <div class="chip chip-2 tex tex-rust"><span class="chip-tag">Metal oxidado</span></div>
+      <div class="chip chip-3 tex tex-terrazzo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MATERIALES / NOSOTROS ================= -->
+<section class="materiales" id="nosotros">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Nuestra materialidad</p>
+      <h2>Los mismos materiales del local, en cada taza.</h2>
+      <p>Diseñamos Barro alrededor de cuatro texturas: terrazo, arcilla cocida, metal envejecido y greige. Es la paleta que vive en las paredes, las mesas y ahora también en esta página.</p>
+    </div>
+    <div class="mat-grid">
+      <div class="mat-card tex tex-terrazzo light">
+        <div class="mat-info"><div class="mat-code">Piso · terrazo</div><div class="mat-name">Terrazo crudo</div></div>
+      </div>
+      <div class="mat-card tex tex-clay dark">
+        <div class="mat-info"><div class="mat-code">SW 7701</div><div class="mat-name">Cavern Clay</div></div>
+      </div>
+      <div class="mat-card tex tex-greige light">
+        <div class="mat-info"><div class="mat-code">SW 6073</div><div class="mat-name">Perfect Greige</div></div>
+      </div>
+      <div class="mat-card tex tex-rust dark">
+        <div class="mat-info"><div class="mat-code">Barra · metal</div><div class="mat-name">Óxido natural</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ESPACIO ================= -->
+<section class="tex tex-ink" id="espacio">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">El local</p>
+      <h2>Un rincón hecho para quedarse.</h2>
+      <p>Estas tres fotos muestran el espacio real de Barro. Reemplázalas desde el modo Comensal/Dueño.</p>
+    </div>
+    <div class="espacio-grid">
+      <div class="ph" data-img-key="gallery-0">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">Salón principal</span>
+        <button class="ph-edit" data-edit="gallery-0"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+      <div class="ph" data-img-key="gallery-1">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">La barra</span>
+        <button class="ph-edit" data-edit="gallery-1"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+      <div class="ph" data-img-key="gallery-2">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">La terraza</span>
+        <button class="ph-edit" data-edit="gallery-2"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MENU TEASER ================= -->
+<section class="menu-teaser">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Carta</p>
+      <h2>Algunos favoritos de la casa.</h2>
+      <p>El menú completo, con todas las categorías, vive en su propia página.</p>
+    </div>
+    <div class="teaser-grid">
+      <div class="teaser-card"><span class="t-cat">Bebidas</span><h4>Latte de barro</h4><p>Espresso doble, leche vaporizada y un toque de vainilla.</p><span class="t-price">RD$ 220</span></div>
+      <div class="teaser-card"><span class="t-cat">Comidas</span><h4>Tostada de aguacate</h4><p>Pan de masa madre, aguacate, semillas y limón.</p><span class="t-price">RD$ 320</span></div>
+      <div class="teaser-card"><span class="t-cat">Postres</span><h4>Flan de café</h4><p>Receta de la casa con reducción de espresso.</p><span class="t-price">RD$ 190</span></div>
+    </div>
+    <div class="teaser-cta"><a href="menu.html" class="btn btn-clay">Ver el menú completo <svg class="icon"><use href="#ic-chev"/></svg></a></div>
+  </div>
+</section>
+
+<!-- ================= VISITANOS ================= -->
+<section class="visitanos" id="visitanos">
+  <div class="wrap visit-grid">
+    <div>
+      <p class="eyebrow">Visítanos</p>
+      <h2>Te esperamos con la taza lista.</h2>
+      <p class="muted" style="margin-top:16px; font-size:15px; line-height:1.6;">Pasa por Barro para desayunar, trabajar o simplemente hacer una pausa.</p>
+      <div class="info-list">
+        <div class="info-row"><div class="ic"><svg class="icon"><use href="#ic-pin"/></svg></div><div><b>Dirección</b><span>[Calle y número] · [Sector], Santiago de los Caballeros</span></div></div>
+        <div class="info-row"><div class="ic"><svg class="icon"><use href="#ic-clock"/></svg></div><div><b>Horario</b><span>Lun – Vie · 7:00 am – 8:00 pm<br>Sáb – Dom · 8:00 am – 9:00 pm</span></div></div>
+        <div class="info-row"><div class="ic"><svg class="icon"><use href="#ic-phone"/></svg></div><div><b>Reservas y pedidos</b><span>[Tu número de teléfono]</span></div></div>
+      </div>
+      <div class="social-row">
+        <a href="#" aria-label="Instagram"><svg class="icon"><use href="#ic-ig"/></svg></a>
+        <a href="#" aria-label="Facebook"><svg class="icon"><use href="#ic-fb"/></svg></a>
+      </div>
+    </div>
+    <div class="ph map-ph" data-img-key="map">
+      <svg class="ph-icon"><use href="#ic-pin"/></svg>
+      <span class="ph-label">Mapa / fachada del local</span>
+      <button class="ph-edit" data-edit="map"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Barro Café. Todos los derechos reservados.</span>
+    <span>Diseñado con arcilla, terrazo y metal oxidado.</span>
+  </div>
+</footer>
+
+<!-- ================= AUTH MODAL ================= -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div class="modal-top">
+      <p class="eyebrow on-light" id="authEyebrow">Acceso</p>
+      <h3 id="authTitle">Inicia sesión</h3>
+      <p class="modal-sub" id="authSub">Entra como cliente para guardar tus favoritos, o como comensal / dueño para editar el sitio.</p>
+      <div class="role-switch">
+        <button type="button" class="active" data-role="cliente">Cliente</button>
+        <button type="button" data-role="staff">Comensal · Dueño</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <form id="authForm">
+        <div class="field" id="fieldName" style="display:none;">
+          <label for="authName">Nombre</label>
+          <input type="text" id="authName" autocomplete="name" placeholder="Tu nombre">
+        </div>
+        <div class="field">
+          <label for="authEmail">Correo</label>
+          <input type="email" id="authEmail" autocomplete="email" placeholder="tu@correo.com" required>
+        </div>
+        <div class="field">
+          <label for="authPass">Contraseña</label>
+          <input type="password" id="authPass" autocomplete="current-password" placeholder="••••••••" required minlength="6">
+        </div>
+        <div class="form-msg" id="authMsg"></div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-clay" id="authSubmit">Iniciar sesión</button>
+        </div>
+        <div class="switch-mode">
+          <span id="switchText">¿No tienes cuenta?</span> <button type="button" id="switchBtn">Crear una</button>
+        </div>
+        <div class="demo-hint">El registro crea la cuenta en tu propio proyecto de Supabase. Configura la conexión en <code>js/supabase-client.js</code>.</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ================= IMAGE MODAL ================= -->
+<div class="overlay" id="imageOverlay">
+  <div class="modal">
+    <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
+    <div class="modal-top">
+      <p class="eyebrow on-light">Fotos del sitio</p>
+      <h3>Cambiar imagen</h3>
+      <p class="modal-sub">Pega la URL de una foto real del local. Se guardará para todas las personas que visiten el sitio.</p>
+    </div>
+    <div class="modal-body">
+      <form id="imageForm">
+        <div class="field"><label for="imgUrl">URL de la imagen</label><input type="url" id="imgUrl" placeholder="https://…"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost-dark" data-close>Cancelar</button>
+          <button type="submit" class="btn btn-clay">Guardar imagen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
