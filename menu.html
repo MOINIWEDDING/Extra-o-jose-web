@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menú — Barro Café</title>
+<title>Menú — El Extraño José</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;0,9..144,700;1,9..144,450;1,9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -21,31 +21,36 @@
   <symbol id="ic-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/></symbol>
   <symbol id="ic-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></symbol>
   <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="ic-swirl" viewBox="0 0 24 24"><path d="M12 21c-2.5 0-4-1.6-4-3.5S9.5 14 12 14s4-1.6 4-3.5S14.5 7 12 7"/><path d="M12 3c1 1.4 1 2.6 0 4"/></symbol>
 </svg>
 
 <div class="staff-banner">Modo Comensal / Dueño activo — puedes agregar, editar y eliminar productos del menú.</div>
 
-<header id="siteHeader" class="solid">
+<header id="siteHeader" style="background:var(--panel);">
   <div class="wrap">
-    <div class="logo"><span class="dot"></span>Barro Café</div>
-    <nav class="links">
+    <div class="logo"><svg class="swirl icon" style="width:24px;height:24px;"><use href="#ic-swirl"/></svg><span><b>El Extraño</b>José</span></div>
+    <nav class="pill-nav">
       <a href="index.html#inicio">Inicio</a>
       <a href="index.html#nosotros">Nosotros</a>
-      <a href="index.html#espacio">Espacio</a>
+      <a href="index.html#azotea">La Azotea</a>
       <a href="menu.html" class="current">Menú</a>
       <a href="index.html#visitanos">Visítanos</a>
     </nav>
-    <div class="nav-right" id="navAuthArea"></div>
+    <div class="nav-right">
+      <button class="icon-round" aria-label="Buscar"><svg class="icon"><use href="#ic-search"/></svg></button>
+      <div id="navAuthArea"></div>
+    </div>
   </div>
 </header>
 
-<section class="menu-hero tex tex-rust">
+<section class="menu-hero">
   <div class="wrap">
     <div class="section-head">
       <p class="eyebrow">Carta completa</p>
       <h2>El menú</h2>
-      <p style="margin-top:14px;">Bebidas, comidas y postres, siempre frescos. El personal puede añadir o actualizar productos desde aquí.</p>
+      <p style="margin-top:14px;">Métodos de filtrado, espresso, cold brew y experiencias de cata — siempre con grano dominicano. El equipo puede añadir o actualizar productos desde aquí.</p>
     </div>
   </div>
 </section>
@@ -62,7 +67,7 @@
 
 <footer>
   <div class="wrap">
-    <span>© <span id="year"></span> Barro Café. Todos los derechos reservados.</span>
+    <span>© <span id="year"></span> El Extraño José. Todos los derechos reservados.</span>
     <span><a href="index.html">Volver al inicio</a></span>
   </div>
 </footer>
@@ -72,7 +77,7 @@
   <div class="modal">
     <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
     <div class="modal-top">
-      <p class="eyebrow on-light" id="authEyebrow">Acceso</p>
+      <p class="eyebrow on-cream" id="authEyebrow">Acceso</p>
       <h3 id="authTitle">Inicia sesión</h3>
       <p class="modal-sub" id="authSub">Entra como cliente para guardar tus favoritos, o como comensal / dueño para editar el menú.</p>
       <div class="role-switch">
@@ -96,7 +101,7 @@
         </div>
         <div class="form-msg" id="authMsg"></div>
         <div class="modal-actions">
-          <button type="submit" class="btn btn-clay" id="authSubmit">Iniciar sesión</button>
+          <button type="submit" class="btn btn-amber" id="authSubmit">Iniciar sesión</button>
         </div>
         <div class="switch-mode">
           <span id="switchText">¿No tienes cuenta?</span> <button type="button" id="switchBtn">Crear una</button>
@@ -112,7 +117,7 @@
   <div class="modal wide">
     <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
     <div class="modal-top">
-      <p class="eyebrow on-light">Menú</p>
+      <p class="eyebrow on-cream">Menú</p>
       <h3 id="productTitle">Agregar producto</h3>
     </div>
     <div class="modal-body">
@@ -123,17 +128,19 @@
         </div>
         <div class="field"><label for="pCat">Categoría</label>
           <select id="pCat">
-            <option value="Bebidas">Bebidas</option>
+            <option value="Filtrado">Filtrado</option>
+            <option value="Espresso">Espresso</option>
+            <option value="Frío">Frío</option>
             <option value="Comidas">Comidas</option>
-            <option value="Postres">Postres</option>
+            <option value="Experiencias">Experiencias</option>
           </select>
         </div>
-        <div class="field"><label for="pDesc">Descripción</label><textarea id="pDesc" placeholder="Ingredientes, notas de sabor, tamaño…"></textarea></div>
+        <div class="field"><label for="pDesc">Descripción</label><textarea id="pDesc" placeholder="Origen del grano, método, notas de sabor…"></textarea></div>
         <div class="field"><label for="pImg">URL de la foto (opcional)</label><input type="url" id="pImg" placeholder="https://…"></div>
         <div class="form-msg" id="productMsg"></div>
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost-dark" data-close>Cancelar</button>
-          <button type="submit" class="btn btn-clay" id="productSubmit">Guardar producto</button>
+          <button type="submit" class="btn btn-amber" id="productSubmit">Guardar producto</button>
         </div>
       </form>
     </div>

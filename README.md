@@ -1,4 +1,4 @@
-# Barro Café — sitio con Supabase
+# El Extraño José — sitio con Supabase
 
 ## 1. Crear el proyecto de Supabase
 1. Entra a https://supabase.com y crea un proyecto gratis.
@@ -36,9 +36,9 @@ Cualquier persona que se registre en la pestaña **"Cliente"** solo podrá ver e
 
 ## Estructura del proyecto
 ```
-index.html              → página principal (inicio, materialidad, espacio, teaser de menú, ubicación)
+index.html              → página principal (inicio, historia, concepto, azotea, cultura cafetera, teaser de menú, ubicación)
 menu.html                → página del menú completo con el panel de edición
-css/style.css             → estilos compartidos (tema oscuro + paleta Cavern Clay / Perfect Greige / Dark Clove)
+css/style.css             → estilos compartidos (tema oscuro industrial + acento ámbar, tipografía viva)
 js/supabase-client.js     → credenciales de tu proyecto Supabase (edítalo)
 js/site.js                 → sesión, login/registro, banner de modo staff, edición de fotos
 js/menu.js                 → listado y CRUD del menú

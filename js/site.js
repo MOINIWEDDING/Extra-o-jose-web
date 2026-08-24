@@ -201,6 +201,21 @@
     window.addEventListener('scroll', ()=>{ header.classList.toggle('solid', window.scrollY > 40); }, {passive:true});
   }
 
+  /* ---------------- wavy living headline ---------------- */
+  function wavify(el){
+    if(!el) return;
+    const text = el.textContent;
+    el.textContent = '';
+    [...text].forEach((ch,i)=>{
+      const span = document.createElement('span');
+      span.className = 'lt';
+      span.style.setProperty('--d', (i*0.07)+'s');
+      span.textContent = ch===' ' ? '\u00A0' : ch;
+      el.appendChild(span);
+    });
+  }
+  window.Barro.wavify = wavify;
+
   document.addEventListener('DOMContentLoaded', ()=>{
     wireAuthModal();
     wireImageModal();
@@ -208,6 +223,7 @@
     wireHeaderScroll();
     renderNavAuth();
     loadSiteImages();
+    $$('.hero-word').forEach(wavify);
     if(window.BARRO_CONFIGURED){
       refreshProfile();
       sb.auth.onAuthStateChange(()=>{ refreshProfile(); });
