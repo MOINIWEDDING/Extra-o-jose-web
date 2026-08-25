@@ -3,24 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El Extraño José — Specialty Coffee, Santiago RD</title>
+<title>El Extraño José — Café de especialidad en Santiago</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,450;1,9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute">
-  <filter id="grain">
-    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise"/>
-    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0"/>
-  </filter>
   <symbol id="ic-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.4"/></symbol>
   <symbol id="ic-pencil" viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
   <symbol id="ic-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
   <symbol id="ic-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></symbol>
-  <symbol id="ic-arrow-l" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
   <symbol id="ic-arrow-r" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="ic-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></symbol>
   <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
@@ -28,15 +23,14 @@
   <symbol id="ic-ig" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></symbol>
   <symbol id="ic-fb" viewBox="0 0 24 24"><path d="M14 21v-7h2.4l.4-3H14V9c0-.9.3-1.5 1.7-1.5H17V4.8C16.6 4.7 15.6 4.6 14.4 4.6c-2.5 0-4.2 1.5-4.2 4.3V11H7.7v3H10.2v7z"/></symbol>
   <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
-  <symbol id="ic-swirl" viewBox="0 0 24 24"><path d="M12 21c-2.5 0-4-1.6-4-3.5S9.5 14 12 14s4-1.6 4-3.5S14.5 7 12 7"/><path d="M12 3c1 1.4 1 2.6 0 4"/></symbol>
 </svg>
 
-<div class="staff-banner">Modo Comensal / Dueño activo — la edición de fotos del sitio está habilitada.</div>
+<div class="staff-banner">Modo Comensal / Dueño activo — la edición de fotos y menú está habilitada.</div>
 
 <header id="siteHeader">
   <div class="wrap">
-    <div class="logo"><svg class="swirl icon" style="width:24px;height:24px;"><use href="#ic-swirl"/></svg><span><b>El Extraño</b>José</span></div>
-    <nav class="pill-nav">
+    <div class="logo"><span class="dot"></span>El Extraño José</div>
+    <nav class="links">
       <a href="index.html#inicio" class="current">Inicio</a>
       <a href="index.html#nosotros">Nosotros</a>
       <a href="index.html#azotea">La Azotea</a>
@@ -51,27 +45,72 @@
 </header>
 
 <!-- ================= HERO ================= -->
-<section class="hero tex" id="inicio">
+<section class="hero" id="inicio">
   <div class="wrap">
-    <h1 class="hero-word">EXTRAÑO</h1>
-    <div class="hero-stage">
-      <div class="hero-cup">
-        <div class="ph" data-img-key="hero">
-          <svg class="ph-icon"><use href="#ic-camera"/></svg>
-          <span class="ph-label">Foto de una taza o bolsa de grano</span>
-          <button class="ph-edit" data-edit="hero"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
-        </div>
+    <div>
+      <p class="eyebrow">Bienvenido · café de especialidad</p>
+      <h1>Un café <em>diferente</em>,<br>a tu manera.</h1>
+      <p class="lede">Grano dominicano, técnica de barista y una azotea que se ha vuelto punto de encuentro para creativos y curiosos del café en Santiago.</p>
+      <div class="cta-row">
+        <a href="menu.html" class="btn btn-amber">Ver el menú <svg class="icon"><use href="#ic-arrow-r"/></svg></a>
+        <a href="#visitanos" class="btn btn-ghost">Cómo llegar</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>2022</b><span>Desde que abrimos</span></div>
+        <div class="stat"><b>100%</b><span>Grano dominicano</span></div>
+        <div class="stat"><b>4.8★</b><span>Valoración de la comunidad</span></div>
       </div>
     </div>
-    <div class="hero-bottom">
-      <div class="hero-caption">
-        <p>El Extraño José es un espacio de café de especialidad y atmósfera bohemia en Santiago de los Caballeros — grano dominicano, técnica de barista y una azotea que se ha vuelto punto de encuentro.</p>
-        <div class="hero-arrows">
-          <a href="#nosotros" class="icon-round" aria-label="Anterior"><svg class="icon"><use href="#ic-arrow-l"/></svg></a>
-          <a href="menu.html" class="icon-round" aria-label="Siguiente"><svg class="icon"><use href="#ic-arrow-r"/></svg></a>
+    <div class="hero-photo-wrap">
+      <div class="hero-chip">Specialty coffee</div>
+      <div class="hero-photo floaty ph" data-img-key="hero">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg>
+        <span class="ph-label">Foto de una taza o del local</span>
+        <button class="ph-edit" data-edit="hero"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+      <div class="hero-badge">
+        <div class="stars">★★★★★</div>
+        <div><b>4.8 / 5</b><span>Valorado por la comunidad de Santiago</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CARTA / DRINKS ================= -->
+<section class="menu-teaser">
+  <div class="wrap">
+    <div class="section-top">
+      <div class="section-head reveal" style="margin-bottom:0;">
+        <p class="eyebrow">Carta</p>
+        <h2>Algunos favoritos de la barra.</h2>
+      </div>
+      <a href="menu.html" class="btn btn-ghost">Ver todo <svg class="icon"><use href="#ic-arrow-r"/></svg></a>
+    </div>
+    <div class="card-grid" style="margin-top:44px;">
+      <div class="d-card reveal">
+        <div class="ph"><img class="real" src="https://images.unsplash.com/photo-1758900450186-e829f72d25fb?q=80&w=800&auto=format&fit=crop" alt="Flat white de autor"></div>
+        <div class="d-card-body">
+          <div class="d-card-top"><h4>Flat white de autor</h4><span class="d-price">RD$ 210</span></div>
+          <p class="d-desc">Doble shot, leche microespumada, textura sedosa de principio a fin.</p>
+          <span class="d-cat">Espresso</span>
         </div>
       </div>
-      <div class="hero-tagline">Diferente por dentro,<br><span>diferente en cada taza.</span></div>
+      <div class="d-card reveal">
+        <div class="ph"><img class="real" src="https://images.unsplash.com/photo-1753837787691-84a06d715d24?q=80&w=800&auto=format&fit=crop" alt="V60 grano dominicano"></div>
+        <div class="d-card-body">
+          <div class="d-card-top"><h4>V60 grano dominicano</h4><span class="d-price">RD$ 250</span></div>
+          <p class="d-desc">Extracción por goteo, single origin, perfil de taza definido en cada lote.</p>
+          <span class="d-cat">Filtrado</span>
+        </div>
+      </div>
+      <div class="d-card reveal">
+        <div class="ph"><img class="real" src="https://images.unsplash.com/photo-1759259639356-6eee63241869?q=80&w=800&auto=format&fit=crop" alt="Cold brew 24h"></div>
+        <div class="d-card-body">
+          <div class="d-card-top"><h4>Cold brew 24h</h4><span class="d-price">RD$ 220</span></div>
+          <p class="d-desc">Reposado 24 horas en frío, baja acidez, cuerpo suave.</p>
+          <span class="d-cat">Frío</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -79,16 +118,26 @@
 <!-- ================= HISTORIA ================= -->
 <section class="historia" id="nosotros">
   <div class="wrap historia-grid">
-    <div class="ph" data-img-key="founder">
-      <svg class="ph-icon"><use href="#ic-camera"/></svg>
-      <span class="ph-label">Foto del fundador o del local</span>
-      <button class="ph-edit" data-edit="founder"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+    <div class="historia-photos reveal">
+      <div class="ph main" data-img-key="founder">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg>
+        <span class="ph-label">Foto del fundador o del local</span>
+        <button class="ph-edit" data-edit="founder"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
+      <div class="ph detail" data-img-key="gallery-2">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg>
+        <span class="ph-label">Pan y pastelería</span>
+        <button class="ph-edit" data-edit="gallery-2"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      </div>
     </div>
-    <div>
+    <div class="reveal">
       <p class="eyebrow">Origen y fundador</p>
       <h2>Un espacio pensado para ser diferente.</h2>
-      <p style="margin-top:18px; font-size:15.5px; line-height:1.7; color:rgba(243,236,221,0.68);">
+      <p style="margin-top:18px; font-size:15.5px; line-height:1.75; color:var(--ink-soft);">
         El proyecto fue impulsado y registrado formalmente a mediados de 2022 por su creador, José Frandariel Alcántara Castellanos. El nombre del local es un guiño directo a su fundador: abrazar la idea de ser un espacio "diferente" y fuera de lo común frente a las franquicias de café tradicionales.
+      </p>
+      <p style="margin-top:14px; font-size:15.5px; line-height:1.75; color:var(--ink-soft);">
+        Aquí el enfoque está en el <em style="font-style:italic; color:var(--ink);">specialty coffee</em>: el origen del grano dominicano, los métodos de extracción y la técnica del barista, en un ambiente que mezcla diseño industrial con toques acogedores.
       </p>
       <div class="founder-tag">
         <div class="av">JF</div>
@@ -101,30 +150,30 @@
 <!-- ================= PILARES ================= -->
 <section class="pilares">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="eyebrow">El concepto</p>
       <h2>Especialidad y bohemia, desde el día uno.</h2>
       <p>Desde sus inicios, el lugar fue concebido bajo dos pilares fundamentales.</p>
     </div>
     <div class="pilar-grid">
-      <div class="pilar-card">
+      <div class="pilar-card reveal">
         <div class="pilar-num">01</div>
         <h3>Café de especialidad</h3>
-        <p>A diferencia de las cafeterías comerciales, aquí el enfoque está en el specialty coffee: se presta especial atención al origen del grano dominicano, los métodos de extracción y la técnica del barista.</p>
+        <p>A diferencia de las cafeterías comerciales, aquí el enfoque está en el specialty coffee: origen del grano, métodos de extracción y técnica del barista.</p>
       </div>
-      <div class="pilar-card">
+      <div class="pilar-card reveal">
         <div class="pilar-num">02</div>
         <h3>Atmósfera artística</h3>
-        <p>Diseñado para ofrecer una experiencia bohemia. El ambiente mezcla un diseño industrial con toques acogedores — como su popular azotea — y busca ser punto de encuentro para creativos, estudiantes y profesionales que buscan inspiración.</p>
+        <p>Una experiencia bohemia. Diseño industrial con toques acogedores — como su popular azotea — pensado para creativos, estudiantes y profesionales.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= LA AZOTEA ================= -->
+<!-- ================= LA AZOTEA (dark band) ================= -->
 <section class="azotea" id="azotea">
   <div class="wrap azotea-grid">
-    <div style="position:relative;">
+    <div style="position:relative;" class="reveal">
       <div class="azotea-badge">El rincón<br>favorito</div>
       <div class="ph" data-img-key="azotea">
         <svg class="ph-icon"><use href="#ic-camera"/></svg>
@@ -132,12 +181,13 @@
         <button class="ph-edit" data-edit="azotea"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
       </div>
     </div>
-    <div>
+    <div class="reveal">
       <p class="eyebrow">El rincón favorito</p>
       <h2>La azotea, donde todo se queda un rato más.</h2>
-      <p style="margin-top:18px; font-size:15.5px; line-height:1.7; color:rgba(243,236,221,0.62);">
-        Industrial por dentro, acogedora por fuera. La azotea de El Extraño José se ha convertido en el rincón favorito para quedarse a conversar, trabajar o simplemente ver pasar el día en Santiago — con una taza siempre a la mano.
-      </p>
+      <p class="body">Industrial por dentro, acogedora por fuera. La azotea de El Extraño José se ha convertido en el rincón favorito para conversar, trabajar o simplemente ver pasar el día en Santiago — con una taza siempre a la mano.</p>
+      <div class="cta-row" style="margin-top:28px;">
+        <a href="#visitanos" class="btn btn-ghost-light">Reservar un espacio</a>
+      </div>
     </div>
   </div>
 </section>
@@ -145,21 +195,21 @@
 <!-- ================= CULTURA CAFETERA ================= -->
 <section class="cultura">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="eyebrow">Epicentro de la cultura cafetera</p>
       <h2>No solo servimos tazas de café.</h2>
       <p>El Extraño José se ha convertido en un aliado clave para la educación cafetera en la Ciudad Corazón.</p>
     </div>
     <div class="cultura-list">
-      <div class="cultura-item">
+      <div class="cultura-item reveal">
         <span class="cultura-tag">Sede de eventos</span>
         <div><h4>Escuela de Café de República Dominicana</h4><p>Trabajamos en colaboración con la Escuela de Café de República Dominicana, prestando el espacio y la barra para formación y encuentros de la comunidad cafetera local.</p></div>
       </div>
-      <div class="cultura-item">
+      <div class="cultura-item reveal">
         <span class="cultura-tag">Catas y experiencias</span>
         <div><h4>Degustaciones de café dominicano</h4><p>Hemos sido anfitriones de catas exclusivas de café dominicano, explorando origen, proceso y perfil de taza con quienes quieren ir más allá de la taza de todos los días.</p></div>
       </div>
-      <div class="cultura-item">
+      <div class="cultura-item reveal">
         <span class="cultura-tag">Gastronomía experimental</span>
         <div><h4>Caviar de café y otros aperitivos de autor</h4><p>Experiencias gastronómicas experimentales alrededor del grano, con degustaciones únicas como "caviar de café" y aperitivos de autor pensados para sorprender.</p></div>
       </div>
@@ -170,49 +220,32 @@
 <!-- ================= ESPACIO ================= -->
 <section id="espacio">
   <div class="wrap">
-    <div class="section-head">
+    <div class="section-head reveal">
       <p class="eyebrow">El local</p>
       <h2>Un vistazo por dentro.</h2>
       <p>Reemplaza estas fotos por las reales del local desde el modo Comensal/Dueño.</p>
     </div>
     <div class="espacio-grid">
-      <div class="ph" data-img-key="gallery-0">
+      <div class="ph reveal" data-img-key="gallery-0">
         <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">La barra</span>
         <button class="ph-edit" data-edit="gallery-0"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
       </div>
-      <div class="ph" data-img-key="gallery-1">
+      <div class="ph reveal" data-img-key="gallery-1">
         <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">El salón</span>
         <button class="ph-edit" data-edit="gallery-1"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
       </div>
-      <div class="ph" data-img-key="gallery-2">
-        <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">Una cata en vivo</span>
-        <button class="ph-edit" data-edit="gallery-2"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
+      <div class="ph reveal" data-img-key="hero">
+        <svg class="ph-icon"><use href="#ic-camera"/></svg><span class="ph-label">Nuestro café</span>
+        <button class="ph-edit" data-edit="hero"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ================= MENU TEASER ================= -->
-<section class="menu-teaser">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Carta</p>
-      <h2>Algunos favoritos de la barra.</h2>
-      <p>El menú completo, con todos los métodos y categorías, vive en su propia página.</p>
-    </div>
-    <div class="teaser-grid">
-      <div class="teaser-card"><span class="t-cat">Filtrado</span><h4>V60 grano dominicano</h4><p>Extracción por goteo, single origin, perfil de taza definido en cada lote.</p><span class="t-price">RD$ 250</span></div>
-      <div class="teaser-card"><span class="t-cat">Espresso</span><h4>Flat white de autor</h4><p>Doble shot, leche microespumada, textura sedosa de principio a fin.</p><span class="t-price">RD$ 210</span></div>
-      <div class="teaser-card"><span class="t-cat">Experiencia</span><h4>Cata guiada</h4><p>Tres orígenes dominicanos, guiada por nuestro equipo de barra.</p><span class="t-price">RD$ 650</span></div>
-    </div>
-    <div class="teaser-cta"><a href="menu.html" class="btn btn-amber">Ver el menú completo <svg class="icon"><use href="#ic-arrow-r"/></svg></a></div>
   </div>
 </section>
 
 <!-- ================= VISITANOS ================= -->
 <section class="visitanos" id="visitanos">
   <div class="wrap visit-grid">
-    <div>
+    <div class="reveal">
       <p class="eyebrow">Visítanos</p>
       <h2>Te esperamos en la Ciudad Corazón.</h2>
       <p class="muted" style="margin-top:16px; font-size:15px; line-height:1.6;">Pasa por El Extraño José para tomar algo diferente, trabajar en la azotea o sumarte a la próxima cata.</p>
@@ -226,7 +259,7 @@
         <a href="#" aria-label="Facebook"><svg class="icon"><use href="#ic-fb"/></svg></a>
       </div>
     </div>
-    <div class="ph map-ph" data-img-key="map">
+    <div class="ph map-ph reveal" data-img-key="map">
       <svg class="ph-icon"><use href="#ic-pin"/></svg>
       <span class="ph-label">Mapa / fachada del local</span>
       <button class="ph-edit" data-edit="map"><svg class="icon"><use href="#ic-pencil"/></svg>Cambiar</button>
@@ -236,8 +269,27 @@
 
 <footer>
   <div class="wrap">
-    <span>© <span id="year"></span> El Extraño José. Todos los derechos reservados.</span>
-    <span>Santiago de los Caballeros, RD.</span>
+    <div class="footer-grid">
+      <div>
+        <div class="logo" style="color:var(--cream-on-dark);"><span class="dot"></span>El Extraño José</div>
+        <p style="margin-top:14px; max-width:280px;">Café de especialidad y atmósfera bohemia en Santiago de los Caballeros.</p>
+      </div>
+      <div>
+        <h5>Contacto</h5>
+        <span>[Calle y número], Santiago de los Caballeros</span>
+        <span>[Tu número de teléfono]</span>
+        <span>hola@elextranojose.com</span>
+      </div>
+      <div>
+        <h5>Horario</h5>
+        <span>Lun – Vie · 8:00 am – 9:00 pm</span>
+        <span>Sáb – Dom · 9:00 am – 11:00 pm</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year"></span> El Extraño José. Todos los derechos reservados.</span>
+      <span>Santiago de los Caballeros, RD.</span>
+    </div>
   </div>
 </footer>
 
@@ -246,7 +298,7 @@
   <div class="modal">
     <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
     <div class="modal-top">
-      <p class="eyebrow on-cream" id="authEyebrow">Acceso</p>
+      <p class="eyebrow" id="authEyebrow">Acceso</p>
       <h3 id="authTitle">Inicia sesión</h3>
       <p class="modal-sub" id="authSub">Entra como cliente para guardar tus favoritos, o como comensal / dueño para editar el sitio.</p>
       <div class="role-switch">
@@ -286,7 +338,7 @@
   <div class="modal">
     <button class="modal-close" data-close><svg class="icon"><use href="#ic-x"/></svg></button>
     <div class="modal-top">
-      <p class="eyebrow on-cream">Fotos del sitio</p>
+      <p class="eyebrow">Fotos del sitio</p>
       <h3>Cambiar imagen</h3>
       <p class="modal-sub">Pega la URL de una foto real del local. Se guardará para todas las personas que visiten el sitio.</p>
     </div>
@@ -294,7 +346,7 @@
       <form id="imageForm">
         <div class="field"><label for="imgUrl">URL de la imagen</label><input type="url" id="imgUrl" placeholder="https://…"></div>
         <div class="modal-actions">
-          <button type="button" class="btn btn-ghost-dark" data-close>Cancelar</button>
+          <button type="button" class="btn btn-ghost" data-close>Cancelar</button>
           <button type="submit" class="btn btn-amber">Guardar imagen</button>
         </div>
       </form>

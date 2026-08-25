@@ -3,6 +3,7 @@
    - encabezado (login, chip de usuario, banner de modo staff)
    - modal de inicio de sesión / registro
    - edición de imágenes de sitio (site_images) para las fotos placeholder
+   - animación de aparición al hacer scroll
 */
 (function(){
   const $ = (s,el=document)=>el.querySelector(s);
@@ -11,12 +12,24 @@
   window.Barro = window.Barro || {};
   let profile = null; // {id, name, role}
 
+  // Fotos de stock (Unsplash, licencia libre) usadas como relleno visual mientras
+  // el dueño no conecta Supabase o no sube fotos reales del local.
+  const DEFAULT_IMAGES = {
+    'hero':       'https://images.unsplash.com/photo-1758900450186-e829f72d25fb?q=80&w=1000&auto=format&fit=crop',
+    'founder':    'https://images.unsplash.com/photo-1758593386033-cb1f842d550c?q=80&w=1000&auto=format&fit=crop',
+    'azotea':     'https://images.unsplash.com/photo-1747269843293-6a2e25b068e3?q=80&w=1200&auto=format&fit=crop',
+    'gallery-0':  'https://images.unsplash.com/photo-1681112035110-105b148f0a9a?q=80&w=900&auto=format&fit=crop',
+    'gallery-1':  'https://images.unsplash.com/photo-1758945185175-3d54780cd8d0?q=80&w=900&auto=format&fit=crop',
+    'gallery-2':  'https://images.unsplash.com/photo-1712265964629-6cb2c90f9e48?q=80&w=900&auto=format&fit=crop',
+  };
+  window.Barro.DEFAULT_IMAGES = DEFAULT_IMAGES;
+
   function isStaff(){ return !!profile && profile.role === 'staff'; }
   window.Barro.isStaff = isStaff;
   window.Barro.getProfile = ()=> profile;
 
   if(!window.BARRO_CONFIGURED){
-    console.warn('Barro Café: falta configurar Supabase en js/supabase-client.js (SUPABASE_URL / SUPABASE_ANON_KEY).');
+    console.warn('El Extraño José: falta configurar Supabase en js/supabase-client.js (SUPABASE_URL / SUPABASE_ANON_KEY). Mostrando fotos de muestra.');
   }
 
   /* ---------------- session ---------------- */
@@ -47,7 +60,7 @@
     const el = $('#navAuthArea');
     if(!el) return;
     if(!profile){
-      el.innerHTML = `<button class="btn btn-clay btn-sm" id="openLogin"><svg class="icon"><use href="#ic-user"/></svg>Iniciar sesión</button>`;
+      el.innerHTML = `<button class="btn btn-amber btn-sm" id="openLogin"><svg class="icon"><use href="#ic-user"/></svg>Iniciar sesión</button>`;
       $('#openLogin').addEventListener('click', ()=>openAuth('login','cliente'));
       return;
     }
@@ -144,22 +157,33 @@
   /* ---------------- site image placeholders (site_images table) ---------------- */
   let editingImgKey = null;
 
+  function applyImage(ph, url){
+    const existing = ph.querySelector('img.real');
+    if(url){
+      if(!existing){ const img=document.createElement('img'); img.className='real'; img.src=url; img.alt=''; ph.prepend(img); }
+      else existing.src = url;
+      ph.querySelectorAll('.ph-icon,.ph-label').forEach(n=>n.style.display='none');
+    } else if(existing){
+      existing.remove();
+      ph.querySelectorAll('.ph-icon,.ph-label').forEach(n=>n.style.display='');
+    }
+  }
+
   async function loadSiteImages(){
-    if(!window.BARRO_CONFIGURED) return;
     const nodes = $$('.ph[data-img-key]');
     if(!nodes.length) return;
+
+    if(!window.BARRO_CONFIGURED){
+      nodes.forEach(ph=> applyImage(ph, DEFAULT_IMAGES[ph.dataset.imgKey] || ''));
+      return;
+    }
     const { data, error } = await sb.from('site_images').select('*');
-    if(error || !data) return;
-    const map = {}; data.forEach(r=>map[r.key]=r.url);
+    const map = {};
+    if(!error && data) data.forEach(r=>map[r.key]=r.url);
     nodes.forEach(ph=>{
       const key = ph.dataset.imgKey;
-      const url = map[key];
-      const existing = ph.querySelector('img.real');
-      if(url){
-        if(!existing){ const img=document.createElement('img'); img.className='real'; img.src=url; img.alt=''; ph.prepend(img); }
-        else existing.src = url;
-        ph.querySelectorAll('.ph-icon,.ph-label').forEach(n=>n.style.display='none');
-      } else if(existing){ existing.remove(); ph.querySelectorAll('.ph-icon,.ph-label').forEach(n=>n.style.display=''); }
+      const url = map[key] || DEFAULT_IMAGES[key] || '';
+      applyImage(ph, url);
     });
   }
 
@@ -175,7 +199,7 @@
     $('#imageForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
       const url = $('#imgUrl').value.trim();
-      if(editingImgKey){
+      if(editingImgKey && window.BARRO_CONFIGURED){
         await sb.from('site_images').update({ url, updated_at: new Date().toISOString() }).eq('key', editingImgKey);
         await loadSiteImages();
       }
@@ -201,29 +225,28 @@
     window.addEventListener('scroll', ()=>{ header.classList.toggle('solid', window.scrollY > 40); }, {passive:true});
   }
 
-  /* ---------------- wavy living headline ---------------- */
-  function wavify(el){
-    if(!el) return;
-    const text = el.textContent;
-    el.textContent = '';
-    [...text].forEach((ch,i)=>{
-      const span = document.createElement('span');
-      span.className = 'lt';
-      span.style.setProperty('--d', (i*0.07)+'s');
-      span.textContent = ch===' ' ? '\u00A0' : ch;
-      el.appendChild(span);
-    });
+  /* ---------------- scroll reveal ---------------- */
+  function wireReveal(){
+    const targets = $$('.reveal');
+    if(!targets.length) return;
+    if(!('IntersectionObserver' in window)){ targets.forEach(t=>t.classList.add('in')); return; }
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold:0.15, rootMargin:'0px 0px -60px 0px' });
+    targets.forEach(t=>io.observe(t));
   }
-  window.Barro.wavify = wavify;
+  window.Barro.refreshReveal = wireReveal;
 
   document.addEventListener('DOMContentLoaded', ()=>{
     wireAuthModal();
     wireImageModal();
     wireGenericModals();
     wireHeaderScroll();
+    wireReveal();
     renderNavAuth();
     loadSiteImages();
-    $$('.hero-word').forEach(wavify);
     if(window.BARRO_CONFIGURED){
       refreshProfile();
       sb.auth.onAuthStateChange(()=>{ refreshProfile(); });

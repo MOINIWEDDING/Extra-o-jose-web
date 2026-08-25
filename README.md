@@ -46,4 +46,9 @@ supabase-setup.sql         → script para crear las tablas y políticas en Supa
 ```
 
 ## Notas sobre imágenes
-Las fotos placeholder (portada, galería, mapa, y fotos de productos del menú) se guardan como una **URL**, no como un archivo subido. Si más adelante quieres subir archivos directamente, se puede agregar Supabase Storage — dilo y lo conectamos.
+- El sitio viene precargado con fotos de stock de Unsplash (licencia libre) para que se vea completo desde el primer momento — en la portada, la galería y cada producto del menú.
+- Todas se guardan como una **URL**, no como un archivo subido. Reemplázalas por fotos reales del local cuando las tengas: en modo Comensal/Dueño, pasa el cursor sobre cualquier foto y toca "Cambiar".
+- Si más adelante quieres subir archivos directamente en lugar de pegar URLs, se puede agregar Supabase Storage — dilo y lo conectamos.
+
+## Animaciones
+El sitio usa scroll-reveal (las secciones aparecen suavemente al hacer scroll), una foto flotante en la portada, y hover con elevación en las tarjetas. Todo respeta "reducir movimiento" del sistema operativo del visitante.
