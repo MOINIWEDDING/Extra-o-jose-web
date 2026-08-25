@@ -52,3 +52,8 @@ supabase-setup.sql         → script para crear las tablas y políticas en Supa
 
 ## Animaciones
 El sitio usa scroll-reveal (las secciones aparecen suavemente al hacer scroll), una foto flotante en la portada, y hover con elevación en las tarjetas. Todo respeta "reducir movimiento" del sistema operativo del visitante.
+
+## El menú (rediseño más reciente)
+El menú (`menu.html`) ahora se organiza en carruseles horizontales por recomendación — **Buenos días, Salados, Para la tarde, Experiencias** — en vez de una grilla con pestañas de categoría. Cada producto usa un ícono de línea propio (no foto), con flechas de navegación que aparecen solo cuando hay más para ver. El botón "Agregar" todavía no está conectado a un carrito real — muestra un aviso de "pídelo en la barra"; si más adelante quieres pedidos en línea de verdad, dilo y lo construimos.
+
+Nota técnica: se pidió integrar un componente React + shadcn/ui + Tailwind + TypeScript. Este proyecto es HTML/CSS/JS vanilla conectado directo a Supabase — migrar a React/Next/shadcn ahora significaría reconstruir el login y el CRUD desde cero. En su lugar, repliqué el mismo patrón visual e interacción (carrusel, flechas, tarjetas) de forma nativa, sin dependencias nuevas. Si en algún momento quieres el proyecto completo en React, es un cambio de stack grande — mejor decidirlo aparte, no como parte de un ajuste de diseño.
