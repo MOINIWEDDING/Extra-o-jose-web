@@ -282,7 +282,8 @@ footer{background:var(--dark); color:rgba(243,236,221,0.55); padding:56px 0 28px
 .p-card{scroll-snap-align:start; flex:0 0 210px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px; display:flex; flex-direction:column; gap:12px; position:relative; transition:transform .3s var(--ease), box-shadow .3s var(--ease);}
 .p-card:hover{transform:translateY(-5px); box-shadow:var(--shadow-soft);}
 .p-icon-wrap{width:100%; aspect-ratio:1/0.82; border-radius:14px; display:flex; align-items:center; justify-content:center;}
-.p-icon-wrap svg{width:44%; height:44%; stroke:var(--ink); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;}
+.p-icon-wrap svg{width:44%; height:44%; stroke:var(--ink); fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; transition:transform .45s var(--ease);}
+.p-card:hover .p-icon-wrap svg{transform:scale(1.1) rotate(-4deg);}
 .p-fav{position:absolute; top:14px; left:14px; background:var(--amber); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:4px 9px; border-radius:100px; z-index:2;}
 .p-admin{position:absolute; top:10px; right:10px; display:none; gap:6px; z-index:3;}
 .admin-on .p-admin{display:flex;}

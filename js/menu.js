@@ -71,11 +71,11 @@
       return;
     }
 
-    wrap.innerHTML = groupsWithItems.map(group=>{
+    wrap.innerHTML = groupsWithItems.map((group, gi)=>{
       const list = items.filter(i=>i.category===group);
-      const cards = list.map(item=>cardHtml(item, group)).join('');
+      const cards = list.map((item,i)=>cardHtml(item, group, i)).join('');
       return `
-        <div class="carousel-section" data-group="${group}">
+        <div class="carousel-section reveal" style="transition-delay:${Math.min(gi*0.08,0.24)}s">
           <div class="carousel-head">
             <h3>${group}</h3>
           </div>
@@ -89,12 +89,14 @@
 
     wireCarousels();
     wireCardActions();
+    if(window.Barro && window.Barro.refreshReveal) window.Barro.refreshReveal();
   }
 
-  function cardHtml(item, group){
+  function cardHtml(item, group, index){
     const tint = TINT[group] || 'manana';
+    const delay = Math.min(index * 0.07, 0.42);
     return `
-      <article class="p-card" data-id="${item.id}">
+      <article class="p-card reveal" data-id="${item.id}" style="transition-delay:${delay}s">
         ${item.featured ? `<span class="p-fav">Favorito</span>` : ''}
         <div class="p-admin" data-bar="${item.id}">
           <button class="icon-btn" data-edit-item="${item.id}" aria-label="Editar"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-pencil"/></svg></button>
