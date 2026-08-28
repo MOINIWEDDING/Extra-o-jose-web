@@ -4,7 +4,6 @@
 
   const GROUPS = ['Buenos días','Salados','Para la tarde','Experiencias'];
   const TINT = {'Buenos días':'manana','Salados':'salado','Para la tarde':'tarde','Experiencias':'experiencia'};
-  const ICONS = ['coffee','v60','chemex','espresso','flatwhite','coldbrew','toast','sandwich','cupping'];
 
   let items = [];
   let editingId = null;
@@ -12,18 +11,18 @@
   // Vista de muestra usada solo si Supabase todavía no está conectado.
   function demoMenu(){
     return [
-      {id:'d1', name:'V60 grano dominicano', category:'Buenos días', icon:'v60', price:250, description:'Extracción por goteo, single origin, notas frutales.', featured:true},
-      {id:'d2', name:'Chemex para dos', category:'Buenos días', icon:'chemex', price:420, description:'Inmersión-goteo, taza limpia, ideal para compartir.', featured:false},
-      {id:'d3', name:'Espresso doble origen', category:'Buenos días', icon:'espresso', price:150, description:'Cuerpo denso, notas a chocolate y frutos secos.', featured:false},
-      {id:'d4', name:'Tostada de aguacate', category:'Salados', icon:'toast', price:320, description:'Masa madre, aguacate, semillas y limón.', featured:false},
-      {id:'d5', name:'Sandwich de la barra', category:'Salados', icon:'sandwich', price:380, description:'Jamón serrano, manchego y rúcula.', featured:false},
-      {id:'d6', name:'Flat white de autor', category:'Para la tarde', icon:'flatwhite', price:210, description:'Doble shot, leche microespumada, textura sedosa.', featured:true},
-      {id:'d7', name:'Cold brew 24h', category:'Para la tarde', icon:'coldbrew', price:220, description:'Reposado 24 horas, baja acidez, cuerpo suave.', featured:false},
-      {id:'d8', name:'Cata guiada', category:'Experiencias', icon:'cupping', price:650, description:'Tres orígenes dominicanos, guiada por la barra.', featured:false},
+      {id:'d1', name:'V60 grano dominicano', category:'Buenos días', price:250, featured:true, tags:'Dominicano,Filtrado,Frutal', image_url:'https://images.unsplash.com/photo-1753837787691-84a06d715d24?q=80&w=800&auto=format&fit=crop'},
+      {id:'d2', name:'Chemex para dos', category:'Buenos días', price:420, featured:false, tags:'Para compartir,Filtrado', image_url:'https://images.unsplash.com/photo-1758593386033-cb1f842d550c?q=80&w=800&auto=format&fit=crop'},
+      {id:'d3', name:'Espresso doble origen', category:'Buenos días', price:150, featured:false, tags:'Doble shot,Intenso', image_url:'https://images.unsplash.com/photo-1498241804937-a517467c0db6?q=80&w=800&auto=format&fit=crop'},
+      {id:'d4', name:'Tostada de aguacate', category:'Salados', price:320, featured:false, tags:'Vegetariano,Masa madre', image_url:'https://images.unsplash.com/photo-1752095809157-9dd2e2dfae8b?q=80&w=800&auto=format&fit=crop'},
+      {id:'d5', name:'Sandwich de la barra', category:'Salados', price:380, featured:false, tags:'Jamón serrano,Manchego', image_url:'https://images.unsplash.com/photo-1696721497656-682d1376c3c8?q=80&w=800&auto=format&fit=crop'},
+      {id:'d6', name:'Flat white de autor', category:'Para la tarde', price:210, featured:true, tags:'Cremoso,Espresso', image_url:'https://images.unsplash.com/photo-1758900450186-e829f72d25fb?q=80&w=800&auto=format&fit=crop'},
+      {id:'d7', name:'Cold brew 24h', category:'Para la tarde', price:220, featured:false, tags:'Frío,24 horas', image_url:'https://images.unsplash.com/photo-1759259639356-6eee63241869?q=80&w=800&auto=format&fit=crop'},
+      {id:'d8', name:'Cata guiada', category:'Experiencias', price:650, featured:false, tags:'Grupal,Tres orígenes', image_url:'https://images.unsplash.com/photo-1758945185175-3d54780cd8d0?q=80&w=800&auto=format&fit=crop'},
     ];
   }
 
-  function money(n){ return 'RD$ ' + Number(n).toLocaleString('es-DO'); }
+  function money(n){ return Number(n).toLocaleString('es-DO') + '$'; }
 
   function showToast(msg){
     const t = $('#toast'); if(!t) return;
@@ -41,25 +40,12 @@
     }
     const { data, error } = await sb.from('menu_items').select('*').order('created_at', { ascending:true });
     if(error){ $('#menuSections').innerHTML = `<p class="empty-note">No se pudo cargar el menú: ${error.message}</p>`; return; }
-    items = (data && data.length) ? data.map(normalizeRow) : demoMenu();
+    items = (data && data.length) ? data : demoMenu();
     renderSections();
   }
 
-  // Compatibilidad: si el registro viene de una versión anterior sin `icon`/`featured`,
-  // le asigna un ícono razonable según el nombre.
-  function normalizeRow(row){
-    if(row.icon && ICONS.includes(row.icon)) return row;
-    const n = (row.name||'').toLowerCase();
-    let icon = 'coffee';
-    if(n.includes('v60')) icon = 'v60';
-    else if(n.includes('chemex')) icon = 'chemex';
-    else if(n.includes('espresso')) icon = 'espresso';
-    else if(n.includes('flat white') || n.includes('latte')) icon = 'flatwhite';
-    else if(n.includes('cold brew') || n.includes('frío') || n.includes('frio')) icon = 'coldbrew';
-    else if(n.includes('tostada') || n.includes('aguacate')) icon = 'toast';
-    else if(n.includes('sandwich')) icon = 'sandwich';
-    else if(n.includes('cata')) icon = 'cupping';
-    return Object.assign({}, row, { icon, featured: !!row.featured });
+  function tagsOf(item){
+    return (item.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
   }
 
   function renderSections(){
@@ -95,21 +81,30 @@
   function cardHtml(item, group, index){
     const tint = TINT[group] || 'manana';
     const delay = Math.min(index * 0.07, 0.42);
+    const tags = tagsOf(item);
+    const photo = item.image_url
+      ? `<img src="${item.image_url}" alt="${item.name}">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><svg class="ph-icon" style="width:30px;height:30px;stroke:#fff;opacity:.6;"><use href="#ic-camera"/></svg></div>`;
     return `
       <article class="p-card reveal" data-id="${item.id}" style="transition-delay:${delay}s">
-        ${item.featured ? `<span class="p-fav">Favorito</span>` : ''}
-        <div class="p-admin" data-bar="${item.id}">
-          <button class="icon-btn" data-edit-item="${item.id}" aria-label="Editar"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-pencil"/></svg></button>
-          <button class="icon-btn danger" data-del-item="${item.id}" aria-label="Eliminar"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-trash"/></svg></button>
+        <div class="p-photo" style="--tint:var(--tint-${tint}); --tint-deep:var(--tint-${tint}-deep);">
+          ${photo}
+          <div class="p-photo-tint"></div>
+          <div class="p-photo-fade"></div>
+          ${item.featured ? `<span class="p-tagline">Favorito de la casa</span>` : ''}
+          <div class="p-admin" data-bar="${item.id}">
+            <button class="icon-btn" data-edit-item="${item.id}" aria-label="Editar"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-pencil"/></svg></button>
+            <button class="icon-btn danger" data-del-item="${item.id}" aria-label="Eliminar"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-trash"/></svg></button>
+          </div>
         </div>
-        <div class="p-icon-wrap" style="background:var(--tint-${tint});">
-          <svg><use href="#pi-${item.icon||'coffee'}"/></svg>
-        </div>
-        <div class="p-name">${item.name}</div>
-        <p class="p-desc">${item.description || ''}</p>
-        <div class="p-bottom">
-          <span class="p-price">${money(item.price)}</span>
-          <button class="p-add" data-add="${item.id}">Agregar</button>
+        <div class="p-info" style="--tint-deep:var(--tint-${tint}-deep);">
+          <div class="p-info-top">
+            <h4>${item.name}</h4>
+            <span class="p-price">${money(item.price)}</span>
+          </div>
+          ${tags.length ? `<div class="p-tags">${tags.map(t=>`<span>${t}</span>`).join('')}</div>` : ''}
+          <div class="p-divider"></div>
+          <button class="p-order" data-add="${item.id}">Pedir <svg><use href="#ic-arrow-ur"/></svg></button>
         </div>
       </article>`;
   }
@@ -139,8 +134,8 @@
       const item = items.find(i=>i.id===b.dataset.add);
       showToast(`${item ? item.name : 'Producto'} — pídelo en la barra. El pedido en línea llega pronto ☕`);
     }));
-    $$('[data-edit-item]').forEach(b=>b.addEventListener('click', ()=>openProduct(items.find(i=>i.id===b.dataset.editItem))));
-    $$('[data-del-item]').forEach(b=>b.addEventListener('click', ()=>confirmDelete(b)));
+    $$('[data-edit-item]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); openProduct(items.find(i=>i.id===b.dataset.editItem)); }));
+    $$('[data-del-item]').forEach(b=>b.addEventListener('click', (e)=>{ e.stopPropagation(); confirmDelete(b); }));
   }
 
   function confirmDelete(btn){
@@ -151,7 +146,7 @@
     box.innerHTML = `<span>¿Eliminar este producto?</span>
       <div style="display:flex; gap:8px;">
         <button data-yes class="btn-amber" style="border:none;">Sí, eliminar</button>
-        <button data-no class="btn-ghost" style="border:1px solid var(--line); background:#fff;">Cancelar</button>
+        <button data-no class="btn-ghost" style="border:1px solid rgba(255,255,255,0.4); background:transparent; color:#fff;">Cancelar</button>
       </div>`;
     card.appendChild(box);
     box.querySelector('[data-yes]').addEventListener('click', async ()=>{
@@ -171,7 +166,8 @@
     $('#pName').value = item ? item.name : '';
     $('#pPrice').value = item ? item.price : '';
     $('#pCat').value = item ? item.category : 'Buenos días';
-    $('#pIcon').value = item ? (item.icon||'coffee') : 'coffee';
+    $('#pImg').value = item ? (item.image_url||'') : '';
+    $('#pTags').value = item ? (item.tags||'') : '';
     $('#pDesc').value = item ? (item.description||'') : '';
     $('#pFeatured').checked = item ? !!item.featured : false;
     $('#productMsg').className='form-msg';
@@ -190,7 +186,8 @@
         name: $('#pName').value.trim(),
         price: parseFloat($('#pPrice').value),
         category: $('#pCat').value,
-        icon: $('#pIcon').value,
+        image_url: $('#pImg').value.trim(),
+        tags: $('#pTags').value.trim(),
         description: $('#pDesc').value.trim(),
         featured: $('#pFeatured').checked,
       };

@@ -22,18 +22,7 @@
   <symbol id="ic-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="ic-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
   <symbol id="ic-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
-
-  <!-- product icons (original line-art, no photos) -->
-  <symbol id="pi-v60" viewBox="0 0 48 48"><path d="M14 10h20l-8 16v10a2 2 0 0 1-4 0V26z"/><path d="M10 10h28"/><ellipse cx="24" cy="38" rx="8" ry="2.4"/></symbol>
-  <symbol id="pi-chemex" viewBox="0 0 48 48"><path d="M18 6h12l3 14-3 4v14a2 2 0 0 1-2 2H20a2 2 0 0 1-2-2V24l-3-4z"/><path d="M16 22h16"/><path d="M20 8h8"/></symbol>
-  <symbol id="pi-espresso" viewBox="0 0 48 48"><path d="M12 20h20v10a10 10 0 0 1-20 0z"/><path d="M32 22h4a4 4 0 0 1 0 8h-4"/><path d="M14 20V14M20 20v-6M26 20v-4"/><ellipse cx="22" cy="38" rx="10" ry="2.4"/></symbol>
-  <symbol id="pi-flatwhite" viewBox="0 0 48 48"><path d="M10 18h22v10a11 11 0 0 1-22 0z"/><path d="M32 20h4a4 4 0 0 1 0 8h-4"/><path d="M21 22c3 1 3 5 0 6M17 22c3 1 3 5 0 6" opacity=".7"/><ellipse cx="21" cy="38" rx="11" ry="2.4"/></symbol>
-  <symbol id="pi-coldbrew" viewBox="0 0 48 48"><path d="M14 10h20l-2 26a2 2 0 0 1-2 2H18a2 2 0 0 1-2-2z"/><path d="M12 10h24"/><path d="M18 18h2M24 22h2M20 27h2" opacity=".7"/><path d="M18 10v6M28 10v8" opacity=".5"/></symbol>
-  <symbol id="pi-toast" viewBox="0 0 48 48"><rect x="9" y="14" width="30" height="20" rx="3"/><path d="M14 22c4-3 6 2 9-1s6 2 9-1s4 1 4 1" opacity=".8"/><circle cx="16" cy="29" r="1"/><circle cx="23" cy="30" r="1"/><circle cx="30" cy="28" r="1"/></symbol>
-  <symbol id="pi-sandwich" viewBox="0 0 48 48"><path d="M6 30 24 8l18 22z"/><path d="M10 26h28M12 22h24" opacity=".7"/></symbol>
-  <symbol id="pi-cupping" viewBox="0 0 48 48"><ellipse cx="16" cy="30" rx="8" ry="6"/><ellipse cx="34" cy="26" rx="7" ry="5.5"/><path d="M16 24v6M34 20.5v5.5" opacity=".7"/><path d="M24 12l14-2" opacity=".6"/></symbol>
-  <symbol id="pi-coffee" viewBox="0 0 48 48"><path d="M11 18h22v10a11 11 0 0 1-22 0z"/><path d="M33 20h4a4 4 0 0 1 0 8h-4"/><path d="M18 8c1 2-1 3 0 5M25 8c1 2-1 3 0 5" opacity=".6"/><ellipse cx="22" cy="38" rx="11" ry="2.4"/></symbol>
-</svg>
+  <symbol id="ic-arrow-ur" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
 
 <div class="staff-banner">Modo Comensal / Dueño activo — puedes agregar, editar y eliminar productos del menú.</div>
 
@@ -145,19 +134,8 @@
             <option value="Experiencias">Experiencias</option>
           </select>
         </div>
-        <div class="field"><label for="pIcon">Ícono</label>
-          <select id="pIcon">
-            <option value="coffee">Café (genérico)</option>
-            <option value="v60">V60 / goteo</option>
-            <option value="chemex">Chemex</option>
-            <option value="espresso">Espresso</option>
-            <option value="flatwhite">Flat white / latte</option>
-            <option value="coldbrew">Bebida fría</option>
-            <option value="toast">Tostada</option>
-            <option value="sandwich">Sandwich</option>
-            <option value="cupping">Cata / experiencia</option>
-          </select>
-        </div>
+        <div class="field"><label for="pImg">Foto</label><input type="url" id="pImg" placeholder="https://…"></div>
+        <div class="field"><label for="pTags">Etiquetas (separadas por coma)</label><input type="text" id="pTags" placeholder="Dominicano, Filtrado, Frutal"></div>
         <div class="field"><label for="pDesc">Descripción corta</label><textarea id="pDesc" placeholder="Origen del grano, método, notas de sabor…"></textarea></div>
         <div class="field" style="display:flex; align-items:center; gap:10px; margin-top:18px;">
           <input type="checkbox" id="pFeatured" style="width:auto;">
