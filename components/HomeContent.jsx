@@ -1,18 +1,32 @@
 'use client';
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import OffersCarousel from './OffersCarousel';
 import CategoryCarousels from './CategoryCarousels';
 import ProductIcon from './ProductIcon';
 import Reveal from './Reveal';
-import WelcomeScreen from './WelcomeScreen';
+
+const SEEN_KEY = 'ej-welcome-seen';
 
 export default function HomeContent() {
   const { categories } = useCategories();
+  const { profile } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    let seen = false;
+    try { seen = window.sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { /* ignore */ }
+    if (!profile && !seen) {
+      try { window.sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* ignore */ }
+      router.push('/cuenta');
+    }
+  }, [profile, router]);
 
   return (
     <>
-      <WelcomeScreen />
       <section className="home-top">
         <div className="wrap">
           <div className="home-greet">Bienvenido a<strong>El Extraño José</strong></div>
