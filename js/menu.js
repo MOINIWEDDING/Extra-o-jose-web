@@ -7,6 +7,7 @@
 
   let items = [];
   let editingId = null;
+  let productUploader = null;
 
   // Vista de muestra usada solo si Supabase todavía no está conectado.
   function demoMenu(){
@@ -166,7 +167,7 @@
     $('#pName').value = item ? item.name : '';
     $('#pPrice').value = item ? item.price : '';
     $('#pCat').value = item ? item.category : 'Buenos días';
-    $('#pImg').value = item ? (item.image_url||'') : '';
+    if(productUploader) productUploader.setUrl(item ? (item.image_url||'') : '');
     $('#pTags').value = item ? (item.tags||'') : '';
     $('#pDesc').value = item ? (item.description||'') : '';
     $('#pFeatured').checked = item ? !!item.featured : false;
@@ -175,6 +176,9 @@
   }
 
   document.addEventListener('DOMContentLoaded', ()=>{
+    const upRoot = document.querySelector('#productOverlay .uploader');
+    if(upRoot && window.Barro && window.Barro.wireUploader) productUploader = window.Barro.wireUploader(upRoot);
+
     const addBtn = $('#addProductBtn');
     if(addBtn) addBtn.addEventListener('click', ()=>openProduct(null));
 
@@ -186,7 +190,7 @@
         name: $('#pName').value.trim(),
         price: parseFloat($('#pPrice').value),
         category: $('#pCat').value,
-        image_url: $('#pImg').value.trim(),
+        image_url: productUploader ? productUploader.getUrl() : '',
         tags: $('#pTags').value.trim(),
         description: $('#pDesc').value.trim(),
         featured: $('#pFeatured').checked,
@@ -206,7 +210,7 @@
       }
       if(error){ msg.textContent = error.message; msg.className='form-msg show error'; return; }
       $('#productOverlay').classList.remove('show');
-      form.reset(); editingId=null;
+      form.reset(); if(productUploader) productUploader.reset(); editingId=null;
       await loadItems();
     });
 

@@ -12,8 +12,8 @@
      no funcionan abriendo el archivo directamente desde tu computadora.
 */
 
-const SUPABASE_URL = 'https://bhqvjzfoscbgesvvtgvy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJocXZqemZvc2NiZ2VzdnZ0Z3Z5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDgyMjcsImV4cCI6MjEwMzE4NDIyN30.yRzM6amDK4FcoPE0TCUjy5LNqOWuird7wDH3DIEHynE';
+const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
+const SUPABASE_ANON_KEY = 'TU-ANON-KEY-AQUI';
 
 window.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

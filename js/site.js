@@ -190,19 +190,33 @@
   function openImageModal(key){
     editingImgKey = key;
     const ov = $('#imageOverlay'); if(!ov) return;
-    $('#imgUrl').value = '';
+    if(siteUploader) siteUploader.reset();
     ov.classList.add('show');
   }
 
+  let siteUploader = null;
   function wireImageModal(){
     const ov = $('#imageOverlay'); if(!ov) return;
+    const upRoot = ov.querySelector('.uploader');
+    if(upRoot) siteUploader = wireUploader(upRoot);
+
     $('#imageForm').addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const url = $('#imgUrl').value.trim();
+      const msg = $('#imageMsg');
+      const url = siteUploader ? siteUploader.getUrl() : '';
+      if(!url){
+        if(msg){ msg.textContent = 'Elige una foto primero.'; msg.className='form-msg show error'; }
+        return;
+      }
       if(editingImgKey && window.BARRO_CONFIGURED){
-        await sb.from('site_images').update({ url, updated_at: new Date().toISOString() }).eq('key', editingImgKey);
+        const { error } = await sb.from('site_images').update({ url, updated_at: new Date().toISOString() }).eq('key', editingImgKey);
+        if(error){
+          if(msg){ msg.textContent = error.message; msg.className='form-msg show error'; }
+          return;
+        }
         await loadSiteImages();
       }
+      if(msg) msg.className='form-msg';
       ov.classList.remove('show'); editingImgKey=null;
     });
   }
@@ -211,6 +225,94 @@
     const editBtn = e.target.closest('.ph-edit');
     if(editBtn) openImageModal(editBtn.dataset.edit);
   });
+
+  /* ---------------- subida de fotos a Supabase Storage ---------------- */
+  // Sube un archivo al bucket 'fotos' y devuelve su URL pública.
+  // onProgress recibe un número de 0 a 100 (aproximado).
+  async function uploadPhoto(file, onProgress){
+    if(!window.BARRO_CONFIGURED) throw new Error('Conecta Supabase para poder subir fotos.');
+    if(!file) throw new Error('No se seleccionó ninguna foto.');
+    if(!file.type.startsWith('image/')) throw new Error('El archivo debe ser una imagen.');
+    if(file.size > 5 * 1024 * 1024) throw new Error('La foto pesa más de 5 MB. Usa una más liviana.');
+
+    if(onProgress) onProgress(15);
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+
+    const { error } = await sb.storage.from('fotos').upload(path, file, {
+      cacheControl: '3600', upsert: false, contentType: file.type
+    });
+    if(error) throw new Error('No se pudo subir la foto: ' + error.message);
+
+    if(onProgress) onProgress(85);
+    const { data } = sb.storage.from('fotos').getPublicUrl(path);
+    if(onProgress) onProgress(100);
+    return data.publicUrl;
+  }
+  window.Barro.uploadPhoto = uploadPhoto;
+
+  // Conecta un bloque .uploader del DOM: preview, botón de quitar y barra de progreso.
+  // Devuelve un objeto con getUrl() / setUrl() / reset().
+  function wireUploader(root){
+    const input   = root.querySelector('input[type=file]');
+    const preview = root.querySelector('.up-preview');
+    const img     = preview ? preview.querySelector('img') : null;
+    const removeB = preview ? preview.querySelector('.up-remove') : null;
+    const bar     = root.querySelector('.up-bar');
+    const fill    = bar ? bar.querySelector('i') : null;
+    const btn     = root.querySelector('.up-btn');
+    const errBox  = root.querySelector('.up-error');
+    let url = '';
+
+    function setProgress(p){
+      if(!bar || !fill) return;
+      bar.classList.toggle('show', p > 0 && p < 100);
+      fill.style.width = p + '%';
+    }
+    function showPreview(u){
+      url = u || '';
+      if(preview && img){
+        preview.classList.toggle('show', !!url);
+        if(url) img.src = url;
+      }
+      if(btn) btn.textContent = url ? 'Cambiar foto' : 'Elegir foto';
+    }
+    function showError(msg){
+      if(!errBox) return;
+      errBox.textContent = msg || '';
+      errBox.style.display = msg ? 'block' : 'none';
+    }
+
+    if(btn) btn.addEventListener('click', ()=> input && input.click());
+    if(removeB) removeB.addEventListener('click', ()=>{ showPreview(''); if(input) input.value=''; });
+
+    if(input) input.addEventListener('change', async ()=>{
+      const file = input.files && input.files[0];
+      if(!file) return;
+      showError('');
+      // vista previa inmediata mientras sube
+      const localUrl = URL.createObjectURL(file);
+      if(preview && img){ preview.classList.add('show'); img.src = localUrl; }
+      setProgress(10);
+      try{
+        const publicUrl = await uploadPhoto(file, setProgress);
+        showPreview(publicUrl);
+      }catch(err){
+        showError(err.message);
+        showPreview('');
+        if(input) input.value='';
+      }finally{
+        setTimeout(()=> setProgress(0), 400);
+      }
+    });
+
+    return {
+      getUrl: ()=> url,
+      setUrl: (u)=>{ showPreview(u); showError(''); if(input) input.value=''; },
+      reset:  ()=>{ showPreview(''); showError(''); if(input) input.value=''; setProgress(0); }
+    };
+  }
+  window.Barro.wireUploader = wireUploader;
 
   /* ---------------- generic modal close ---------------- */
   function wireGenericModals(){

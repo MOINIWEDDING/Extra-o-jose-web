@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FBF8F2">
 <title>Menú — El Extraño José</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,10 +24,15 @@
   <symbol id="ic-chev-l" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
   <symbol id="ic-chev-r" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
   <symbol id="ic-arrow-ur" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></symbol>
+  <symbol id="ic-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h9"/></symbol>
+  <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="ic-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></symbol>
+  <symbol id="ic-upload" viewBox="0 0 24 24"><path d="M12 16V5M8 9l4-4 4 4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
 
-<div class="staff-banner">Modo Comensal / Dueño activo — puedes agregar, editar y eliminar productos del menú.</div>
+<div class="staff-banner">Modo Comensal / Dueño activo</div>
 
-<header id="siteHeader" class="solid">
+<header id="siteHeader">
   <div class="wrap">
     <div class="logo"><span class="dot"></span>El Extraño José</div>
     <nav class="links">
@@ -36,10 +42,7 @@
       <a href="menu.html" class="current">Menú</a>
       <a href="index.html#visitanos">Visítanos</a>
     </nav>
-    <div class="nav-right">
-      <button class="icon-round" aria-label="Buscar"><svg class="icon"><use href="#ic-search"/></svg></button>
-      <div id="navAuthArea"></div>
-    </div>
+    <div class="nav-right" id="navAuthArea"></div>
   </div>
 </header>
 
@@ -70,6 +73,13 @@
   </div>
 </footer>
 
+<nav class="tabbar">
+  <a href="index.html#inicio"><svg><use href="#ic-home"/></svg>Inicio</a>
+  <a href="menu.html" class="current"><svg><use href="#ic-menu"/></svg>Menú</a>
+  <a href="index.html#nosotros"><svg><use href="#ic-info"/></svg>Nosotros</a>
+  <a href="index.html#visitanos"><svg><use href="#ic-pin"/></svg>Visítanos</a>
+</nav>
+
 <div class="toast" id="toast"></div>
 
 <!-- ================= AUTH MODAL ================= -->
@@ -93,7 +103,7 @@
         </div>
         <div class="field">
           <label for="authEmail">Correo</label>
-          <input type="email" id="authEmail" autocomplete="email" placeholder="tu@correo.com" required>
+          <input type="email" id="authEmail" autocomplete="email" inputmode="email" placeholder="tu@correo.com" required>
         </div>
         <div class="field">
           <label for="authPass">Contraseña</label>
@@ -124,7 +134,7 @@
       <form id="productForm">
         <div class="field-row">
           <div class="field"><label for="pName">Nombre del plato o bebida</label><input type="text" id="pName" required></div>
-          <div class="field"><label for="pPrice">Precio (RD$)</label><input type="number" id="pPrice" min="0" step="1" required></div>
+          <div class="field"><label for="pPrice">Precio (RD$)</label><input type="number" id="pPrice" min="0" step="1" inputmode="numeric" required></div>
         </div>
         <div class="field"><label for="pCat">Recomendación</label>
           <select id="pCat">
@@ -134,7 +144,16 @@
             <option value="Experiencias">Experiencias</option>
           </select>
         </div>
-        <div class="field"><label for="pImg">Foto</label><input type="url" id="pImg" placeholder="https://…"></div>
+        <div class="field"><label for="pImgUp">Foto del producto</label>
+          <div class="uploader">
+            <div class="up-preview"><img alt=""><button type="button" class="up-remove" aria-label="Quitar"><svg class="icon"><use href="#ic-x"/></svg></button></div>
+            <input type="file" accept="image/*" id="pImgUp">
+            <button type="button" class="up-btn"><svg class="icon"><use href="#ic-upload"/></svg>Elegir foto</button>
+            <span class="up-hint">JPG o PNG, hasta 5 MB.</span>
+            <div class="up-bar"><i></i></div>
+            <div class="up-error form-msg error" style="display:none; margin-top:12px;"></div>
+          </div>
+        </div>
         <div class="field"><label for="pTags">Etiquetas (separadas por coma)</label><input type="text" id="pTags" placeholder="Dominicano, Filtrado, Frutal"></div>
         <div class="field"><label for="pDesc">Descripción corta</label><textarea id="pDesc" placeholder="Origen del grano, método, notas de sabor…"></textarea></div>
         <div class="field" style="display:flex; align-items:center; gap:10px; margin-top:18px;">
