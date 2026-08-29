@@ -1,0 +1,79 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
+import { useUploader } from '@/hooks/useUploader';
+import Uploader from './Uploader';
+import Modal from './Modal';
+
+export default function ProductModal({ item, defaultCategory, categories, onClose, onSaved }) {
+  const uploader = useUploader({ requireTransparent: true });
+  const [name, setName] = useState(item ? item.name : '');
+  const [price, setPrice] = useState(item ? item.price : '');
+  const [category, setCategory] = useState(item ? item.category : (defaultCategory || (categories[0] && categories[0].name) || ''));
+  const [tags, setTags] = useState(item ? (item.tags || '') : '');
+  const [description, setDescription] = useState(item ? (item.description || '') : '');
+  const [featured, setFeatured] = useState(item ? !!item.featured : false);
+  const [msg, setMsg] = useState({ text: '', type: '' });
+
+  useEffect(() => { if (item && item.image_url) uploader.setUrl(item.image_url); }, []); // eslint-disable-line
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const priceNum = parseFloat(price);
+    if (!name.trim() || Number.isNaN(priceNum)) { setMsg({ text: 'Completa el nombre y el precio.', type: 'error' }); return; }
+    if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar cambios de verdad.', type: 'error' }); return; }
+    const payload = { name: name.trim(), price: priceNum, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured };
+    let error;
+    if (item) {
+      payload.updated_at = new Date().toISOString();
+      ({ error } = await sb.from('menu_items').update(payload).eq('id', item.id));
+    } else {
+      ({ error } = await sb.from('menu_items').insert(payload));
+    }
+    if (error) { setMsg({ text: error.message, type: 'error' }); return; }
+    await onSaved();
+    onClose();
+  }
+
+  return (
+    <Modal onClose={onClose} wide>
+      <div className="modal-top">
+        <p className="eyebrow">Menú</p>
+        <h3>{item ? 'Editar producto' : 'Agregar producto'}</h3>
+      </div>
+      <div className="modal-body">
+        <form onSubmit={handleSubmit}>
+          <div className="field-row">
+            <div className="field"><label htmlFor="pName">Nombre del plato o bebida</label>
+              <input id="pName" type="text" required value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="field"><label htmlFor="pPrice">Precio (RD$)</label>
+              <input id="pPrice" type="number" min="0" step="1" inputMode="numeric" required value={price} onChange={(e) => setPrice(e.target.value)} />
+            </div>
+          </div>
+          <div className="field"><label htmlFor="pCat">Categoría</label>
+            <select id="pCat" value={category} onChange={(e) => setCategory(e.target.value)}>
+              {categories.map((g) => <option key={g.id} value={g.name}>{g.name}</option>)}
+            </select>
+          </div>
+          <div className="field"><label>Foto del producto</label><Uploader uploader={uploader} requireTransparent /></div>
+          <div className="field"><label htmlFor="pTags">Etiquetas (separadas por coma)</label>
+            <input id="pTags" type="text" placeholder="Dominicano, Filtrado, Frutal" value={tags} onChange={(e) => setTags(e.target.value)} />
+          </div>
+          <div className="field"><label htmlFor="pDesc">Descripción</label>
+            <textarea id="pDesc" placeholder="Origen del grano, método, notas de sabor…" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+          <div className="field" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
+            <input id="pFeatured" type="checkbox" style={{ width: 'auto' }} checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+            <label htmlFor="pFeatured" style={{ margin: 0, textTransform: 'none', fontSize: 13, letterSpacing: 0, fontWeight: 500, color: 'var(--ink)' }}>Marcar como favorito</label>
+          </div>
+          {msg.text && <div className={`form-msg show ${msg.type}`}>{msg.text}</div>}
+          <div className="modal-actions">
+            <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
+            <button type="submit" className="btn btn-amber">{item ? 'Guardar cambios' : 'Guardar producto'}</button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+}
