@@ -389,6 +389,98 @@ footer h5{font-size:12px; color:var(--cream-on-dark); margin:0 0 8px; text-trans
 }
 
 /* =========================================================
+   HEADER — ahora es solo de escritorio (móvil usa la tabbar)
+   ========================================================= */
+header{display:none;}
+.cart-badge{position:absolute; top:-4px; right:-4px; background:var(--amber); color:#fff; font-size:9px; font-weight:800; min-width:16px; height:16px; border-radius:100px; display:flex; align-items:center; justify-content:center; padding:0 3px;}
+
+/* =========================================================
+   WELCOME SCREEN
+   ========================================================= */
+.welcome-screen{position:fixed; inset:0; z-index:500; display:flex; flex-direction:column;}
+.welcome-photo{flex:1.1; background-size:cover; background-position:center; position:relative;}
+.welcome-photo::after{content:''; position:absolute; inset:0; background:linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(29,22,16,0.55));}
+.welcome-sheet{background:var(--dark); color:var(--cream-on-dark); padding:32px 24px calc(28px + var(--safe-b)); border-radius:26px 26px 0 0; margin-top:-26px; position:relative; z-index:2;}
+.welcome-sheet .eyebrow{color:var(--amber);}
+.welcome-sheet h2{font-size:26px; margin-top:10px; color:var(--cream-on-dark);}
+.welcome-sub{margin-top:10px; font-size:14px; line-height:1.6; color:rgba(243,236,221,0.68);}
+.welcome-actions{display:flex; flex-direction:column; gap:10px; margin-top:22px;}
+.welcome-guest{background:none; border:none; color:rgba(243,236,221,0.7); font-size:13px; font-weight:600; text-decoration:underline; padding:10px; text-align:center;}
+.welcome-actions-inline{display:flex; flex-direction:column; gap:10px; max-width:340px;}
+
+/* =========================================================
+   CUENTA
+   ========================================================= */
+.cuenta-page{padding-top:28px;}
+.profile-card{display:flex; align-items:center; gap:16px; background:var(--cream-2); border-radius:var(--radius-lg); padding:22px;}
+.profile-av{width:56px; height:56px; border-radius:50%; background:var(--amber); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; flex-shrink:0;}
+.giftcard-card{margin-top:14px; background:linear-gradient(135deg, var(--dark), #2A2117); color:#fff; border-radius:var(--radius-lg); padding:22px;}
+.giftcard-card h3{font-family:var(--font-display); font-size:30px; margin-top:8px; color:#fff;}
+.giftcard-card p{margin-top:6px; font-size:12.5px; color:rgba(243,236,221,0.6);}
+.admin-photo-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+.admin-photo-grid > div{display:flex; flex-direction:column; gap:8px;}
+.admin-photo-grid span{font-size:11.5px; font-weight:600; color:var(--ink-soft); text-align:center;}
+.admin-thumb{aspect-ratio:1/0.8; border-radius:14px;}
+.admin-thumb .ph-edit{opacity:1; position:static; margin-top:6px; width:100%; justify-content:center;}
+
+/* =========================================================
+   CARRITO
+   ========================================================= */
+.cart-modal{max-height:88vh;}
+.cart-lines{display:flex; flex-direction:column; gap:14px;}
+.cart-line{display:flex; align-items:center; gap:12px;}
+.cart-line-photo{width:52px; height:52px; border-radius:12px; background:var(--cream-2); overflow:hidden; flex-shrink:0;}
+.cart-line-photo img{width:100%; height:100%; object-fit:cover;}
+.cart-line-body{flex:1; min-width:0;}
+.cart-line-body h4{font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.cart-line-price{font-size:12.5px; color:var(--ink-soft);}
+.qty-stepper{display:flex; align-items:center; gap:8px; background:var(--cream-2); border-radius:100px; padding:4px 8px;}
+.qty-stepper button{width:24px; height:24px; border-radius:50%; border:none; background:#fff; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; color:var(--ink);}
+.qty-stepper span{font-size:13px; font-weight:700; min-width:14px; text-align:center;}
+.cart-line-remove{width:28px; height:28px; border:none; background:none; color:var(--ink-soft); flex-shrink:0;}
+.cart-line-remove svg{width:15px; height:15px; stroke:currentColor; fill:none; stroke-width:1.8;}
+.promo-row{display:flex; gap:8px; margin-top:20px;}
+.promo-row input{flex:1; border:1px solid rgba(36,28,19,0.18); border-radius:12px; padding:12px 14px; font-size:14px; font-family:inherit;}
+.cart-totals{margin-top:18px; border-top:1px solid var(--line); padding-top:14px; display:flex; flex-direction:column; gap:8px;}
+.cart-totals > div{display:flex; justify-content:space-between; font-size:13.5px; color:var(--ink-soft);}
+.cart-total-final{font-size:16px !important; font-weight:700; color:var(--ink) !important; padding-top:6px; border-top:1px dashed var(--line);}
+
+.fab-cart{position:fixed; right:16px; bottom:calc(78px + var(--safe-b)); z-index:88; width:54px; height:54px; border-radius:50%; background:var(--ink); color:#fff; border:none; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center;}
+.fab-cart svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8;}
+.fab-cart-badge{position:absolute; top:-4px; right:-4px; background:var(--amber); color:#fff; font-size:10px; font-weight:800; min-width:19px; height:19px; border-radius:100px; display:flex; align-items:center; justify-content:center; padding:0 4px; border:2px solid var(--cream);}
+
+/* =========================================================
+   TARJETA UNIFICADA — favorito + botón "+"
+   ========================================================= */
+.card-fav{position:absolute; top:10px; left:10px; z-index:3; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.25); backdrop-filter:blur(4px); border:none; display:flex; align-items:center; justify-content:center;}
+.card-fav svg{width:16px; height:16px; stroke:#fff; fill:none; stroke-width:1.8; transition:fill .2s, stroke .2s;}
+.card-fav.on{background:#fff;}
+.card-fav.on svg{fill:var(--amber); stroke:var(--amber);}
+.p-bottom-row{display:flex; align-items:center; justify-content:space-between; margin-top:auto;}
+.p-plus{width:34px; height:34px; border-radius:50%; background:var(--amber); border:none; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.p-plus svg{width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2.2;}
+.p-plus.bump{background:var(--ok);}
+
+/* categorías dinámicas: ícono junto al título del carrusel */
+.cat-head-icon{width:28px; height:28px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; margin-right:8px; vertical-align:middle;}
+.cat-head-icon svg{width:15px; height:15px; stroke:var(--ink); fill:none; stroke-width:1.8;}
+.carousel-head h3{display:flex; align-items:center;}
+
+.add-category-btn{width:100%; border:1.5px dashed rgba(36,28,19,0.25); border-radius:var(--radius-lg); background:rgba(194,99,42,0.05); padding:20px; display:flex; align-items:center; justify-content:center; gap:10px; color:var(--ink-soft); font-size:13.5px; font-weight:600;}
+.add-category-btn .plus{width:34px; height:34px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center;}
+
+.icon-picker{display:grid; grid-template-columns:repeat(5,1fr); gap:8px;}
+.icon-pick{aspect-ratio:1; border-radius:12px; border:1.5px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center;}
+.icon-pick svg{width:20px; height:20px; stroke:var(--ink); fill:none; stroke-width:1.6;}
+.icon-pick.active{border-color:var(--amber); background:var(--amber-soft, #F6E3CE);}
+.tint-picker{display:flex; gap:10px;}
+.tint-pick{width:36px; height:36px; border-radius:50%; border:2px solid transparent;}
+.tint-pick.active{border-color:var(--ink);}
+
+.tab-dot{position:absolute; top:-2px; right:-3px; width:8px; height:8px; border-radius:50%; background:var(--ok);}
+.tab-dot.staff{background:var(--amber);}
+
+/* =========================================================
    TABLET  (≥ 640px)
    ========================================================= */
 @media (min-width:640px){
@@ -412,6 +504,9 @@ footer h5{font-size:12px; color:var(--cream-on-dark); margin:0 0 8px; text-trans
 @media (min-width:1024px){
   body{padding-bottom:0;}
   .tabbar{display:none;}
+  header{display:block;}
+  body{padding-top:0;}
+  .fab-cart{display:none;}
   .desktop-only{display:flex;}
   .wrap{max-width:1140px; padding:0 32px;}
   header .wrap{height:74px;}

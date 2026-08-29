@@ -1,4 +1,5 @@
 import EditablePhoto from '@/components/EditablePhoto';
+import Reveal from '@/components/Reveal';
 
 export const metadata = { title: 'Visítanos — El Extraño José' };
 
@@ -7,8 +8,10 @@ export default function VisitanosPage() {
     <>
       <section className="visitanos" id="visitanos" style={{ paddingTop: 28 }}>
         <div className="wrap visit-grid">
-          <EditablePhoto imgKey="map" label="Mapa / fachada" className="map-ph" />
-          <div className="reveal in">
+          <Reveal>
+            <EditablePhoto imgKey="map" label="Mapa / fachada" className="map-ph" />
+          </Reveal>
+          <Reveal delay={0.1}>
             <p className="eyebrow">Visítanos</p>
             <h2 style={{ fontSize: 26, marginTop: 10 }}>Te esperamos en la Ciudad Corazón.</h2>
             <div className="info-list">
@@ -29,7 +32,7 @@ export default function VisitanosPage() {
               <a href="#" aria-label="Instagram"><svg className="icon" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1" /></svg></a>
               <a href="#" aria-label="Facebook"><svg className="icon" viewBox="0 0 24 24"><path d="M14 21v-7h2.4l.4-3H14V9c0-.9.3-1.5 1.7-1.5H17V4.8C16.6 4.7 15.6 4.6 14.4 4.6c-2.5 0-4.2 1.5-4.2 4.3V11H7.7v3H10.2v7z" /></svg></a>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 

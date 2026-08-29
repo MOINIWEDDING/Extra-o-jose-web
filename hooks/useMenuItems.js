@@ -15,10 +15,6 @@ export function demoMenu() {
   ];
 }
 
-export const GROUPS = ['Buenos días', 'Salados', 'Para la tarde', 'Experiencias'];
-export const GROUP_SLUGS = { 'Buenos días': 'buenos-dias', Salados: 'salados', 'Para la tarde': 'para-la-tarde', Experiencias: 'experiencias' };
-export const TINTS = { 'Buenos días': 'manana', Salados: 'salado', 'Para la tarde': 'tarde', Experiencias: 'experiencia' };
-
 export function money(n) { return Number(n).toLocaleString('es-DO') + '$'; }
 
 export function useMenuItems() {
@@ -29,7 +25,8 @@ export function useMenuItems() {
     setLoading(true);
     if (!BARRO_CONFIGURED) { setItems(demoMenu()); setLoading(false); return; }
     const { data, error } = await sb.from('menu_items').select('*').order('created_at', { ascending: true });
-    setItems((!error && data && data.length) ? data : demoMenu());
+    if (error) { setItems(demoMenu()); setLoading(false); return; }
+    setItems(data || []);
     setLoading(false);
   }, []);
 

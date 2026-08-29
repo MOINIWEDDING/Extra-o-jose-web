@@ -1,31 +1,21 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
-export default function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest }) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
+const TAGS = { div: motion.div, section: motion.section, article: motion.article };
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (!('IntersectionObserver' in window)) { setInView(true); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) { setInView(true); io.unobserve(entry.target); }
-      });
-    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
+export default function Reveal({ as = 'div', delay = 0, className = '', style, children, ...rest }) {
+  const MotionTag = TAGS[as] || motion.div;
   return (
-    <Tag
-      ref={ref}
-      className={`reveal${inView ? ' in' : ''}${className ? ' ' + className : ''}`}
-      style={delay ? { transitionDelay: `${delay}s` } : undefined}
+    <MotionTag
+      className={className}
+      style={style}
+      initial={{ opacity: 0, y: 26 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15, margin: '0px 0px -60px 0px' }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 0.61, 0.36, 1] }}
       {...rest}
     >
       {children}
-    </Tag>
+    </MotionTag>
   );
 }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
 
 const LINKS = [
   { href: '/', label: 'Inicio' },
@@ -11,13 +11,9 @@ const LINKS = [
   { href: '/visitanos', label: 'Visítanos' },
 ];
 
-function initials(name) {
-  return (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
-}
-
 export default function Header() {
   const pathname = usePathname();
-  const { profile, openAuth, logout } = useAuth();
+  const { count, openDrawer } = useCart();
   const [solid, setSolid] = useState(false);
 
   useEffect(() => {
@@ -29,28 +25,19 @@ export default function Header() {
   return (
     <header id="siteHeader" className={solid ? 'solid' : ''}>
       <div className="wrap">
-        <div className="logo"><span className="dot" />El Extraño José</div>
         <nav className="links">
           {LINKS.map((l) => (
             <Link key={l.href} href={l.href} className={pathname === l.href ? 'current' : ''}>{l.label}</Link>
           ))}
         </nav>
         <div className="nav-right">
-          {!profile ? (
-            <button type="button" className="btn btn-amber btn-sm" onClick={() => openAuth('login', 'cliente')}>
-              <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></svg>
-              Iniciar sesión
-            </button>
-          ) : (
-            <>
-              <div className="user-chip">
-                <div className="av">{initials(profile.name)}</div>
-                <div>{profile.name}</div>
-                <span className="role-tag">{profile.role === 'staff' ? 'Comensal · Dueño' : 'Cliente'}</span>
-              </div>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={logout}>Salir</button>
-            </>
-          )}
+          <button type="button" className="icon-round" aria-label="Carrito" onClick={openDrawer} style={{ position: 'relative' }}>
+            <svg className="icon" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" /><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6" /></svg>
+            {count > 0 && <span className="cart-badge">{count}</span>}
+          </button>
+          <Link href="/cuenta" className="icon-round" aria-label="Cuenta">
+            <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></svg>
+          </Link>
         </div>
       </div>
     </header>

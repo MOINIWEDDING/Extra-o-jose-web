@@ -1,4 +1,5 @@
 import EditablePhoto from '@/components/EditablePhoto';
+import Reveal from '@/components/Reveal';
 
 export const metadata = { title: 'Nosotros — El Extraño José' };
 
@@ -7,11 +8,11 @@ export default function NosotrosPage() {
     <>
       <section className="historia" id="nosotros" style={{ paddingTop: 28 }}>
         <div className="wrap historia-grid">
-          <div className="historia-photos reveal in">
+          <Reveal className="historia-photos">
             <EditablePhoto imgKey="founder" label="Foto del fundador" className="main" />
             <EditablePhoto imgKey="gallery-2" className="detail" />
-          </div>
-          <div className="reveal in">
+          </Reveal>
+          <Reveal delay={0.1}>
             <p className="eyebrow">Origen y fundador</p>
             <h2 style={{ fontSize: 26, marginTop: 10 }}>
               Un café <em style={{ fontStyle: 'italic', color: 'var(--amber)' }}>diferente</em>, a tu manera.
@@ -25,39 +26,39 @@ export default function NosotrosPage() {
               <div className="av">JF</div>
               <div><b>José Frandariel Alcántara</b><span>Fundador · 2022</span></div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="pilares">
         <div className="wrap">
-          <div className="section-head reveal in">
+          <Reveal className="section-head">
             <p className="eyebrow">El concepto</p>
             <h2>Especialidad y bohemia.</h2>
             <p>Desde sus inicios, el lugar fue concebido bajo dos pilares.</p>
-          </div>
+          </Reveal>
           <div className="pilar-grid">
-            <div className="pilar-card reveal in">
+            <Reveal className="pilar-card" delay={0}>
               <div className="pilar-num">01</div>
               <h3>Café de especialidad</h3>
               <p>El enfoque está en el specialty coffee: origen del grano dominicano, métodos de extracción y técnica del barista.</p>
-            </div>
-            <div className="pilar-card reveal in">
+            </Reveal>
+            <Reveal className="pilar-card" delay={0.1}>
               <div className="pilar-num">02</div>
               <h3>Atmósfera artística</h3>
               <p>Una experiencia bohemia. Diseño industrial con toques acogedores, pensado para creativos, estudiantes y profesionales.</p>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       <section className="azotea" id="azotea">
         <div className="wrap azotea-grid">
-          <div style={{ position: 'relative' }} className="reveal in">
+          <Reveal style={{ position: 'relative' }}>
             <div className="azotea-badge">El rincón<br />favorito</div>
             <EditablePhoto imgKey="azotea" label="Foto de la azotea" />
-          </div>
-          <div className="reveal in">
+          </Reveal>
+          <Reveal delay={0.1}>
             <p className="eyebrow">El rincón favorito</p>
             <h2 style={{ fontSize: 26, marginTop: 10 }}>La azotea, donde todo se queda un rato más.</h2>
             <p className="body">
@@ -65,50 +66,50 @@ export default function NosotrosPage() {
               trabajar o ver pasar el día — con una taza siempre a la mano.
             </p>
             <a href="/visitanos" className="btn btn-ghost-light btn-block" style={{ marginTop: 20 }}>Reservar un espacio</a>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <section className="cultura">
         <div className="wrap">
-          <div className="section-head reveal in">
+          <Reveal className="section-head">
             <p className="eyebrow">Cultura cafetera</p>
             <h2>No solo servimos tazas de café.</h2>
             <p>Somos aliados de la educación cafetera en la Ciudad Corazón.</p>
-          </div>
+          </Reveal>
           <div className="cultura-list">
-            <div className="cultura-item reveal in">
+            <Reveal as="div" className="cultura-item" delay={0}>
               <span className="cultura-tag">Sede de eventos</span>
               <div>
                 <h4>Escuela de Café de RD</h4>
                 <p>Colaboramos con la Escuela de Café de República Dominicana, prestando el espacio y la barra para formación y encuentros.</p>
               </div>
-            </div>
-            <div className="cultura-item reveal in">
+            </Reveal>
+            <Reveal as="div" className="cultura-item" delay={0.08}>
               <span className="cultura-tag">Catas</span>
               <div>
                 <h4>Degustaciones de café dominicano</h4>
                 <p>Anfitriones de catas exclusivas, explorando origen, proceso y perfil de taza.</p>
               </div>
-            </div>
-            <div className="cultura-item reveal in">
+            </Reveal>
+            <Reveal as="div" className="cultura-item" delay={0.16}>
               <span className="cultura-tag">Experimental</span>
               <div>
                 <h4>Caviar de café y aperitivos de autor</h4>
                 <p>Experiencias gastronómicas alrededor del grano, con degustaciones únicas pensadas para sorprender.</p>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       <section id="espacio">
         <div className="wrap">
-          <div className="section-head reveal in">
+          <Reveal className="section-head">
             <p className="eyebrow">El local</p>
             <h2>Un vistazo por dentro.</h2>
             <p>Desliza para ver más.</p>
-          </div>
+          </Reveal>
           <div className="espacio-grid">
             <EditablePhoto imgKey="gallery-0" label="La barra" />
             <EditablePhoto imgKey="gallery-1" label="El salón" />

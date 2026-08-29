@@ -16,11 +16,12 @@ npm install
 1. Crea un proyecto en https://supabase.com
 2. Ve a **SQL Editor → New query**, pega todo el contenido de `supabase-setup.sql` y ejecútalo.
    (Si ya tenías el proyecto de la versión anterior, no pasa nada — el script usa `if not exists` / `on conflict do nothing` en todo, puedes correrlo de nuevo sin miedo.)
-3. Copia `.env.local.example` a `.env.local`:
+3. **Importante si ya tenías el proyecto configurado de antes**: corre también `supabase-migration-2.sql`. Esto arregla productos guardados con categorías viejas (por eso no te cargaban categorías ni promociones), y agrega las tablas nuevas: categorías dinámicas, favoritos reales y el balance de gift card.
+4. Copia `.env.local.example` a `.env.local`:
    ```bash
    cp .env.local.example .env.local
    ```
-4. Abre `.env.local` y pon tu **Project URL** y **anon public key** (Supabase → Project Settings → API).
+5. Abre `.env.local` y pon tu **Project URL** y **anon public key** (Supabase → Project Settings → API).
 
 ## 3. Correr en desarrollo
 ```bash
@@ -65,3 +66,14 @@ hooks/                        → useMenuItems, useUploader
 lib/                           → supabaseClient.js, upload.js
 supabase-setup.sql               → mismo esquema de base de datos de siempre
 ```
+
+## Qué cambió en esta última vuelta (rediseño grande)
+- **Bug arreglado**: las ofertas y categorías dejaban de mostrarse si la base de datos tenía datos de una versión anterior — ahora solo usan el respaldo de muestra si hay un error real, nunca si la lista está simplemente vacía.
+- **Categorías dinámicas**: ya no están fijas en el código. El dueño puede crear, renombrar (ej. "Populares"), cambiarles ícono/color, o borrarlas — se reflejan igual en Inicio y en el Menú.
+- **Tarjeta de producto unificada**: mismo diseño (foto + etiquetas + precio + botón "+") en Inicio y en Menú.
+- **Carrito**: persiste en el navegador (sin pagos en línea todavía — el botón de confirmar avisa que se pide en la barra).
+- **Favoritos reales**: ligados a tu cuenta, visibles en "Cuenta".
+- **Pantalla de bienvenida**: aparece una vez por sesión con 3 opciones (Regístrate / Inicia sesión / Continuar como invitado). Su foto se cambia desde "Cuenta" (modo dueño).
+- **Cuenta** (`/cuenta`): perfil + balance de gift card + favoritos para clientes; panel de fotos del sitio y banners de oferta para el dueño.
+- El encabezado ya no muestra el nombre del local ni un botón de "Iniciar sesión" — ahora es un ícono de cuenta (y de carrito), en el header en escritorio y como pestaña en la barra inferior en móvil.
+- Las animaciones de aparición al hacer scroll ahora usan **Framer Motion** de verdad, en las 4 páginas.

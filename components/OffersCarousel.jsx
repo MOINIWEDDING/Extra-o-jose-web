@@ -24,7 +24,11 @@ export default function OffersCarousel() {
   const load = useCallback(async () => {
     if (!BARRO_CONFIGURED) { setOffers(demoOffers()); return; }
     const { data, error } = await sb.from('offers').select('*').order('sort_order', { ascending: true });
-    setOffers((!error && data) ? data : []);
+    // Antes esto se quedaba vacío si la tabla 'offers' no existía todavía
+    // (por no haber corrido la migración). Ahora, solo en caso de error real
+    // cae en las ofertas de muestra; si de verdad no hay ninguna, respeta eso.
+    if (error) { setOffers(demoOffers()); return; }
+    setOffers(data || []);
   }, []);
 
   useEffect(() => { load(); }, [load]);
