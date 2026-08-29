@@ -1,59 +1,67 @@
-# El Extraño José — sitio con Supabase
+# El Extraño José — versión Next.js
 
-## 1. Crear el proyecto de Supabase
-1. Entra a https://supabase.com y crea un proyecto gratis.
+Migración completa del sitio (antes HTML/CSS/JS vanilla) a **Next.js 14 (App Router)** + React,
+manteniendo el mismo diseño, Supabase, roles y funciones.
+
+## Requisitos
+- Node.js 18.18+ (usa `node -v` para revisar)
+- Una cuenta de Supabase (gratis)
+
+## 1. Instalar dependencias
+```bash
+npm install
+```
+
+## 2. Conectar Supabase
+1. Crea un proyecto en https://supabase.com
 2. Ve a **SQL Editor → New query**, pega todo el contenido de `supabase-setup.sql` y ejecútalo.
-   Esto crea las tablas `profiles`, `menu_items`, `site_images`, sus políticas de seguridad (RLS) y el menú de ejemplo.
-3. Ve a **Project Settings → API** y copia:
-   - **Project URL**
-   - **anon public key**
+   (Si ya tenías el proyecto de la versión anterior, no pasa nada — el script usa `if not exists` / `on conflict do nothing` en todo, puedes correrlo de nuevo sin miedo.)
+3. Copia `.env.local.example` a `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+4. Abre `.env.local` y pon tu **Project URL** y **anon public key** (Supabase → Project Settings → API).
 
-## 2. Conectar el sitio
-Abre `js/supabase-client.js` y reemplaza:
-```js
-const SUPABASE_URL = 'https://TU-PROYECTO.supabase.co';
-const SUPABASE_ANON_KEY = 'TU-ANON-KEY-AQUI';
+## 3. Correr en desarrollo
+```bash
+npm run dev
 ```
-con tus valores reales.
+Abre http://localhost:3000
 
-## 3. Confirmación de correo (importante)
-Por defecto, Supabase pide confirmar el correo antes de poder iniciar sesión.
-Para desactivarlo mientras pruebas: **Authentication → Providers → Email → "Confirm email"** → apágalo.
-Para producción, déjalo activado y en **Authentication → URL Configuration** define la URL real donde publiques el sitio (paso 4), o los correos de confirmación no van a redirigir bien.
-
-## 4. Publicar el sitio
-Los links de confirmación de correo y el login necesitan una URL pública real — no funcionan abriendo el archivo `index.html` directamente desde tu computadora (`file://`). Opciones gratuitas y rápidas:
-- **Netlify** (arrastra la carpeta a app.netlify.com/drop)
-- **Vercel**
-- **GitHub Pages**
-
-## 5. Crear tu primera cuenta de dueño/comensal
-Una vez publicado: abre el sitio → "Iniciar sesión" → pestaña **"Comensal · Dueño"** → "Crear una". Esa cuenta ya podrá:
-- Agregar, editar y eliminar productos del menú (`menu.html`)
-- Reemplazar las fotos placeholder del sitio (portada, galería, mapa)
-
-Cualquier persona que se registre en la pestaña **"Cliente"** solo podrá ver el sitio, sin edición.
-
-## Estructura del proyecto
+## 4. Publicar
+```bash
+npm run build
+npm start
 ```
-index.html              → página principal (inicio, historia, concepto, azotea, cultura cafetera, teaser de menú, ubicación)
-menu.html                → página del menú completo con el panel de edición
-css/style.css             → estilos compartidos (tema oscuro industrial + acento ámbar, tipografía viva)
-js/supabase-client.js     → credenciales de tu proyecto Supabase (edítalo)
-js/site.js                 → sesión, login/registro, banner de modo staff, edición de fotos
-js/menu.js                 → listado y CRUD del menú
-supabase-setup.sql         → script para crear las tablas y políticas en Supabase
+O despliega directo en **Vercel** (los creadores de Next.js): conecta el repo, define las mismas variables de entorno (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) en el panel de Vercel, y listo — cada push se publica solo.
+
+## Qué cambió respecto a la versión HTML/CSS/JS
+- **Rutas reales de Next.js** en vez de archivos `.html` sueltos: `/`, `/menu`, `/nosotros`, `/visitanos`.
+- **Componentes de React** (`components/`) en vez de manipular el DOM a mano.
+- **Contextos de React** (`context/AuthContext.jsx`, `context/ToastContext.jsx`) en vez de variables globales (`window.Barro`).
+- **Hooks** (`hooks/useMenuItems.js`, `hooks/useUploader.js`) para los datos y la subida de fotos.
+- **Fuentes optimizadas** con `next/font/google` (Outfit, Urbanist) — se auto-hospedan, no dependen de una petición externa a Google Fonts.
+- El diseño (`app/globals.css`), la base de datos y las reglas de Supabase **son las mismas** que en la versión anterior.
+
+## Qué sigue igual
+- Los roles **Cliente** / **Comensal · Dueño**.
+- El menú con carruseles por recomendación (Buenos días, Salados, Para la tarde, Experiencias).
+- Los banners de oferta editables desde el modo Comensal/Dueño.
+- La subida de fotos de producto: solo PNG con el fondo realmente transparente.
+- Las fotos del sitio (portada, fundador, azotea, galería, mapa) editables por el dueño.
+
+## Estructura
 ```
-
-## Notas sobre imágenes
-- El sitio viene precargado con fotos de stock de Unsplash (licencia libre) para que se vea completo desde el primer momento — en la portada, la galería y cada producto del menú.
-- Todas se guardan como una **URL**, no como un archivo subido. Reemplázalas por fotos reales del local cuando las tengas: en modo Comensal/Dueño, pasa el cursor sobre cualquier foto y toca "Cambiar".
-- Si más adelante quieres subir archivos directamente en lugar de pegar URLs, se puede agregar Supabase Storage — dilo y lo conectamos.
-
-## Animaciones
-El sitio usa scroll-reveal (las secciones aparecen suavemente al hacer scroll), una foto flotante en la portada, y hover con elevación en las tarjetas. Todo respeta "reducir movimiento" del sistema operativo del visitante.
-
-## El menú (rediseño más reciente)
-El menú (`menu.html`) ahora se organiza en carruseles horizontales por recomendación — **Buenos días, Salados, Para la tarde, Experiencias** — en vez de una grilla con pestañas de categoría. Cada producto usa un ícono de línea propio (no foto), con flechas de navegación que aparecen solo cuando hay más para ver. El botón "Agregar" todavía no está conectado a un carrito real — muestra un aviso de "pídelo en la barra"; si más adelante quieres pedidos en línea de verdad, dilo y lo construimos.
-
-Nota técnica: se pidió integrar un componente React + shadcn/ui + Tailwind + TypeScript. Este proyecto es HTML/CSS/JS vanilla conectado directo a Supabase — migrar a React/Next/shadcn ahora significaría reconstruir el login y el CRUD desde cero. En su lugar, repliqué el mismo patrón visual e interacción (carrusel, flechas, tarjetas) de forma nativa, sin dependencias nuevas. Si en algún momento quieres el proyecto completo en React, es un cambio de stack grande — mejor decidirlo aparte, no como parte de un ajuste de diseño.
+app/
+  layout.js            → shell global (fuentes, header, tabbar, providers)
+  page.js               → Inicio
+  menu/page.js           → Menú
+  nosotros/page.js        → Nosotros
+  visitanos/page.js        → Visítanos
+  globals.css              → todo el diseño (portado 1:1 de la versión anterior)
+components/                 → Header, Tabbar, modales, carruseles, etc.
+context/                     → AuthContext (sesión/rol), ToastContext (avisos)
+hooks/                        → useMenuItems, useUploader
+lib/                           → supabaseClient.js, upload.js
+supabase-setup.sql               → mismo esquema de base de datos de siempre
+```
