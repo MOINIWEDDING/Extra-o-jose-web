@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useUploader } from '@/hooks/useUploader';
 import Uploader from './Uploader';
 import Modal from './Modal';
+import Reveal from './Reveal';
 
 function demoOffers() {
   return [
@@ -53,7 +54,7 @@ export default function OffersCarousel() {
 
   return (
     <>
-      <div className="offers-wrap reveal">
+      <Reveal className="offers-wrap">
         <div className="offers-track" ref={trackRef} onScroll={onScroll}>
           {offers.map((offer) => (
             <div className="offer-card" key={offer.id}>
@@ -95,7 +96,7 @@ export default function OffersCarousel() {
             <span>{offers.length ? 'Agregar banner' : 'Agregar banner de oferta'}</span>
           </button>
         </div>
-      </div>
+      </Reveal>
       {offers.length > 0 && (
         <div className="offers-dots">
           {offers.map((_, i) => <span key={i} className={i === dotIndex ? 'active' : ''} />)}
