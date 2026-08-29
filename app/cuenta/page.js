@@ -7,36 +7,18 @@ import EditablePhoto from '@/components/EditablePhoto';
 import ProductCard from '@/components/ProductCard';
 import OffersCarousel from '@/components/OffersCarousel';
 import Reveal from '@/components/Reveal';
+import AuthGate from '@/components/AuthGate';
 
 function initials(name) {
   return (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 }
 
 export default function CuentaPage() {
-  const { profile, isStaff, openAuth, logout } = useAuth();
+  const { profile, isStaff, logout } = useAuth();
 
-  if (!profile) return <GuestView openAuth={openAuth} />;
+  if (!profile) return <AuthGate />;
   if (isStaff) return <StaffView profile={profile} logout={logout} />;
   return <ClientView profile={profile} logout={logout} />;
-}
-
-function GuestView({ openAuth }) {
-  return (
-    <section className="cuenta-page">
-      <div className="wrap">
-        <Reveal className="section-head">
-          <p className="eyebrow">Tu cuenta</p>
-          <h2>Entra a tu cuenta</h2>
-          <p>Guarda tus favoritos, tu carrito y tu balance de gift card.</p>
-        </Reveal>
-        <Reveal className="welcome-actions-inline" delay={0.1}>
-          <button type="button" className="btn btn-amber btn-block" onClick={() => openAuth('signup', 'cliente')}>Regístrate</button>
-          <button type="button" className="btn btn-ghost btn-block" onClick={() => openAuth('login', 'cliente')}>Inicia sesión</button>
-          <button type="button" className="btn btn-ghost btn-block" onClick={() => openAuth('login', 'staff')}>Soy Comensal · Dueño</button>
-        </Reveal>
-      </div>
-    </section>
-  );
 }
 
 function ClientView({ profile, logout }) {
