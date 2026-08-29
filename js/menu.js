@@ -3,10 +3,12 @@
   const $$ = (s,el=document)=>Array.from(el.querySelectorAll(s));
 
   const GROUPS = ['Buenos días','Salados','Para la tarde','Experiencias'];
+  const SLUGS = {'Buenos días':'buenos-dias','Salados':'salados','Para la tarde':'para-la-tarde','Experiencias':'experiencias'};
   const TINT = {'Buenos días':'manana','Salados':'salado','Para la tarde':'tarde','Experiencias':'experiencia'};
 
   let items = [];
   let editingId = null;
+  let hashHandled = false;
   let productUploader = null;
 
   // Vista de muestra usada solo si Supabase todavía no está conectado.
@@ -62,7 +64,7 @@
       const list = items.filter(i=>i.category===group);
       const cards = list.map((item,i)=>cardHtml(item, group, i)).join('');
       return `
-        <div class="carousel-section reveal" style="transition-delay:${Math.min(gi*0.08,0.24)}s">
+        <div class="carousel-section reveal" id="${SLUGS[group]||''}" style="transition-delay:${Math.min(gi*0.08,0.24)}s; scroll-margin-top:76px;">
           <div class="carousel-head">
             <h3>${group}</h3>
           </div>
@@ -77,6 +79,12 @@
     wireCarousels();
     wireCardActions();
     if(window.Barro && window.Barro.refreshReveal) window.Barro.refreshReveal();
+
+    if(!hashHandled && location.hash){
+      const target = document.querySelector(location.hash);
+      if(target){ setTimeout(()=> target.scrollIntoView({ behavior:'smooth', block:'start' }), 120); }
+      hashHandled = true;
+    }
   }
 
   function cardHtml(item, group, index){
