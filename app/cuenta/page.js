@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useMenuItems, money } from '@/hooks/useMenuItems';
@@ -9,6 +9,7 @@ import EditablePhoto from '@/components/EditablePhoto';
 import ProductCard from '@/components/ProductCard';
 import OffersCarousel from '@/components/OffersCarousel';
 import GiftCardModal from '@/components/GiftCardModal';
+import GiftCardDesignManager from '@/components/GiftCardDesignManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 
@@ -46,10 +47,15 @@ function ClientView({ profile, logout }) {
   const favItems = useMemo(() => items.filter((i) => ids.has(i.id)), [items, ids]);
   const [giftModal, setGiftModal] = useState(null); // 'buy' | 'redeem' | null
   const [giftCards, setGiftCards] = useState([]);
+  const [viewingCard, setViewingCard] = useState(null);
 
   const loadGiftCards = useCallback(async () => {
     if (!BARRO_CONFIGURED) return;
-    const { data, error } = await sb.from('gift_cards').select('*').eq('buyer_user_id', profile.id).order('created_at', { ascending: false });
+    const { data, error } = await sb
+      .from('gift_cards')
+      .select('*, gift_card_designs(name, image_url)')
+      .or(`buyer_user_id.eq.${profile.id},redeemed_by.eq.${profile.id}`)
+      .order('created_at', { ascending: false });
     if (!error && data) setGiftCards(data);
   }, [profile.id]);
 
@@ -78,19 +84,27 @@ function ClientView({ profile, logout }) {
         {giftCards.length > 0 && (
           <>
             <div className="home-section-top" style={{ marginTop: 30 }}><h3>Tus gift cards</h3></div>
-            <div className="giftcard-inventory">
-              {giftCards.map((gc) => (
-                <div key={gc.id} className="giftcard-item">
-                  <div>
-                    <span className="giftcard-item-code">{gc.code}</span>
-                    <span className="giftcard-item-date">{new Date(gc.created_at).toLocaleDateString('es-DO')}</span>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span className="giftcard-item-amount">{money(gc.amount)}</span>
-                    <span className={`giftcard-item-status${gc.status === 'activa' ? ' active' : ''}`}>{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
-                  </div>
-                </div>
-              ))}
+            <div className="offers-wrap" style={{ margin: '0 -20px' }}>
+              <div className="offers-track">
+                {giftCards.map((gc) => (
+                  <button
+                    type="button"
+                    key={gc.id}
+                    className="offer-card giftcard-banner"
+                    onClick={() => setViewingCard(gc)}
+                  >
+                    <div className="ph">
+                      {gc.gift_card_designs?.image_url
+                        ? <img className="real" src={gc.gift_card_designs.image_url} alt="" />
+                        : <svg className="ph-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13M3 12h18" /></svg>}
+                    </div>
+                    <div className="offer-content">
+                      <p className="eyebrow">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</p>
+                      <h3>{money(gc.amount)}</h3>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         )}
@@ -114,8 +128,46 @@ function ClientView({ profile, logout }) {
         {giftModal && (
           <GiftCardModal mode={giftModal} onClose={() => setGiftModal(null)} onDone={loadGiftCards} />
         )}
+        {viewingCard && (
+          <GiftCardDetailModal card={viewingCard} onClose={() => setViewingCard(null)} />
+        )}
       </AnimatePresence>
     </section>
+  );
+}
+
+function GiftCardDetailModal({ card, onClose }) {
+  return (
+    <motion.div className="overlay show" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <motion.div className="modal" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 30, opacity: 0 }}>
+        <button type="button" className="modal-close" onClick={onClose} aria-label="Cerrar">
+          <svg className="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+        {card.gift_card_designs?.image_url && (
+          <div className="ph" style={{ height: 160, borderRadius: '14px 14px 0 0', border: 'none' }}>
+            <img className="real" src={card.gift_card_designs.image_url} alt="" />
+          </div>
+        )}
+        <div className="modal-body">
+          <p className="eyebrow on-cream">{card.gift_card_designs?.name || 'Gift card'}</p>
+          <h3 style={{ marginTop: 4 }}>{money(card.amount)}</h3>
+          <div className="giftcard-code" style={{ marginTop: 16 }}>{card.code}</div>
+          <div className="info-list" style={{ marginTop: 20 }}>
+            <div className="info-row">
+              <div><b>Estado</b><span>{card.status === 'activa' ? 'Activa' : 'Canjeada'}</span></div>
+            </div>
+            <div className="info-row">
+              <div><b>Fecha de compra</b><span>{new Date(card.created_at).toLocaleDateString('es-DO')}</span></div>
+            </div>
+            {card.status === 'canjeada' && card.redeemed_by_name && (
+              <div className="info-row">
+                <div><b>Canjeada por</b><span>{card.redeemed_by_name}</span></div>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -156,6 +208,11 @@ function StaffView({ profile, logout }) {
         <Reveal delay={0.15}>
           <div className="home-section-top" style={{ marginTop: 34 }}><h3>Banners de oferta</h3></div>
           <OffersCarousel />
+        </Reveal>
+
+        <Reveal delay={0.2}>
+          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Diseños de gift card</h3></div>
+          <GiftCardDesignManager />
         </Reveal>
 
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={logout}>Cerrar sesión</button>
