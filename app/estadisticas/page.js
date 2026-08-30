@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
+import { useBranch } from '@/context/BranchContext';
 
 const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
 const PAY_LABELS = { tarjeta: 'Tarjeta de crédito', gift_card: 'Gift card', google_pay: 'Google Pay', apple_pay: 'Apple Pay' };
@@ -12,6 +13,7 @@ const DAY_LABELS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
 export default function EstadisticasPage() {
   const { profile, isStaff } = useAuth();
+  const { branch, branchInfo } = useBranch();
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [profiles, setProfiles] = useState([]);
@@ -26,8 +28,10 @@ export default function EstadisticasPage() {
   useEffect(() => {
     async function load() {
       if (!BARRO_CONFIGURED) { setLoading(false); return; }
+      let ordersQuery = sb.from('orders').select('*');
+      if (branch) ordersQuery = ordersQuery.eq('branch', branch);
       const [ordersRes, profilesRes, itemsRes, giftRes] = await Promise.all([
-        sb.from('orders').select('*'),
+        ordersQuery,
         sb.from('profiles').select('*').eq('role', 'cliente'),
         sb.from('menu_items').select('id, name, category, cost, price'),
         sb.from('gift_cards').select('*'),
@@ -39,7 +43,7 @@ export default function EstadisticasPage() {
       setLoading(false);
     }
     load();
-  }, []);
+  }, [branch]);
 
   const stats = useMemo(() => {
     const totalRevenue = orders.reduce((s, o) => s + Number(o.subtotal || 0), 0);
@@ -132,7 +136,7 @@ export default function EstadisticasPage() {
         <div className="section-head" style={{ marginBottom: 26 }}>
           <p className="eyebrow">Panel del dueño</p>
           <h2 style={{ fontSize: 24 }}>Estadísticas</h2>
-          <p>Un vistazo a cómo le está yendo al local.</p>
+          <p>{branchInfo ? `Ventas y pedidos de ${branchInfo.full}. Los clientes y gift cards son del negocio completo.` : 'Un vistazo a cómo le está yendo al local.'}</p>
         </div>
 
         {stats.totalOrders === 0 ? (
