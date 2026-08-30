@@ -441,6 +441,15 @@ header{display:none;}
 .giftcard-card{margin-top:14px; background:linear-gradient(135deg, var(--dark), #2A2117); color:#fff; border-radius:var(--radius-lg); padding:22px;}
 .giftcard-card h3{font-family:var(--font-display); font-size:30px; margin-top:8px; color:#fff;}
 .giftcard-card p{margin-top:6px; font-size:12.5px; color:rgba(243,236,221,0.6);}
+.giftcard-actions{display:flex; gap:10px; margin-top:16px;}
+.giftcard-actions .btn{flex:1; justify-content:center;}
+.giftcard-inventory{display:flex; flex-direction:column; gap:10px;}
+.giftcard-item{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;}
+.giftcard-item-code{display:block; font-family:var(--font-display); font-size:14px; font-weight:700; letter-spacing:.5px;}
+.giftcard-item-date{display:block; font-size:11px; color:var(--ink-soft); margin-top:2px;}
+.giftcard-item-amount{display:block; font-size:15px; font-weight:700; color:var(--amber-deep);}
+.giftcard-item-status{display:block; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); margin-top:2px;}
+.giftcard-item-status.active{color:var(--ok);}
 .admin-photo-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
 .admin-photo-grid > div{display:flex; flex-direction:column; gap:8px;}
 .admin-photo-grid span{font-size:11.5px; font-weight:600; color:var(--ink-soft); text-align:center;}
@@ -547,6 +556,13 @@ header{display:none;}
 .pd-desc{margin-top:10px; font-size:14px; line-height:1.65; color:var(--ink-soft); text-align:left;}
 .pd-cta-wrap{position:fixed; left:0; right:0; bottom:0; display:flex; justify-content:center; padding:18px; pointer-events:none;}
 .pd-cta{pointer-events:all; width:58px; height:58px; border-radius:50%; background:var(--amber); color:#fff; border:none; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center;}
+.pd-cta-wide{width:auto; height:auto; border-radius:100px; padding:16px 30px; font-size:14.5px; font-weight:700; white-space:nowrap;}
+.pd-cta-wide:disabled{opacity:.7;}
+.amount-stepper{padding:8px 14px; gap:14px;}
+.amount-stepper span{font-family:var(--font-display); font-size:16px; font-weight:700; min-width:80px;}
+.amount-stepper button{width:30px; height:30px; font-size:17px;}
+
+.giftcard-code{margin-top:16px; background:var(--dark); color:#fff; font-family:var(--font-display); font-size:22px; font-weight:700; letter-spacing:2px; padding:14px 22px; border-radius:14px; display:inline-block;}
 .pd-cta svg{width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2.4;}
 
 /* =========================================================
