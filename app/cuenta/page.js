@@ -1,11 +1,14 @@
 'use client';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useMenuItems, money } from '@/hooks/useMenuItems';
+import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import EditablePhoto from '@/components/EditablePhoto';
 import ProductCard from '@/components/ProductCard';
 import OffersCarousel from '@/components/OffersCarousel';
+import GiftCardModal from '@/components/GiftCardModal';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 
@@ -41,6 +44,16 @@ function ClientView({ profile, logout }) {
   const { items } = useMenuItems();
   const { ids, isGuest } = useFavorites();
   const favItems = useMemo(() => items.filter((i) => ids.has(i.id)), [items, ids]);
+  const [giftModal, setGiftModal] = useState(null); // 'buy' | 'redeem' | null
+  const [giftCards, setGiftCards] = useState([]);
+
+  const loadGiftCards = useCallback(async () => {
+    if (!BARRO_CONFIGURED) return;
+    const { data, error } = await sb.from('gift_cards').select('*').eq('buyer_user_id', profile.id).order('created_at', { ascending: false });
+    if (!error && data) setGiftCards(data);
+  }, [profile.id]);
+
+  useEffect(() => { loadGiftCards(); }, [loadGiftCards]);
 
   return (
     <section className="cuenta-page">
@@ -56,8 +69,31 @@ function ClientView({ profile, logout }) {
         <Reveal className="giftcard-card" delay={0.08}>
           <span className="eyebrow" style={{ color: 'rgba(243,236,221,0.75)' }}>Balance de gift card</span>
           <h3>{money(profile.gift_card_balance || 0)}</h3>
-          <p>Pregunta en la barra cómo recargarla.</p>
+          <div className="giftcard-actions">
+            <button type="button" className="btn btn-amber btn-sm" onClick={() => setGiftModal('buy')}>Comprar</button>
+            <button type="button" className="btn btn-ghost-light btn-sm" onClick={() => setGiftModal('redeem')}>Canjear</button>
+          </div>
         </Reveal>
+
+        {giftCards.length > 0 && (
+          <>
+            <div className="home-section-top" style={{ marginTop: 30 }}><h3>Tus gift cards</h3></div>
+            <div className="giftcard-inventory">
+              {giftCards.map((gc) => (
+                <div key={gc.id} className="giftcard-item">
+                  <div>
+                    <span className="giftcard-item-code">{gc.code}</span>
+                    <span className="giftcard-item-date">{new Date(gc.created_at).toLocaleDateString('es-DO')}</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span className="giftcard-item-amount">{money(gc.amount)}</span>
+                    <span className={`giftcard-item-status${gc.status === 'activa' ? ' active' : ''}`}>{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="home-section-top" style={{ marginTop: 34 }}>
           <h3>Tus favoritos</h3>
@@ -73,6 +109,12 @@ function ClientView({ profile, logout }) {
 
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 40 }} onClick={logout}>Cerrar sesión</button>
       </div>
+
+      <AnimatePresence>
+        {giftModal && (
+          <GiftCardModal mode={giftModal} onClose={() => setGiftModal(null)} onDone={loadGiftCards} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
