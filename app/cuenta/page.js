@@ -15,6 +15,8 @@ import AvatarPicker from '@/components/AvatarPicker';
 import AvatarLibraryManager from '@/components/AvatarLibraryManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
+import BranchGate from '@/components/BranchGate';
+import { useBranch } from '@/context/BranchContext';
 
 function timeAgo(dateStr) {
   const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
@@ -31,6 +33,22 @@ const ORDER_STATUS_LABELS = {
   lista: 'Lista',
   entregada: 'Entregada',
 };
+
+function BranchSwitcher() {
+  const { branchInfo } = useBranch();
+  const [switching, setSwitching] = useState(false);
+  return (
+    <>
+      <div className="branch-indicator">
+        <span>📍 {branchInfo ? branchInfo.full : 'Sin sucursal elegida'}</span>
+        <button type="button" onClick={() => setSwitching(true)}>Cambiar</button>
+      </div>
+      <AnimatePresence>
+        {switching && <BranchGate allowClose onClose={() => setSwitching(false)} />}
+      </AnimatePresence>
+    </>
+  );
+}
 
 
 
@@ -103,6 +121,8 @@ function ClientView({ profile, logout }) {
         </Reveal>
 
         {pickingAvatar && <AvatarPicker onClose={() => setPickingAvatar(false)} />}
+
+        <BranchSwitcher />
 
         {myOrders.length > 0 && (
           <>
@@ -288,6 +308,8 @@ function StaffView({ profile, logout }) {
         </Reveal>
 
         {pickingAvatar && <AvatarPicker onClose={() => setPickingAvatar(false)} />}
+
+        <BranchSwitcher />
 
         <Reveal delay={0.05}>
           <div className="section-head" style={{ marginTop: 34 }}>
