@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useOrdersNotify } from '@/context/OrdersNotifyContext';
+import { useBranch } from '@/context/BranchContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
 
@@ -27,6 +28,7 @@ function timeAgo(dateStr) {
 export default function OrdenesPage() {
   const { profile, isStaff } = useAuth();
   const { markSeen } = useOrdersNotify();
+  const { branchInfo } = useBranch();
   const router = useRouter();
   const [tab, setTab] = useState('pedidos'); // 'pedidos' | 'giftcards'
 
@@ -44,7 +46,7 @@ export default function OrdenesPage() {
         <div className="section-head" style={{ marginBottom: 20 }}>
           <p className="eyebrow">Panel del dueño</p>
           <h2 style={{ fontSize: 24 }}>Órdenes</h2>
-          <p>Los pedidos y las gift cards llegan aquí en tiempo real, con sonido incluido.</p>
+          <p>{branchInfo ? `Mostrando ${branchInfo.full}.` : 'Los pedidos y las gift cards llegan aquí en tiempo real, con sonido incluido.'}</p>
         </div>
 
         <div className="tabs" style={{ marginBottom: 26 }}>
@@ -59,16 +61,19 @@ export default function OrdenesPage() {
 }
 
 function OrdersList() {
+  const { branch } = useBranch();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
 
   const load = useCallback(async () => {
     if (!BARRO_CONFIGURED) { setOrders([]); setLoading(false); return; }
-    const { data, error } = await sb.from('orders').select('*').order('created_at', { ascending: false });
+    let query = sb.from('orders').select('*').order('created_at', { ascending: false });
+    if (branch) query = query.eq('branch', branch);
+    const { data, error } = await query;
     setOrders(!error && data ? data : []);
     setLoading(false);
-  }, []);
+  }, [branch]);
 
   useEffect(() => {
     load();
