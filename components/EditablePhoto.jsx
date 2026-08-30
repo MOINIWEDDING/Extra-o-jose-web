@@ -46,6 +46,7 @@ export default function EditablePhoto({ imgKey, label, className = '' }) {
 
   async function handleSave(e) {
     e.preventDefault();
+    if (uploader.uploading) { setSaveError('Espera a que la foto o video termine de subir.'); return; }
     if (!uploader.url) { setSaveError('Elige una foto primero.'); return; }
     if (BARRO_CONFIGURED) {
       const { error } = await sb.from('site_images')
@@ -88,7 +89,7 @@ export default function EditablePhoto({ imgKey, label, className = '' }) {
             {saveError && <div className="form-msg show error">{saveError}</div>}
             <div className="modal-actions">
               <button type="button" className="btn btn-ghost" onClick={() => setModalOpen(false)}>Cancelar</button>
-              <button type="submit" className="btn btn-amber">Guardar foto</button>
+              <button type="submit" className="btn btn-amber" disabled={uploader.uploading}>{uploader.uploading ? 'Subiendo…' : 'Guardar foto'}</button>
             </div>
           </form>
         </div>

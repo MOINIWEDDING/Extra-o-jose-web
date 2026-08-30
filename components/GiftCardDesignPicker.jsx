@@ -64,6 +64,7 @@ function AddDesignModal({ onClose, onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim()) { setMsg({ text: 'Ponle un nombre a tu diseño.', type: 'error' }); return; }
+    if (uploader.uploading) { setMsg({ text: 'Espera a que la foto termine de subir.', type: 'error' }); return; }
     if (!uploader.url) { setMsg({ text: 'Sube una foto para tu diseño.', type: 'error' }); return; }
     if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar de verdad.', type: 'error' }); return; }
     setBusy(true);
@@ -91,7 +92,7 @@ function AddDesignModal({ onClose, onSaved }) {
           {msg.text && <div className={`form-msg show ${msg.type}`}>{msg.text}</div>}
           <div className="modal-actions">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-amber" disabled={busy}>{busy ? 'Guardando…' : 'Usar este diseño'}</button>
+            <button type="submit" className="btn btn-amber" disabled={busy || uploader.uploading}>{uploader.uploading ? 'Subiendo…' : (busy ? 'Guardando…' : 'Usar este diseño')}</button>
           </div>
         </form>
       </div>

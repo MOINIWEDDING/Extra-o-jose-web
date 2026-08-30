@@ -21,6 +21,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
     e.preventDefault();
     const priceNum = parseFloat(price);
     if (!name.trim() || Number.isNaN(priceNum)) { setMsg({ text: 'Completa el nombre y el precio.', type: 'error' }); return; }
+    if (uploader.uploading) { setMsg({ text: 'Espera a que la foto termine de subir.', type: 'error' }); return; }
     if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar cambios de verdad.', type: 'error' }); return; }
     const payload = { name: name.trim(), price: priceNum, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured };
     let error;
@@ -70,7 +71,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
           {msg.text && <div className={`form-msg show ${msg.type}`}>{msg.text}</div>}
           <div className="modal-actions">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-amber">{item ? 'Guardar cambios' : 'Guardar producto'}</button>
+            <button type="submit" className="btn btn-amber" disabled={uploader.uploading}>{uploader.uploading ? 'Subiendo…' : (item ? 'Guardar cambios' : 'Guardar producto')}</button>
           </div>
         </form>
       </div>

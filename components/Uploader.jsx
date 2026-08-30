@@ -5,7 +5,7 @@ import { PRODUCT_PHOTO_MIN, PRODUCT_PHOTO_MAX, LANDSCAPE_MIN_W, LANDSCAPE_MIN_H,
 export default function Uploader({ uploader, kind = 'site', requireTransparent, hint }) {
   const resolvedKind = kind || (requireTransparent ? 'product' : 'site');
   const isProduct = resolvedKind === 'product';
-  const { inputRef, previewUrl, previewIsVideo, progress, error, onInputChange, reset } = uploader;
+  const { inputRef, previewUrl, previewIsVideo, progress, uploading, error, onInputChange, reset } = uploader;
 
   const accept = isProduct ? 'image/png' : 'image/*,video/mp4,video/webm';
   const defaultHint = isProduct
@@ -31,9 +31,9 @@ export default function Uploader({ uploader, kind = 'site', requireTransparent, 
         style={{ display: 'none' }}
         onChange={onInputChange}
       />
-      <button type="button" className="up-btn" onClick={() => inputRef.current && inputRef.current.click()}>
+      <button type="button" className="up-btn" disabled={uploading} onClick={() => inputRef.current && inputRef.current.click()}>
         <svg className="icon" viewBox="0 0 24 24"><path d="M12 16V5M8 9l4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
-        {previewUrl ? 'Cambiar' : 'Elegir'} {isProduct ? 'foto' : 'foto o video'}
+        {uploading ? 'Subiendo…' : `${previewUrl ? 'Cambiar' : 'Elegir'} ${isProduct ? 'foto' : 'foto o video'}`}
       </button>
       <span className="up-hint">{hint || defaultHint}</span>
       {isProduct && (

@@ -124,6 +124,7 @@ function OfferModal({ offer, onClose, onSaved }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim()) { setMsg({ text: 'Escribe un título.', type: 'error' }); return; }
+    if (uploader.uploading) { setMsg({ text: 'Espera a que la foto o video termine de subir.', type: 'error' }); return; }
     if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar cambios de verdad.', type: 'error' }); return; }
     const payload = {
       title: title.trim(),
@@ -171,7 +172,7 @@ function OfferModal({ offer, onClose, onSaved }) {
           {msg.text && <div className={`form-msg show ${msg.type}`}>{msg.text}</div>}
           <div className="modal-actions">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn btn-amber">Guardar banner</button>
+            <button type="submit" className="btn btn-amber" disabled={uploader.uploading}>{uploader.uploading ? 'Subiendo…' : 'Guardar banner'}</button>
           </div>
         </form>
       </div>
