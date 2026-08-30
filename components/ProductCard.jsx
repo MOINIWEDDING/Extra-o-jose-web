@@ -39,9 +39,7 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete })
         tabIndex={0}
       >
         <div className="p-photo" style={{ '--tint': `var(--tint-${tint})`, '--tint-deep': `var(--tint-${tint}-deep)` }}>
-          {item.image_url ? (
-            <img src={item.image_url} alt={item.name} />
-          ) : (
+          {!item.image_url && (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg className="ph-icon" style={{ width: 30, height: 30, stroke: '#fff', opacity: .6 }} viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="13.5" r="3.4" /></svg>
             </div>
@@ -85,6 +83,10 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete })
             </div>
           )}
         </div>
+
+        {item.image_url && (
+          <img className="p-photo-pop" src={item.image_url} alt={item.name} />
+        )}
 
         <div className="p-info" style={{ '--tint-deep': `var(--tint-${tint}-deep)` }}>
           <h4>{item.name}</h4>

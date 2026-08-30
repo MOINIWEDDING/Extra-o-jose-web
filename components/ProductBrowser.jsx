@@ -13,7 +13,7 @@ import Reveal from './Reveal';
 export default function ProductBrowser() {
   const { isStaff } = useAuth();
   const { categories } = useCategories();
-  const { items, reload } = useMenuItems();
+  const { items, loading, reload } = useMenuItems();
   const searchParams = useSearchParams();
 
   const [query, setQuery] = useState('');
@@ -68,7 +68,7 @@ export default function ProductBrowser() {
       </Reveal>
 
       <div className="home-grid" style={{ marginTop: 28 }}>
-        {filtered.length === 0 ? (
+        {loading ? null : filtered.length === 0 ? (
           <p className="empty-note" style={{ gridColumn: '1/-1' }}>No encontramos nada con ese nombre o categoría.</p>
         ) : filtered.map((item) => (
           <ProductCard
