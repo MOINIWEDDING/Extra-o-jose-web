@@ -443,6 +443,11 @@ header{display:none;}
 .order-card-bottom{display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:12px; border-top:1px solid var(--line);}
 .order-pay{font-size:12px; font-weight:600; color:var(--ink-soft);}
 .order-status{border:1px solid var(--line); border-radius:100px; padding:8px 14px; font-size:12.5px; font-weight:600; font-family:inherit; background:var(--cream-2); color:var(--ink);}
+.order-status-badge{border-radius:100px; padding:6px 14px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; background:var(--cream-2); color:var(--ink-soft);}
+.order-status-badge.status-nueva{background:#F6E3CE; color:var(--amber-deep);}
+.order-status-badge.status-en_preparacion{background:#E4DAC9; color:var(--ink);}
+.order-status-badge.status-lista{background:#E1EADD; color:var(--ok);}
+.order-status-badge.status-entregada{background:var(--cream-2); color:var(--ink-soft);}
 .profile-card{display:flex; align-items:center; gap:16px; background:var(--cream-2); border-radius:var(--radius-lg); padding:22px;}
 .profile-av{width:56px; height:56px; border-radius:50%; background:var(--amber); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; flex-shrink:0;}
 .giftcard-card{margin-top:14px; background:linear-gradient(135deg, var(--dark), #2A2117); color:#fff; border-radius:var(--radius-lg); padding:22px;}
