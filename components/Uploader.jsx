@@ -1,5 +1,7 @@
 'use client';
 
+import { PRODUCT_PHOTO_MIN, PRODUCT_PHOTO_MAX } from '@/lib/upload';
+
 export default function Uploader({ uploader, requireTransparent, hint }) {
   const { inputRef, previewUrl, progress, error, onInputChange, reset } = uploader;
 
@@ -22,9 +24,13 @@ export default function Uploader({ uploader, requireTransparent, hint }) {
         <svg className="icon" viewBox="0 0 24 24"><path d="M12 16V5M8 9l4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
         {previewUrl ? 'Cambiar foto' : 'Elegir foto'}
       </button>
-      <span className="up-hint">{hint || (requireTransparent ? 'Solo PNG con el fondo ya quitado.' : 'JPG o PNG, hasta 5 MB.')}</span>
+      <span className="up-hint">
+        {hint || (requireTransparent
+          ? `PNG cuadrado, sin fondo, entre ${PRODUCT_PHOTO_MIN}×${PRODUCT_PHOTO_MIN} y ${PRODUCT_PHOTO_MAX}×${PRODUCT_PHOTO_MAX}px.`
+          : 'JPG o PNG, hasta 5 MB.')}
+      </span>
       {requireTransparent && (
-        <span className="up-note">¿No sabe cómo quitar el fondo? Usa remove.bg (gratis) antes de subirla.</span>
+        <span className="up-note">¿No sabe cómo quitar el fondo o recortarla cuadrada? Usa remove.bg y luego cualquier recortador de fotos (gratis).</span>
       )}
       <div className={`up-bar${progress > 0 && progress < 100 ? ' show' : ''}`}>
         <i style={{ width: `${progress}%` }} />
