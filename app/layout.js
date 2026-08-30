@@ -13,6 +13,7 @@ import AuthModal from '@/components/AuthModal';
 import CartDrawer from '@/components/CartDrawer';
 import FloatingCartButton from '@/components/FloatingCartButton';
 import OrderNotifier from '@/components/OrderNotifier';
+import GiftCardNotifier from '@/components/GiftCardNotifier';
 
 const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-outfit', display: 'swap' });
 const urbanist = Urbanist({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-urbanist', display: 'swap' });
@@ -45,6 +46,7 @@ export default function RootLayout({ children }) {
                   <AuthModal />
                   <CartDrawer />
                   <OrderNotifier />
+                  <GiftCardNotifier />
                 </OrdersNotifyProvider>
               </ToastProvider>
             </CartProvider>

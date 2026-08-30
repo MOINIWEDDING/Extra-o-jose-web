@@ -333,6 +333,13 @@ footer h5{font-size:12px; color:var(--cream-on-dark); margin:0 0 8px; text-trans
 .admin-on .offer-admin{display:flex;}
 .offer-admin .icon-btn{width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,0.94); display:flex; align-items:center; justify-content:center; color:var(--ink);}
 .offer-admin .icon-btn.danger{color:var(--err);}
+
+.design-pick{border:none; padding:0; text-align:left; cursor:pointer; flex:0 0 220px; aspect-ratio:16/10;}
+.design-pick.selected{outline:3px solid var(--amber); outline-offset:3px;}
+.design-pick-check{position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:50%; background:var(--amber); display:flex; align-items:center; justify-content:center; z-index:3;}
+.design-pick-check svg{width:15px; height:15px; stroke:#fff; fill:none; stroke-width:2.4;}
+.gift-modal-top{display:flex; align-items:center; gap:14px; padding:20px 20px 0;}
+.giftcard-banner{border:none; padding:0; text-align:left; cursor:pointer;}
 .offers-add{flex:0 0 100%; scroll-snap-align:start; border:1.5px dashed rgba(36,28,19,0.25); border-radius:var(--radius-lg); aspect-ratio:16/10; display:none; align-items:center; justify-content:center; flex-direction:column; gap:8px; color:var(--ink-soft); background:rgba(194,99,42,0.05);}
 .admin-on .offers-add{display:flex;}
 .offers-add .plus{width:44px; height:44px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center;}
