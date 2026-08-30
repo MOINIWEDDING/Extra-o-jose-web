@@ -7,6 +7,8 @@ import Modal from './Modal';
 export default function AuthModal() {
   const { modalOpen, closeAuth, mode, setMode, role, setRole, login, signup } = useAuth();
   const [name, setName] = useState('');
+  const [gender, setGender] = useState('');
+  const [age, setAge] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
@@ -14,7 +16,7 @@ export default function AuthModal() {
 
   useEffect(() => {
     if (modalOpen) {
-      setName(''); setEmail(''); setPassword('');
+      setName(''); setGender(''); setAge(''); setEmail(''); setPassword('');
       setMsg({ text: '', type: '' });
     }
   }, [modalOpen, mode, role]);
@@ -35,7 +37,9 @@ export default function AuthModal() {
         closeAuth();
       } else {
         if (!name.trim()) { setMsg({ text: 'Escribe tu nombre.', type: 'error' }); setBusy(false); return; }
-        const result = await signup(email.trim().toLowerCase(), password, name.trim(), role);
+        if (!gender) { setMsg({ text: 'Elige una opción de sexo.', type: 'error' }); setBusy(false); return; }
+        if (!age || Number(age) < 1 || Number(age) > 120) { setMsg({ text: 'Escribe una edad válida.', type: 'error' }); setBusy(false); return; }
+        const result = await signup(email.trim().toLowerCase(), password, name.trim(), role, { gender, age });
         if (result.needsConfirmation) {
           setMsg({ text: 'Cuenta creada. Revisa tu correo para confirmar antes de iniciar sesión.', type: 'ok' });
           setTimeout(closeAuth, 2200);
@@ -68,10 +72,27 @@ export default function AuthModal() {
       <div className="modal-body">
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="field">
-              <label htmlFor="authName">Nombre</label>
-              <input id="authName" type="text" autoComplete="name" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
+            <>
+              <div className="field">
+                <label htmlFor="authName">Nombre</label>
+                <input id="authName" type="text" autoComplete="name" placeholder="Tu nombre" value={name} onChange={(e) => setName(e.target.value)} />
+              </div>
+              <div className="field-row">
+                <div className="field">
+                  <label htmlFor="authGender">Sexo</label>
+                  <select id="authGender" value={gender} onChange={(e) => setGender(e.target.value)}>
+                    <option value="">Elige…</option>
+                    <option value="femenino">Femenino</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="prefiero_no_decir">Prefiero no decir</option>
+                  </select>
+                </div>
+                <div className="field">
+                  <label htmlFor="authAge">Edad</label>
+                  <input id="authAge" type="number" min="1" max="120" inputMode="numeric" placeholder="Ej. 28" value={age} onChange={(e) => setAge(e.target.value)} />
+                </div>
+              </div>
+            </>
           )}
           <div className="field">
             <label htmlFor="authEmail">Correo</label>
