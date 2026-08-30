@@ -17,6 +17,7 @@ const STAFF_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/menu', label: 'Menú' },
   { href: '/ordenes', label: 'Órdenes', badge: true },
+  { href: '/estadisticas', label: 'Estadísticas' },
 ];
 
 export default function Header() {
