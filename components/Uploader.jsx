@@ -1,20 +1,23 @@
 'use client';
 import { PRODUCT_PHOTO_MIN, PRODUCT_PHOTO_MAX, LANDSCAPE_MIN_W, LANDSCAPE_MIN_H, MAX_VIDEO_SECONDS } from '@/lib/upload';
 
-// kind: 'product' (PNG cuadrado sin fondo) | 'site' | 'offer' (foto o video panorámico 16:9)
+// kind: 'product' (PNG cuadrado sin fondo) | 'avatar' (foto cuadrada normal) | 'site' | 'offer' (foto o video panorámico 16:9)
 export default function Uploader({ uploader, kind = 'site', requireTransparent, hint }) {
   const resolvedKind = kind || (requireTransparent ? 'product' : 'site');
   const isProduct = resolvedKind === 'product';
+  const isAvatar = resolvedKind === 'avatar';
   const { inputRef, previewUrl, previewIsVideo, progress, uploading, error, onInputChange, reset } = uploader;
 
-  const accept = isProduct ? 'image/png' : 'image/*,video/mp4,video/webm';
+  const accept = isProduct ? 'image/png' : (isAvatar ? 'image/*' : 'image/*,video/mp4,video/webm');
   const defaultHint = isProduct
     ? `PNG cuadrado, sin fondo, entre ${PRODUCT_PHOTO_MIN}×${PRODUCT_PHOTO_MIN} y ${PRODUCT_PHOTO_MAX}×${PRODUCT_PHOTO_MAX}px.`
-    : `Foto o video panorámico (16:9), mínimo ${LANDSCAPE_MIN_W}×${LANDSCAPE_MIN_H}px. Video: máx. ${MAX_VIDEO_SECONDS}s.`;
+    : isAvatar
+      ? `Foto cuadrada, entre ${PRODUCT_PHOTO_MIN}×${PRODUCT_PHOTO_MIN} y ${PRODUCT_PHOTO_MAX}×${PRODUCT_PHOTO_MAX}px.`
+      : `Foto o video panorámico (16:9), mínimo ${LANDSCAPE_MIN_W}×${LANDSCAPE_MIN_H}px. Video: máx. ${MAX_VIDEO_SECONDS}s.`;
 
   return (
     <div className={`uploader${isProduct ? ' transparent-required' : ''}`}>
-      <div className={`up-preview${previewUrl ? ' show' : ''}`}>
+      <div className={`up-preview${previewUrl ? ' show' : ''}${isAvatar ? ' up-preview-round' : ''}`}>
         {previewUrl ? (
           previewIsVideo
             ? <video src={previewUrl} muted autoPlay loop playsInline />
@@ -33,7 +36,7 @@ export default function Uploader({ uploader, kind = 'site', requireTransparent, 
       />
       <button type="button" className="up-btn" disabled={uploading} onClick={() => inputRef.current && inputRef.current.click()}>
         <svg className="icon" viewBox="0 0 24 24"><path d="M12 16V5M8 9l4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
-        {uploading ? 'Subiendo…' : `${previewUrl ? 'Cambiar' : 'Elegir'} ${isProduct ? 'foto' : 'foto o video'}`}
+        {uploading ? 'Subiendo…' : `${previewUrl ? 'Cambiar' : 'Elegir'} ${isProduct || isAvatar ? 'foto' : 'foto o video'}`}
       </button>
       <span className="up-hint">{hint || defaultHint}</span>
       {isProduct && (
