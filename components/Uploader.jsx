@@ -1,14 +1,25 @@
 'use client';
+import { PRODUCT_PHOTO_MIN, PRODUCT_PHOTO_MAX, LANDSCAPE_MIN_W, LANDSCAPE_MIN_H, MAX_VIDEO_SECONDS } from '@/lib/upload';
 
-import { PRODUCT_PHOTO_MIN, PRODUCT_PHOTO_MAX } from '@/lib/upload';
+// kind: 'product' (PNG cuadrado sin fondo) | 'site' | 'offer' (foto o video panorámico 16:9)
+export default function Uploader({ uploader, kind = 'site', requireTransparent, hint }) {
+  const resolvedKind = kind || (requireTransparent ? 'product' : 'site');
+  const isProduct = resolvedKind === 'product';
+  const { inputRef, previewUrl, previewIsVideo, progress, error, onInputChange, reset } = uploader;
 
-export default function Uploader({ uploader, requireTransparent, hint }) {
-  const { inputRef, previewUrl, progress, error, onInputChange, reset } = uploader;
+  const accept = isProduct ? 'image/png' : 'image/*,video/mp4,video/webm';
+  const defaultHint = isProduct
+    ? `PNG cuadrado, sin fondo, entre ${PRODUCT_PHOTO_MIN}×${PRODUCT_PHOTO_MIN} y ${PRODUCT_PHOTO_MAX}×${PRODUCT_PHOTO_MAX}px.`
+    : `Foto o video panorámico (16:9), mínimo ${LANDSCAPE_MIN_W}×${LANDSCAPE_MIN_H}px. Video: máx. ${MAX_VIDEO_SECONDS}s.`;
 
   return (
-    <div className={`uploader${requireTransparent ? ' transparent-required' : ''}`}>
+    <div className={`uploader${isProduct ? ' transparent-required' : ''}`}>
       <div className={`up-preview${previewUrl ? ' show' : ''}`}>
-        {previewUrl ? <img src={previewUrl} alt="" /> : null}
+        {previewUrl ? (
+          previewIsVideo
+            ? <video src={previewUrl} muted autoPlay loop playsInline />
+            : <img src={previewUrl} alt="" />
+        ) : null}
         <button type="button" className="up-remove" aria-label="Quitar" onClick={reset}>
           <svg className="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
@@ -16,20 +27,16 @@ export default function Uploader({ uploader, requireTransparent, hint }) {
       <input
         ref={inputRef}
         type="file"
-        accept={requireTransparent ? 'image/png' : 'image/*'}
+        accept={accept}
         style={{ display: 'none' }}
         onChange={onInputChange}
       />
       <button type="button" className="up-btn" onClick={() => inputRef.current && inputRef.current.click()}>
         <svg className="icon" viewBox="0 0 24 24"><path d="M12 16V5M8 9l4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
-        {previewUrl ? 'Cambiar foto' : 'Elegir foto'}
+        {previewUrl ? 'Cambiar' : 'Elegir'} {isProduct ? 'foto' : 'foto o video'}
       </button>
-      <span className="up-hint">
-        {hint || (requireTransparent
-          ? `PNG cuadrado, sin fondo, entre ${PRODUCT_PHOTO_MIN}×${PRODUCT_PHOTO_MIN} y ${PRODUCT_PHOTO_MAX}×${PRODUCT_PHOTO_MAX}px.`
-          : 'JPG o PNG, hasta 5 MB.')}
-      </span>
-      {requireTransparent && (
+      <span className="up-hint">{hint || defaultHint}</span>
+      {isProduct && (
         <span className="up-note">¿No sabe cómo quitar el fondo o recortarla cuadrada? Usa remove.bg y luego cualquier recortador de fotos (gratis).</span>
       )}
       <div className={`up-bar${progress > 0 && progress < 100 ? ' show' : ''}`}>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useUploader } from '@/hooks/useUploader';
+import { isVideoUrl } from '@/lib/upload';
 import Uploader from './Uploader';
 import Modal from './Modal';
 
@@ -60,7 +61,9 @@ export default function EditablePhoto({ imgKey, label, className = '' }) {
     <>
       <div className={`ph ${className}`}>
         {url ? (
-          <img className="real" src={url} alt={label || ''} />
+          isVideoUrl(url)
+            ? <video className="real" src={url} autoPlay muted loop playsInline />
+            : <img className="real" src={url} alt={label || ''} />
         ) : (
           <>
             <svg className="ph-icon" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="13.5" r="3.4" /></svg>

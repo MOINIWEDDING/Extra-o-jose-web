@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
 import { useUploader } from '@/hooks/useUploader';
+import { isVideoUrl } from '@/lib/upload';
 import Uploader from './Uploader';
 import Modal from './Modal';
 import Reveal from './Reveal';
@@ -60,7 +61,9 @@ export default function OffersCarousel() {
             <div className="offer-card" key={offer.id}>
               <div className="ph">
                 {offer.image_url
-                  ? <img className="real" src={offer.image_url} alt={offer.title} />
+                  ? (isVideoUrl(offer.image_url)
+                    ? <video className="real" src={offer.image_url} autoPlay muted loop playsInline />
+                    : <img className="real" src={offer.image_url} alt={offer.title} />)
                   : <svg className="ph-icon" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="13.5" r="3.4" /></svg>}
               </div>
               <div className="offer-content">
