@@ -13,13 +13,13 @@ const TABLES = Array.from({ length: 14 }, (_, i) => String(i + 1));
 const PAYMENT_METHODS = [
   { id: 'google_pay', label: 'Google Pay', ready: false },
   { id: 'apple_pay', label: 'Apple Pay', ready: false },
-  { id: 'gift_card', label: 'Gift Card', ready: false },
+  { id: 'gift_card', label: 'Gift Card', ready: true },
   { id: 'tarjeta', label: 'Tarjeta de crédito', ready: true },
 ];
 
 export default function CartDrawer() {
   const { lines, subtotal, setQty, setNotes, removeItem, clear, tableNumber, setTableNumber, customerName, setCustomerName, drawerOpen, closeDrawer } = useCart();
-  const { profile } = useAuth();
+  const { profile, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
   const [placing, setPlacing] = useState(false);
@@ -27,6 +27,7 @@ export default function CartDrawer() {
   const [success, setSuccess] = useState(false);
 
   const effectiveName = customerName || (profile ? profile.name : '') || '';
+  const total = subtotal + DELIVERY;
 
   async function handlePay(method) {
     if (!lines.length) return;
@@ -37,8 +38,22 @@ export default function CartDrawer() {
     }
     if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
+
+    if (method === 'gift_card') {
+      if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
+      if ((profile.gift_card_balance || 0) < total) {
+        setPlaceError(`No te alcanza el balance de gift card (tienes ${money(profile.gift_card_balance || 0)}, el total es ${money(total)}). Elige otro método o completa el pago con tarjeta.`);
+        return;
+      }
+    }
+
     setPlaceError('');
     setPlacing(true);
+
+    if (method === 'gift_card' && BARRO_CONFIGURED) {
+      const { error: payError } = await sb.rpc('pay_with_gift_card', { amount_input: total });
+      if (payError) { setPlaceError(payError.message.replace('exception: ', '')); setPlacing(false); return; }
+    }
 
     const payload = {
       customer_name: effectiveName.trim(),
@@ -53,6 +68,8 @@ export default function CartDrawer() {
       const { error } = await sb.from('orders').insert(payload);
       if (error) { setPlaceError('No se pudo enviar el pedido: ' + error.message); setPlacing(false); return; }
     }
+
+    if (method === 'gift_card') await refreshProfile();
 
     setPlacing(false);
     setSuccess(true);
@@ -174,7 +191,10 @@ export default function CartDrawer() {
 
                       {placeError && <div className="form-msg show error" style={{ marginTop: 14 }}>{placeError}</div>}
 
-                      <p className="pay-label">Elige cómo pagar</p>
+                      <p className="pay-label">
+                        Elige cómo pagar
+                        {profile && <span className="muted" style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}> · tu balance de gift card: {money(profile.gift_card_balance || 0)}</span>}
+                      </p>
                       <div className="pay-grid">
                         {PAYMENT_METHODS.map((m) => (
                           <button
