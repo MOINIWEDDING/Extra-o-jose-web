@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -51,12 +51,22 @@ function ClientView({ profile, logout }) {
 
   const loadGiftCards = useCallback(async () => {
     if (!BARRO_CONFIGURED) return;
-    const { data, error } = await sb
+    // Se hace en dos pasos (en vez de un "join" embebido) para que nunca se
+    // pierda una tarjeta por culpa de permisos sobre un diseño relacionado.
+    const { data: cards, error } = await sb
       .from('gift_cards')
-      .select('*, gift_card_designs(name, image_url)')
+      .select('*')
       .or(`buyer_user_id.eq.${profile.id},redeemed_by.eq.${profile.id}`)
       .order('created_at', { ascending: false });
-    if (!error && data) setGiftCards(data);
+    if (error || !cards) return;
+
+    const designIds = [...new Set(cards.map((c) => c.design_id).filter(Boolean))];
+    let designsById = {};
+    if (designIds.length) {
+      const { data: designs } = await sb.from('gift_card_designs').select('id, name, image_url').in('id', designIds);
+      (designs || []).forEach((d) => { designsById[d.id] = d; });
+    }
+    setGiftCards(cards.map((c) => ({ ...c, design: designsById[c.design_id] || null })));
   }, [profile.id]);
 
   useEffect(() => { loadGiftCards(); }, [loadGiftCards]);
@@ -82,31 +92,7 @@ function ClientView({ profile, logout }) {
         </Reveal>
 
         {giftCards.length > 0 && (
-          <>
-            <div className="home-section-top" style={{ marginTop: 30 }}><h3>Tus gift cards</h3></div>
-            <div className="offers-wrap" style={{ margin: '0 -20px' }}>
-              <div className="offers-track">
-                {giftCards.map((gc) => (
-                  <button
-                    type="button"
-                    key={gc.id}
-                    className="offer-card giftcard-banner"
-                    onClick={() => setViewingCard(gc)}
-                  >
-                    <div className="ph">
-                      {gc.gift_card_designs?.image_url
-                        ? <img className="real" src={gc.gift_card_designs.image_url} alt="" />
-                        : <svg className="ph-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13M3 12h18" /></svg>}
-                    </div>
-                    <div className="offer-content">
-                      <p className="eyebrow">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</p>
-                      <h3>{money(gc.amount)}</h3>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
+          <GiftCardBanners cards={giftCards} onSelect={setViewingCard} />
         )}
 
         <div className="home-section-top" style={{ marginTop: 34 }}>
@@ -136,6 +122,69 @@ function ClientView({ profile, logout }) {
   );
 }
 
+function GiftCardBanners({ cards, onSelect }) {
+  const trackRef = useRef(null);
+  const [index, setIndex] = useState(0);
+
+  function onScroll() {
+    const el = trackRef.current;
+    if (!el) return;
+    setIndex(Math.round(el.scrollLeft / el.clientWidth));
+  }
+
+  function scrollBy(dir) {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir === 'left' ? -el.clientWidth : el.clientWidth, behavior: 'smooth' });
+  }
+
+  return (
+    <>
+      <div className="home-section-top" style={{ marginTop: 30 }}>
+        <h3>Tus gift cards</h3>
+        {cards.length > 1 && <span className="muted" style={{ fontSize: 12 }}>Desliza para ver todas ({cards.length})</span>}
+      </div>
+      <div className="offers-wrap" style={{ margin: '0 -20px', position: 'relative' }}>
+        {cards.length > 1 && (
+          <>
+            <button type="button" className="carousel-arrow left" style={{ display: 'flex' }} onClick={() => scrollBy('left')} aria-label="Anterior">
+              <svg className="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
+            </button>
+            <button type="button" className="carousel-arrow right" style={{ display: 'flex' }} onClick={() => scrollBy('right')} aria-label="Siguiente">
+              <svg className="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </>
+        )}
+        <div className="offers-track" ref={trackRef} onScroll={onScroll}>
+          {cards.map((gc) => (
+            <button
+              type="button"
+              key={gc.id}
+              className="offer-card giftcard-banner"
+              onClick={() => onSelect(gc)}
+            >
+              <div className="ph">
+                {gc.design?.image_url
+                  ? <img className="real" src={gc.design.image_url} alt="" />
+                  : <svg className="ph-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13M3 12h18" /></svg>}
+              </div>
+              <div className="offer-content">
+                <p className="eyebrow">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</p>
+                <h3>{money(gc.amount)}</h3>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+      {cards.length > 1 && (
+        <div className="offers-dots">
+          {cards.map((_, i) => <span key={i} className={i === index ? 'active' : ''} />)}
+        </div>
+      )}
+    </>
+  );
+}
+
 function GiftCardDetailModal({ card, onClose }) {
   return (
     <motion.div className="overlay show" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -143,13 +192,13 @@ function GiftCardDetailModal({ card, onClose }) {
         <button type="button" className="modal-close" onClick={onClose} aria-label="Cerrar">
           <svg className="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
-        {card.gift_card_designs?.image_url && (
+        {card.design?.image_url && (
           <div className="ph" style={{ height: 160, borderRadius: '14px 14px 0 0', border: 'none' }}>
-            <img className="real" src={card.gift_card_designs.image_url} alt="" />
+            <img className="real" src={card.design.image_url} alt="" />
           </div>
         )}
         <div className="modal-body">
-          <p className="eyebrow on-cream">{card.gift_card_designs?.name || 'Gift card'}</p>
+          <p className="eyebrow on-cream">{card.design?.name || 'Gift card'}</p>
           <h3 style={{ marginTop: 4 }}>{money(card.amount)}</h3>
           <div className="giftcard-code" style={{ marginTop: 16 }}>{card.code}</div>
           <div className="info-list" style={{ marginTop: 20 }}>
