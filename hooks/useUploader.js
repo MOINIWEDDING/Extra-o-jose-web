@@ -1,18 +1,20 @@
 'use client';
 import { useRef, useState, useCallback } from 'react';
-import { uploadPhoto } from '@/lib/upload';
+import { uploadPhoto, isVideoFile, isVideoUrl } from '@/lib/upload';
 
-// opts.requireTransparent=true activa la validación de fondo transparente (fotos de producto).
+// opts.kind: 'product' | 'site' | 'offer' (ver lib/upload.js para las reglas de cada uno).
 export function useUploader(opts = {}) {
   const inputRef = useRef(null);
   const [url, setUrlState] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
+  const [previewIsVideo, setPreviewIsVideo] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
 
   const setUrl = useCallback((u) => {
     setUrlState(u || '');
     setPreviewUrl(u || '');
+    setPreviewIsVideo(isVideoUrl(u));
     setError('');
     if (inputRef.current) inputRef.current.value = '';
   }, []);
@@ -20,6 +22,7 @@ export function useUploader(opts = {}) {
   const reset = useCallback(() => {
     setUrlState('');
     setPreviewUrl('');
+    setPreviewIsVideo(false);
     setError('');
     setProgress(0);
     if (inputRef.current) inputRef.current.value = '';
@@ -29,16 +32,20 @@ export function useUploader(opts = {}) {
     if (!file) return;
     setError('');
     const localUrl = URL.createObjectURL(file);
+    const videoFile = isVideoFile(file);
     setPreviewUrl(localUrl);
+    setPreviewIsVideo(videoFile);
     setProgress(10);
     try {
       const publicUrl = await uploadPhoto(file, setProgress, opts);
       setUrlState(publicUrl);
       setPreviewUrl(publicUrl);
+      setPreviewIsVideo(videoFile);
     } catch (err) {
       setError(err.message);
       setUrlState('');
       setPreviewUrl('');
+      setPreviewIsVideo(false);
       if (inputRef.current) inputRef.current.value = '';
     } finally {
       setTimeout(() => setProgress(0), 400);
@@ -50,5 +57,5 @@ export function useUploader(opts = {}) {
     handleFile(file);
   }, [handleFile]);
 
-  return { inputRef, url, previewUrl, progress, error, setUrl, reset, onInputChange };
+  return { inputRef, url, previewUrl, previewIsVideo, progress, error, setUrl, reset, onInputChange };
 }
