@@ -1,10 +1,12 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { money } from '@/hooks/useMenuItems';
+import { useGiftCardDesigns } from '@/hooks/useGiftCardDesigns';
+import GiftCardDesignPicker from './GiftCardDesignPicker';
 
 const STEP = 300;
 const MIN_AMOUNT = 300;
@@ -28,11 +30,20 @@ function generateCode() {
 export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
   const { profile, refreshProfile } = useAuth();
   const { showToast } = useToast();
+  const { designs, reload: reloadDesigns } = useGiftCardDesigns();
   const [amount, setAmount] = useState(MIN_AMOUNT);
+  const [designId, setDesignId] = useState(null);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null); // {code, amount} tras comprar | {amount} tras canjear
+
+  useEffect(() => {
+    if (!designId && designs.length) {
+      const visible = designs.filter((d) => d.scope === 'global' || d.owner_user_id === profile.id);
+      if (visible[0]) setDesignId(visible[0].id);
+    }
+  }, [designs, designId, profile.id]);
 
   async function handlePay(methodId) {
     const chosen = PAYMENT_METHODS.find((m) => m.id === methodId);
@@ -40,6 +51,7 @@ export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
       showToast(`${chosen.label} llega pronto — por ahora paga con tarjeta de crédito.`);
       return;
     }
+    if (!designId) { setError('Elige un diseño para tu gift card.'); return; }
     if (!BARRO_CONFIGURED) { setError('Conecta Supabase para comprar de verdad.'); return; }
     setBusy(true);
     setError('');
@@ -49,6 +61,8 @@ export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
       amount,
       status: 'activa',
       buyer_user_id: profile.id,
+      buyer_name: profile.name,
+      design_id: designId,
     });
     setBusy(false);
     if (insertError) { setError(insertError.message); return; }
@@ -104,28 +118,32 @@ export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
             </div>
           ) : mode === 'buy' ? (
             <>
-              <div className="pd-hero" style={{ background: 'var(--tint-experiencia)' }}>
-                <button type="button" className="pd-back" onClick={onClose} aria-label="Volver">
-                  <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
+              <div className="gift-modal-top">
+                <button type="button" className="modal-close" style={{ position: 'static' }} onClick={onClose} aria-label="Cerrar">
+                  <svg className="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
                 </button>
-                <div className="pd-photo">
-                  <div className="pd-photo-empty">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13M3 12h18" /><path d="M12 8c-2-3-6-3-6 0s4 2 6 0c2 2 6 2 6 0s-4-3-6 0z" /></svg>
-                  </div>
-                </div>
+                <p className="eyebrow" style={{ margin: 0 }}>Gift card</p>
               </div>
-              <div className="pd-body" style={{ paddingBottom: 40 }}>
-                <h2>Gift Card</h2>
-                <p className="pd-sub">Elige el monto</p>
 
-                <div className="pd-price-row" style={{ justifyContent: 'center' }}>
+              <div className="pd-body" style={{ paddingTop: 8, paddingBottom: 40 }}>
+                <h2>Elige un diseño</h2>
+                <p className="pd-sub" style={{ marginBottom: 16 }}>Puedes usar uno de los nuestros o crear el tuyo</p>
+
+                <GiftCardDesignPicker
+                  designs={designs}
+                  selectedId={designId}
+                  onSelect={setDesignId}
+                  onDesignAdded={reloadDesigns}
+                />
+
+                <h3 className="pd-section-title">Monto</h3>
+                <div className="pd-price-row" style={{ justifyContent: 'center', marginTop: 10 }}>
                   <div className="qty-stepper amount-stepper">
                     <button type="button" onClick={() => setAmount((a) => Math.max(MIN_AMOUNT, a - STEP))} aria-label="Menos">–</button>
                     <span>{money(amount)}</span>
                     <button type="button" onClick={() => setAmount((a) => Math.min(MAX_AMOUNT, a + STEP))} aria-label="Más">+</button>
                   </div>
                 </div>
-                <p className="muted" style={{ textAlign: 'center', fontSize: 12, marginTop: 8 }}>De {money(MIN_AMOUNT)} a {money(MAX_AMOUNT)}, de {money(STEP)} en {money(STEP)}.</p>
 
                 <h3 className="pd-section-title">Descripción</h3>
                 <p className="pd-desc">
