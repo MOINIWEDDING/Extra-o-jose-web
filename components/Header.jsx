@@ -3,18 +3,29 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useOrdersNotify } from '@/context/OrdersNotifyContext';
 
-const LINKS = [
+const GUEST_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/menu', label: 'Menú' },
   { href: '/visitanos', label: 'Visítanos' },
 ];
 
+const STAFF_LINKS = [
+  { href: '/', label: 'Inicio' },
+  { href: '/menu', label: 'Menú' },
+  { href: '/ordenes', label: 'Órdenes', badge: true },
+];
+
 export default function Header() {
   const pathname = usePathname();
   const { count, openDrawer } = useCart();
+  const { isStaff } = useAuth();
+  const { unseenCount } = useOrdersNotify();
   const [solid, setSolid] = useState(false);
+  const links = isStaff ? STAFF_LINKS : GUEST_LINKS;
 
   useEffect(() => {
     function onScroll() { setSolid(window.scrollY > 40); }
@@ -26,8 +37,11 @@ export default function Header() {
     <header id="siteHeader" className={solid ? 'solid' : ''}>
       <div className="wrap">
         <nav className="links">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={pathname === l.href ? 'current' : ''}>{l.label}</Link>
+          {links.map((l) => (
+            <Link key={l.href} href={l.href} className={pathname === l.href ? 'current' : ''} style={{ position: 'relative' }}>
+              {l.label}
+              {l.badge && unseenCount > 0 && <span className="tab-badge" style={{ position: 'absolute', top: -8, right: -16 }}>{unseenCount > 9 ? '9+' : unseenCount}</span>}
+            </Link>
           ))}
         </nav>
         <div className="nav-right">
