@@ -9,6 +9,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
   const uploader = useUploader({ requireTransparent: true });
   const [name, setName] = useState(item ? item.name : '');
   const [price, setPrice] = useState(item ? item.price : '');
+  const [cost, setCost] = useState(item ? (item.cost || '') : '');
   const [category, setCategory] = useState(item ? item.category : (defaultCategory || (categories[0] && categories[0].name) || ''));
   const [tags, setTags] = useState(item ? (item.tags || '') : '');
   const [description, setDescription] = useState(item ? (item.description || '') : '');
@@ -23,7 +24,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
     if (!name.trim() || Number.isNaN(priceNum)) { setMsg({ text: 'Completa el nombre y el precio.', type: 'error' }); return; }
     if (uploader.uploading) { setMsg({ text: 'Espera a que la foto termine de subir.', type: 'error' }); return; }
     if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar cambios de verdad.', type: 'error' }); return; }
-    const payload = { name: name.trim(), price: priceNum, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured };
+    const payload = { name: name.trim(), price: priceNum, cost: parseFloat(cost) || 0, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured };
     let error;
     if (item) {
       payload.updated_at = new Date().toISOString();
@@ -44,12 +45,15 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
       </div>
       <div className="modal-body">
         <form onSubmit={handleSubmit}>
+          <div className="field"><label htmlFor="pName">Nombre del plato o bebida</label>
+            <input id="pName" type="text" required value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
           <div className="field-row">
-            <div className="field"><label htmlFor="pName">Nombre del plato o bebida</label>
-              <input id="pName" type="text" required value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
             <div className="field"><label htmlFor="pPrice">Precio (RD$)</label>
               <input id="pPrice" type="number" min="0" step="1" inputMode="numeric" required value={price} onChange={(e) => setPrice(e.target.value)} />
+            </div>
+            <div className="field"><label htmlFor="pCost">Costo (opcional)</label>
+              <input id="pCost" type="number" min="0" step="1" inputMode="numeric" placeholder="Para calcular ganancia" value={cost} onChange={(e) => setCost(e.target.value)} />
             </div>
           </div>
           <div className="field"><label htmlFor="pCat">Categoría</label>
