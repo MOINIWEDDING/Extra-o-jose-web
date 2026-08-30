@@ -10,6 +10,9 @@ import ProductCard from '@/components/ProductCard';
 import OffersCarousel from '@/components/OffersCarousel';
 import GiftCardModal from '@/components/GiftCardModal';
 import GiftCardDesignManager from '@/components/GiftCardDesignManager';
+import Avatar from '@/components/Avatar';
+import AvatarPicker from '@/components/AvatarPicker';
+import AvatarLibraryManager from '@/components/AvatarLibraryManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 
@@ -29,25 +32,7 @@ const ORDER_STATUS_LABELS = {
   entregada: 'Entregada',
 };
 
-function initials(name) {
-  const clean = (name || '').trim();
-  if (!clean) return null;
-  const letters = clean.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-  return letters || null;
-}
 
-function Avatar({ name }) {
-  const letters = initials(name);
-  return (
-    <div className="profile-av">
-      {letters || (
-        <svg viewBox="0 0 24 24" style={{ width: 24, height: 24, stroke: '#fff', fill: 'none', strokeWidth: 1.8 }}>
-          <circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
-        </svg>
-      )}
-    </div>
-  );
-}
 
 export default function CuentaPage() {
   const { profile, isStaff, logout } = useAuth();
@@ -58,6 +43,7 @@ export default function CuentaPage() {
 }
 
 function ClientView({ profile, logout }) {
+  const [pickingAvatar, setPickingAvatar] = useState(false);
   const { items } = useMenuItems();
   const { ids, isGuest } = useFavorites();
   const favItems = useMemo(() => items.filter((i) => ids.has(i.id)), [items, ids]);
@@ -108,12 +94,15 @@ function ClientView({ profile, logout }) {
     <section className="cuenta-page">
       <div className="wrap">
         <Reveal className="profile-card">
-          <Avatar name={profile.name} />
+          <Avatar profile={profile} />
           <div>
             <h2 style={{ fontSize: 22 }}>{profile.name}</h2>
             <span className="role-tag">Cliente</span>
+            <button type="button" className="avatar-change-link" onClick={() => setPickingAvatar(true)}>Cambiar avatar</button>
           </div>
         </Reveal>
+
+        {pickingAvatar && <AvatarPicker onClose={() => setPickingAvatar(false)} />}
 
         {myOrders.length > 0 && (
           <>
@@ -285,16 +274,20 @@ function GiftCardDetailModal({ card, onClose }) {
 }
 
 function StaffView({ profile, logout }) {
+  const [pickingAvatar, setPickingAvatar] = useState(false);
   return (
     <section className="cuenta-page">
       <div className="wrap">
         <Reveal className="profile-card">
-          <Avatar name={profile.name} />
+          <Avatar profile={profile} />
           <div>
             <h2 style={{ fontSize: 22 }}>{profile.name}</h2>
             <span className="role-tag">Comensal · Dueño</span>
+            <button type="button" className="avatar-change-link" onClick={() => setPickingAvatar(true)}>Cambiar avatar</button>
           </div>
         </Reveal>
+
+        {pickingAvatar && <AvatarPicker onClose={() => setPickingAvatar(false)} />}
 
         <Reveal delay={0.05}>
           <div className="section-head" style={{ marginTop: 34 }}>
@@ -326,6 +319,14 @@ function StaffView({ profile, logout }) {
         <Reveal delay={0.2}>
           <div className="home-section-top" style={{ marginTop: 34 }}><h3>Diseños de gift card</h3></div>
           <GiftCardDesignManager />
+        </Reveal>
+
+        <Reveal delay={0.22}>
+          <div className="home-section-top" style={{ marginTop: 34 }}>
+            <h3>Fotos de avatar</h3>
+          </div>
+          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Los clientes eligen entre estas fotos — ellos no pueden subir las suyas.</p>
+          <AvatarLibraryManager />
         </Reveal>
 
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={logout}>Cerrar sesión</button>
