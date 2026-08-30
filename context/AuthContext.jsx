@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
     if (error || !data) {
       setProfile({ id: session.user.id, name: session.user.email, role: 'cliente' });
     } else {
-      setProfile(data);
+      setProfile({ ...data, name: (data.name && data.name.trim()) ? data.name : session.user.email });
     }
   }, []);
 
