@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { useBranch, BRANCHES } from '@/context/BranchContext';
 import { money } from '@/hooks/useMenuItems';
 import { useToast } from '@/context/ToastContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
@@ -20,6 +21,7 @@ const PAYMENT_METHODS = [
 export default function CartDrawer() {
   const { lines, subtotal, setQty, setNotes, removeItem, clear, tableNumber, setTableNumber, customerName, setCustomerName, drawerOpen, closeDrawer } = useCart();
   const { profile, refreshProfile } = useAuth();
+  const { branch, branchInfo, setBranch } = useBranch();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
   const [placing, setPlacing] = useState(false);
@@ -38,6 +40,7 @@ export default function CartDrawer() {
     }
     if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
+    if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
 
     if (method === 'gift_card') {
       if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
@@ -62,6 +65,7 @@ export default function CartDrawer() {
       subtotal,
       payment_method: method,
       user_id: profile ? profile.id : null,
+      branch,
     };
 
     if (BARRO_CONFIGURED) {
@@ -176,7 +180,19 @@ export default function CartDrawer() {
                             {TABLES.map((t) => <option key={t} value={t}>Mesa {t}</option>)}
                           </select>
                         </div>
+                        {!branch && (
+                          <div className="field">
+                            <label htmlFor="cartBranch">Sucursal</label>
+                            <select id="cartBranch" value={branch || ''} onChange={(e) => setBranch(e.target.value)}>
+                              <option value="">Elige la sucursal…</option>
+                              {BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.full}</option>)}
+                            </select>
+                          </div>
+                        )}
                       </div>
+                      {branch && (
+                        <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Pidiendo en: {branchInfo?.full}</p>
+                      )}
 
                       <div className="promo-row">
                         <input type="text" placeholder="Código promocional" value={promo} onChange={(e) => setPromo(e.target.value)} />
