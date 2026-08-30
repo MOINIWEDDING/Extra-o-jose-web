@@ -60,7 +60,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       profile, isStaff, modalOpen, mode, role, setMode, setRole,
-      openAuth, closeAuth, login, signup, logout,
+      openAuth, closeAuth, login, signup, logout, refreshProfile,
     }}>
       {children}
     </AuthContext.Provider>
