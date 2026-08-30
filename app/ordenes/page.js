@@ -61,6 +61,7 @@ export default function OrdenesPage() {
 function OrdersList() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   const load = useCallback(async () => {
     if (!BARRO_CONFIGURED) { setOrders([]); setLoading(false); return; }
@@ -84,6 +85,15 @@ function OrdersList() {
     if (BARRO_CONFIGURED) await sb.from('orders').update({ status }).eq('id', id);
   }
 
+  async function handleDelete(id) {
+    if (BARRO_CONFIGURED) {
+      const { error } = await sb.from('orders').delete().eq('id', id);
+      if (error) { alert('No se pudo eliminar: ' + error.message); setDeletingId(null); return; }
+    }
+    setDeletingId(null);
+    setOrders((prev) => prev.filter((o) => o.id !== id));
+  }
+
   if (loading) return null;
   if (orders.length === 0) return <p className="empty-note">Todavía no hay pedidos.</p>;
 
@@ -97,6 +107,21 @@ function OrdersList() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
         >
+          <button type="button" className="order-delete-btn" aria-label="Eliminar pedido" onClick={() => setDeletingId(order.id)}>
+            <svg className="icon" style={{ width: 14, height: 14 }} viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" /></svg>
+          </button>
+
+          {deletingId === order.id && (
+            <div className="order-confirm-del">
+              <span style={{ fontSize: 13.5, fontWeight: 600 }}>¿Eliminar este pedido de {order.customer_name}?</span>
+              <span className="muted" style={{ fontSize: 12 }}>También desaparece de "Tus pedidos" en su cuenta.</span>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button type="button" className="btn btn-amber btn-sm" style={{ background: 'var(--err)' }} onClick={() => handleDelete(order.id)}>Sí, eliminar</button>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDeletingId(null)}>Cancelar</button>
+              </div>
+            </div>
+          )}
+
           <div className="order-card-top">
             <div>
               <h4>{order.customer_name}</h4>
