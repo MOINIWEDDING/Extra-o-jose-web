@@ -142,6 +142,7 @@ function CategorySection({ category, items, allCount, limited, onAddProduct, onE
                 tint={category.tint}
                 onEdit={isStaff ? onEditProduct : undefined}
                 onDelete={isStaff ? handleDelete : undefined}
+                showDivider={false}
               />
             ))}
             {isStaff && !limited && (

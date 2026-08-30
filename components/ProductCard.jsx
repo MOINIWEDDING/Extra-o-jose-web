@@ -6,7 +6,7 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { money } from '@/hooks/useMenuItems';
 import ProductDetailModal from './ProductDetailModal';
 
-export default function ProductCard({ item, tint = 'manana', onEdit, onDelete }) {
+export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, showDivider = true }) {
   const { addItem } = useCart();
   const { isFav, toggle } = useFavorites();
   const [confirming, setConfirming] = useState(false);
@@ -93,7 +93,7 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete })
           {tags.length > 0 && (
             <div className="p-tags">{tags.map((t) => <span key={t}>{t}</span>)}</div>
           )}
-          <div className="p-divider" />
+          {showDivider && <div className="p-divider" />}
           <div className="p-bottom-row">
             <span className="p-price">{money(item.price)}</span>
             <motion.button
