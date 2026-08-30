@@ -9,6 +9,7 @@ export function useUploader(opts = {}) {
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewIsVideo, setPreviewIsVideo] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   const setUrl = useCallback((u) => {
@@ -16,6 +17,7 @@ export function useUploader(opts = {}) {
     setPreviewUrl(u || '');
     setPreviewIsVideo(isVideoUrl(u));
     setError('');
+    setUploading(false);
     if (inputRef.current) inputRef.current.value = '';
   }, []);
 
@@ -25,12 +27,18 @@ export function useUploader(opts = {}) {
     setPreviewIsVideo(false);
     setError('');
     setProgress(0);
+    setUploading(false);
     if (inputRef.current) inputRef.current.value = '';
   }, []);
 
   const handleFile = useCallback(async (file) => {
     if (!file) return;
     setError('');
+    setUploading(true);
+    // Se limpia la URL ya guardada de inmediato: mientras el archivo nuevo no
+    // termine de subir, no debe quedar disponible ninguna URL "vieja" con la
+    // que se pudiera guardar el formulario por error.
+    setUrlState('');
     const localUrl = URL.createObjectURL(file);
     const videoFile = isVideoFile(file);
     setPreviewUrl(localUrl);
@@ -48,6 +56,7 @@ export function useUploader(opts = {}) {
       setPreviewIsVideo(false);
       if (inputRef.current) inputRef.current.value = '';
     } finally {
+      setUploading(false);
       setTimeout(() => setProgress(0), 400);
     }
   }, [opts]);
@@ -57,5 +66,5 @@ export function useUploader(opts = {}) {
     handleFile(file);
   }, [handleFile]);
 
-  return { inputRef, url, previewUrl, previewIsVideo, progress, error, setUrl, reset, onInputChange };
+  return { inputRef, url, previewUrl, previewIsVideo, progress, uploading, error, setUrl, reset, onInputChange };
 }
