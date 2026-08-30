@@ -21,6 +21,11 @@ export default function Tabbar() {
   const pathname = usePathname();
   const { profile, isStaff } = useAuth();
   const { unseenCount } = useOrdersNotify();
+
+  // En la pantalla de bienvenida/login (Cuenta sin sesión) no mostramos la barra,
+  // para que se sienta como una pantalla propia, sin navegación detrás.
+  if (pathname === '/cuenta' && !profile) return null;
+
   const tabs = [...(isStaff ? STAFF_TABS : GUEST_TABS), { href: '/cuenta', label: 'Cuenta', icon: <><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></> }];
 
   return (

@@ -22,7 +22,7 @@ const STAFF_LINKS = [
 export default function Header() {
   const pathname = usePathname();
   const { count, openDrawer } = useCart();
-  const { isStaff } = useAuth();
+  const { profile, isStaff } = useAuth();
   const { unseenCount } = useOrdersNotify();
   const [solid, setSolid] = useState(false);
   const links = isStaff ? STAFF_LINKS : GUEST_LINKS;
@@ -32,6 +32,9 @@ export default function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Misma pantalla de bienvenida/login: tampoco mostramos el header en escritorio.
+  if (pathname === '/cuenta' && !profile) return null;
 
   return (
     <header id="siteHeader" className={solid ? 'solid' : ''}>

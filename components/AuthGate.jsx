@@ -23,6 +23,12 @@ export default function AuthGate() {
     return () => { active = false; };
   }, []);
 
+  // Sin barra de navegación en esta pantalla: tampoco reservamos el espacio de abajo.
+  useEffect(() => {
+    document.body.classList.add('no-tabbar-padding');
+    return () => document.body.classList.remove('no-tabbar-padding');
+  }, []);
+
   return (
     <motion.section
       className="authgate"

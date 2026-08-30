@@ -1,12 +1,18 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function FloatingCartButton() {
   const { count, openDrawer } = useCart();
+  const { profile } = useAuth();
+  const pathname = usePathname();
+  const hide = pathname === '/cuenta' && !profile;
+
   return (
     <AnimatePresence>
-      {count > 0 && (
+      {count > 0 && !hide && (
         <motion.button
           type="button"
           className="fab-cart"
