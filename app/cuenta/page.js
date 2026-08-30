@@ -10,7 +10,23 @@ import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 
 function initials(name) {
-  return (name || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+  const clean = (name || '').trim();
+  if (!clean) return null;
+  const letters = clean.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+  return letters || null;
+}
+
+function Avatar({ name }) {
+  const letters = initials(name);
+  return (
+    <div className="profile-av">
+      {letters || (
+        <svg viewBox="0 0 24 24" style={{ width: 24, height: 24, stroke: '#fff', fill: 'none', strokeWidth: 1.8 }}>
+          <circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+        </svg>
+      )}
+    </div>
+  );
 }
 
 export default function CuentaPage() {
@@ -30,7 +46,7 @@ function ClientView({ profile, logout }) {
     <section className="cuenta-page">
       <div className="wrap">
         <Reveal className="profile-card">
-          <div className="profile-av">{initials(profile.name)}</div>
+          <Avatar name={profile.name} />
           <div>
             <h2 style={{ fontSize: 22 }}>{profile.name}</h2>
             <span className="role-tag">Cliente</span>
@@ -66,7 +82,7 @@ function StaffView({ profile, logout }) {
     <section className="cuenta-page">
       <div className="wrap">
         <Reveal className="profile-card">
-          <div className="profile-av">{initials(profile.name)}</div>
+          <Avatar name={profile.name} />
           <div>
             <h2 style={{ fontSize: 22 }}>{profile.name}</h2>
             <span className="role-tag">Comensal · Dueño</span>
