@@ -3,11 +3,19 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { money } from '@/hooks/useMenuItems';
 
 const STEP = 300;
 const MIN_AMOUNT = 300;
 const MAX_AMOUNT = 3000;
+
+const PAYMENT_METHODS = [
+  { id: 'google_pay', label: 'Google Pay', ready: false },
+  { id: 'apple_pay', label: 'Apple Pay', ready: false },
+  { id: 'gift_card', label: 'Gift Card', ready: false },
+  { id: 'tarjeta', label: 'Tarjeta de crédito', ready: true },
+];
 
 // Código generado al vuelo, nunca sacado de una lista guardada de antemano.
 function generateCode() {
@@ -19,13 +27,19 @@ function generateCode() {
 
 export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
   const { profile, refreshProfile } = useAuth();
+  const { showToast } = useToast();
   const [amount, setAmount] = useState(MIN_AMOUNT);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null); // {code, amount} tras comprar | {amount} tras canjear
 
-  async function handleBuy() {
+  async function handlePay(methodId) {
+    const chosen = PAYMENT_METHODS.find((m) => m.id === methodId);
+    if (!chosen.ready) {
+      showToast(`${chosen.label} llega pronto — por ahora paga con tarjeta de crédito.`);
+      return;
+    }
     if (!BARRO_CONFIGURED) { setError('Conecta Supabase para comprar de verdad.'); return; }
     setBusy(true);
     setError('');
@@ -100,7 +114,7 @@ export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
                   </div>
                 </div>
               </div>
-              <div className="pd-body">
+              <div className="pd-body" style={{ paddingBottom: 40 }}>
                 <h2>Gift Card</h2>
                 <p className="pd-sub">Elige el monto</p>
 
@@ -119,11 +133,22 @@ export default function GiftCardModal({ mode = 'buy', onClose, onDone }) {
                   puede canjearlo desde su cuenta para sumarlo a su balance de gift card.
                 </p>
                 {error && <div className="form-msg show error" style={{ marginTop: 14 }}>{error}</div>}
-              </div>
-              <div className="pd-cta-wrap">
-                <motion.button whileTap={{ scale: 0.95 }} type="button" className="pd-cta pd-cta-wide" disabled={busy} onClick={handleBuy}>
-                  {busy ? 'Comprando…' : `Comprar por ${money(amount)}`}
-                </motion.button>
+
+                <p className="pay-label">Elige cómo pagar</p>
+                <div className="pay-grid">
+                  {PAYMENT_METHODS.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className={`pay-btn${m.ready ? ' ready' : ''}`}
+                      disabled={busy}
+                      onClick={() => handlePay(m.id)}
+                    >
+                      {busy && m.ready ? 'Comprando…' : m.label}
+                      {!m.ready && <span className="pay-soon">Próximamente</span>}
+                    </button>
+                  ))}
+                </div>
               </div>
             </>
           ) : (
