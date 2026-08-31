@@ -78,6 +78,7 @@ function ClientView({ profile, logout }) {
         <BranchSwitcher />
 
         <Reveal className="giftcard-card" delay={0.08}>
+          <img src="/logo-white.png" alt="" className="card-logo-mark" />
           <span className="eyebrow" style={{ color: 'rgba(243,236,221,0.75)' }}>Balance de gift card</span>
           <h3>{money(profile.gift_card_balance || 0)}</h3>
           <div className="giftcard-actions">
