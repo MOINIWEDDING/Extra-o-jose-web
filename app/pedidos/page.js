@@ -94,6 +94,7 @@ function MyOrders({ profile }) {
           <div className="orders-list" style={{ marginTop: 24 }}>
             {orders.map((order) => (
               <div key={order.id} className="order-card">
+                <img src="/logo.png" alt="" className="card-logo-mark" />
                 <div className="order-card-top">
                   <div>
                     <h4>{order.table_number}</h4>
