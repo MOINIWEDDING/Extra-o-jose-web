@@ -10,7 +10,7 @@ const GUEST_LINKS = [
   { href: '/', label: 'Inicio' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/menu', label: 'Menú' },
-  { href: '/visitanos', label: 'Visítanos' },
+  { href: '/pedidos', label: 'Pedidos' },
 ];
 
 const STAFF_LINKS = [
