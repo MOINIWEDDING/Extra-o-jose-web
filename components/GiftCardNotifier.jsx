@@ -18,7 +18,11 @@ export default function GiftCardNotifier() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gift_cards' }, (payload) => {
         const gc = payload.new;
         playNotificationSound();
-        showToast(`${gc.buyer_name || 'Alguien'} compró una gift card de ${money(gc.amount)} 🎁`);
+        if (gc.is_gift) {
+          showToast(`🎁 EL EXTRAÑO JOSÉ REGALÓ UNA GIFT CARD de ${money(gc.amount)} a ${gc.recipient_email}`);
+        } else {
+          showToast(`${gc.buyer_name || 'Alguien'} compró una gift card de ${money(gc.amount)} 🎁`);
+        }
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'gift_cards' }, (payload) => {
         const gc = payload.new;
