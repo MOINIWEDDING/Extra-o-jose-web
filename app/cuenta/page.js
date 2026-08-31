@@ -19,22 +19,6 @@ import AuthGate from '@/components/AuthGate';
 import BranchGate from '@/components/BranchGate';
 import { useBranch } from '@/context/BranchContext';
 
-function timeAgo(dateStr) {
-  const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
-  const mins = Math.round(diff / 60000);
-  if (mins < 1) return 'ahora mismo';
-  if (mins < 60) return `hace ${mins} min`;
-  const hrs = Math.round(mins / 60);
-  return `hace ${hrs} h`;
-}
-
-const ORDER_STATUS_LABELS = {
-  nueva: 'Nueva',
-  en_preparacion: 'En preparación',
-  lista: 'Lista',
-  entregada: 'Entregada',
-};
-
 function BranchSwitcher() {
   const { branchInfo } = useBranch();
   const [switching, setSwitching] = useState(false);
@@ -69,23 +53,6 @@ function ClientView({ profile, logout }) {
   const [giftModal, setGiftModal] = useState(null); // 'buy' | 'redeem' | null
   const [giftCards, setGiftCards] = useState([]);
   const [viewingCard, setViewingCard] = useState(null);
-  const [myOrders, setMyOrders] = useState([]);
-
-  const loadMyOrders = useCallback(async () => {
-    if (!BARRO_CONFIGURED) return;
-    const { data, error } = await sb.from('orders').select('*').eq('user_id', profile.id).order('created_at', { ascending: false });
-    if (!error && data) setMyOrders(data);
-  }, [profile.id]);
-
-  useEffect(() => {
-    loadMyOrders();
-    if (!BARRO_CONFIGURED) return undefined;
-    const channel = sb
-      .channel(`my-orders-${profile.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${profile.id}` }, () => loadMyOrders())
-      .subscribe();
-    return () => { sb.removeChannel(channel); };
-  }, [loadMyOrders, profile.id]);
 
   const loadGiftCards = useCallback(async () => {
     if (!BARRO_CONFIGURED) return;
@@ -124,37 +91,6 @@ function ClientView({ profile, logout }) {
         {pickingAvatar && <AvatarPicker onClose={() => setPickingAvatar(false)} />}
 
         <BranchSwitcher />
-
-        {myOrders.length > 0 && (
-          <>
-            <div className="home-section-top" style={{ marginTop: 30 }}><h3>Tus pedidos</h3></div>
-            <div className="orders-list">
-              {myOrders.map((order) => (
-                <div key={order.id} className="order-card">
-                  <div className="order-card-top">
-                    <div>
-                      <h4>{order.table_number}</h4>
-                      <span className="order-meta">{timeAgo(order.created_at)}</span>
-                    </div>
-                    <span className="order-price">{money(order.subtotal)}</span>
-                  </div>
-                  <ul className="order-items">
-                    {(order.items || []).map((it, i) => (
-                      <li key={i}>
-                        <span>{it.qty}× {it.name}</span>
-                        {it.notes && <span className="order-item-note">— {it.notes}</span>}
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="order-card-bottom">
-                    <span className="order-pay">{order.payment_method === 'tarjeta' ? 'Tarjeta de crédito' : order.payment_method}</span>
-                    <span className={`order-status-badge status-${order.status}`}>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
 
         <Reveal className="giftcard-card" delay={0.08}>
           <span className="eyebrow" style={{ color: 'rgba(243,236,221,0.75)' }}>Balance de gift card</span>
