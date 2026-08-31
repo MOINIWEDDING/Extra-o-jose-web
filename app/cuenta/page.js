@@ -10,6 +10,7 @@ import ProductCard from '@/components/ProductCard';
 import OffersCarousel from '@/components/OffersCarousel';
 import GiftCardModal from '@/components/GiftCardModal';
 import GiftCardDesignManager from '@/components/GiftCardDesignManager';
+import GiftCardGiftModal from '@/components/GiftCardGiftModal';
 import Avatar from '@/components/Avatar';
 import AvatarPicker from '@/components/AvatarPicker';
 import AvatarLibraryManager from '@/components/AvatarLibraryManager';
@@ -45,7 +46,7 @@ function ClientView({ profile, logout }) {
     const { data: cards, error } = await sb
       .from('gift_cards')
       .select('*')
-      .or(`buyer_user_id.eq.${profile.id},redeemed_by.eq.${profile.id}`)
+      .or(`buyer_user_id.eq.${profile.id},redeemed_by.eq.${profile.id}${profile.email ? `,recipient_email.eq.${profile.email}` : ''}`)
       .order('created_at', { ascending: false });
     if (error || !cards) return;
 
@@ -193,6 +194,7 @@ function GiftCardDetailModal({ card, onClose }) {
 
 function StaffView({ profile, logout }) {
   const [pickingAvatar, setPickingAvatar] = useState(false);
+  const [gifting, setGifting] = useState(false);
   return (
     <section className="cuenta-page">
       <div className="wrap">
@@ -237,9 +239,14 @@ function StaffView({ profile, logout }) {
         </Reveal>
 
         <Reveal delay={0.2}>
-          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Diseños de gift card</h3></div>
+          <div className="home-section-top" style={{ marginTop: 34 }}>
+            <h3>Diseños de gift card</h3>
+            <button type="button" className="see-all" onClick={() => setGifting(true)}>Regalar una</button>
+          </div>
           <GiftCardDesignManager />
         </Reveal>
+
+        {gifting && <GiftCardGiftModal onClose={() => setGifting(false)} onDone={() => {}} />}
 
         <Reveal delay={0.22}>
           <div className="home-section-top" style={{ marginTop: 34 }}>
