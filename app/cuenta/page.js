@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -197,64 +197,25 @@ function ClientView({ profile, logout }) {
 }
 
 function GiftCardBanners({ cards, onSelect }) {
-  const trackRef = useRef(null);
-  const [index, setIndex] = useState(0);
-
-  function onScroll() {
-    const el = trackRef.current;
-    if (!el) return;
-    setIndex(Math.round(el.scrollLeft / el.clientWidth));
-  }
-
-  function scrollBy(dir) {
-    const el = trackRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir === 'left' ? -el.clientWidth : el.clientWidth, behavior: 'smooth' });
-  }
-
   return (
     <>
       <div className="home-section-top" style={{ marginTop: 30 }}>
         <h3>Tus gift cards</h3>
-        {cards.length > 1 && <span className="muted" style={{ fontSize: 12 }}>Desliza para ver todas ({cards.length})</span>}
       </div>
-      <div className="offers-wrap" style={{ margin: '0 -20px', position: 'relative' }}>
-        {cards.length > 1 && (
-          <>
-            <button type="button" className="carousel-arrow left" style={{ display: 'flex' }} onClick={() => scrollBy('left')} aria-label="Anterior">
-              <svg className="icon" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
-            </button>
-            <button type="button" className="carousel-arrow right" style={{ display: 'flex' }} onClick={() => scrollBy('right')} aria-label="Siguiente">
-              <svg className="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </>
-        )}
-        <div className="offers-track" ref={trackRef} onScroll={onScroll}>
-          {cards.map((gc) => (
-            <button
-              type="button"
-              key={gc.id}
-              className="offer-card giftcard-banner"
-              onClick={() => onSelect(gc)}
-            >
-              <div className="ph">
-                {gc.design?.image_url
-                  ? <img className="real" src={gc.design.image_url} alt="" />
-                  : <svg className="ph-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2" /><path d="M12 8v13M3 12h18" /></svg>}
-              </div>
-              <div className="offer-content">
-                <p className="eyebrow">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</p>
-                <h3>{money(gc.amount)}</h3>
-              </div>
-            </button>
-          ))}
-        </div>
+      <div className="giftcard-inventory">
+        {cards.map((gc) => (
+          <button type="button" key={gc.id} className="giftcard-item" onClick={() => onSelect(gc)}>
+            <div>
+              <span className="giftcard-item-code">{gc.code}</span>
+              <span className="giftcard-item-date">{new Date(gc.created_at).toLocaleDateString('es-DO')}</span>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span className="giftcard-item-amount">{money(gc.amount)}</span>
+              <span className={`giftcard-item-status${gc.status === 'activa' ? ' active' : ''}`}>{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
+            </div>
+          </button>
+        ))}
       </div>
-      {cards.length > 1 && (
-        <div className="offers-dots">
-          {cards.map((_, i) => <span key={i} className={i === index ? 'active' : ''} />)}
-        </div>
-      )}
     </>
   );
 }
