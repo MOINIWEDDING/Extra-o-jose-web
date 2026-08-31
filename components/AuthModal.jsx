@@ -5,7 +5,7 @@ import { BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import Modal from './Modal';
 
 export default function AuthModal() {
-  const { modalOpen, closeAuth, mode, setMode, role, setRole, login, signup } = useAuth();
+  const { modalOpen, closeAuth, mode, setMode, login, signup } = useAuth();
   const [name, setName] = useState('');
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
@@ -19,7 +19,7 @@ export default function AuthModal() {
       setName(''); setGender(''); setAge(''); setEmail(''); setPassword('');
       setMsg({ text: '', type: '' });
     }
-  }, [modalOpen, mode, role]);
+  }, [modalOpen, mode]);
 
   const isLogin = mode === 'login';
 
@@ -39,7 +39,7 @@ export default function AuthModal() {
         if (!name.trim()) { setMsg({ text: 'Escribe tu nombre.', type: 'error' }); setBusy(false); return; }
         if (!gender) { setMsg({ text: 'Elige una opción de sexo.', type: 'error' }); setBusy(false); return; }
         if (!age || Number(age) < 1 || Number(age) > 120) { setMsg({ text: 'Escribe una edad válida.', type: 'error' }); setBusy(false); return; }
-        const result = await signup(email.trim().toLowerCase(), password, name.trim(), role, { gender, age });
+        const result = await signup(email.trim().toLowerCase(), password, name.trim(), 'cliente', { gender, age });
         if (result.needsConfirmation) {
           setMsg({ text: 'Cuenta creada. Revisa tu correo para confirmar antes de iniciar sesión.', type: 'ok' });
           setTimeout(closeAuth, 2200);
@@ -60,14 +60,8 @@ export default function AuthModal() {
         <p className="eyebrow">Acceso</p>
         <h3>{isLogin ? 'Inicia sesión' : 'Crea tu cuenta'}</h3>
         <p className="modal-sub">
-          {role === 'staff'
-            ? 'Acceso para el personal y dueños de la cafetería. Podrás editar el menú y las fotos del sitio.'
-            : 'Entra como cliente, o como comensal / dueño para editar el sitio.'}
+          {isLogin ? 'Entra con tu correo y contraseña.' : 'Guarda tus favoritos, tu carrito y tu balance de gift card.'}
         </p>
-        <div className="role-switch">
-          <button type="button" className={role === 'cliente' ? 'active' : ''} onClick={() => setRole('cliente')}>Cliente</button>
-          <button type="button" className={role === 'staff' ? 'active' : ''} onClick={() => setRole('staff')}>Comensal · Dueño</button>
-        </div>
       </div>
       <div className="modal-body">
         <form onSubmit={handleSubmit}>
