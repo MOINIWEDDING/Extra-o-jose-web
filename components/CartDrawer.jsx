@@ -27,17 +27,15 @@ export default function CartDrawer() {
   const guestInfo = useGuestInfo();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
-  const [guestGender, setGuestGender] = useState('');
-  const [guestAge, setGuestAge] = useState('');
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Si ya se recolectó al entrar (invitado que ya pasó por la pantalla de
-  // sucursal), se usa eso; si por algo falta, se pide aquí como respaldo.
-  const effectiveGender = profile ? profile.gender : (guestInfo.gender || guestGender);
-  const effectiveAge = profile ? profile.age : (guestInfo.age || Number(guestAge) || null);
-  const needsGuestFieldsFallback = !profile && !(guestInfo.gender && guestInfo.age);
+  // El sexo/edad del invitado se recolectan al entrar (después de "Continuar
+  // como invitado"), nunca aquí en el checkout — si por algo faltan, el pedido
+  // simplemente se manda sin ese dato, no se interrumpe la compra por eso.
+  const effectiveGender = profile ? profile.gender : guestInfo.gender;
+  const effectiveAge = profile ? profile.age : guestInfo.age;
 
   const effectiveName = customerName || (profile ? profile.name : '') || '';
   const total = subtotal + DELIVERY;
@@ -52,10 +50,6 @@ export default function CartDrawer() {
     if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
     if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
-    if (!profile && needsGuestFieldsFallback) {
-      if (!guestGender) { setPlaceError('Elige una opción de sexo antes de continuar.'); return; }
-      if (!guestAge || Number(guestAge) < 1 || Number(guestAge) > 120) { setPlaceError('Escribe una edad válida antes de continuar.'); return; }
-    }
 
     if (method === 'gift_card') {
       if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
@@ -197,23 +191,6 @@ export default function CartDrawer() {
                             {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
                           </select>
                         </div>
-                        {needsGuestFieldsFallback && (
-                          <div className="field-row">
-                            <div className="field">
-                              <label htmlFor="cartGender">Sexo</label>
-                              <select id="cartGender" value={guestGender} onChange={(e) => setGuestGender(e.target.value)}>
-                                <option value="">Elige…</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="masculino">Masculino</option>
-                                <option value="prefiero_no_decir">Prefiero no decir</option>
-                              </select>
-                            </div>
-                            <div className="field">
-                              <label htmlFor="cartAge">Edad</label>
-                              <input id="cartAge" type="number" min="1" max="120" inputMode="numeric" placeholder="Ej. 28" value={guestAge} onChange={(e) => setGuestAge(e.target.value)} />
-                            </div>
-                          </div>
-                        )}
                       </div>
                       {branch && (
                         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Pidiendo en: {branchInfo?.full}</p>
