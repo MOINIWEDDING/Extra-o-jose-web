@@ -1,263 +1,300 @@
 'use client';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { useCart } from '@/context/CartContext';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { useBranch, BRANCHES } from '@/context/BranchContext';
-import { money } from '@/hooks/useMenuItems';
-import { useToast } from '@/context/ToastContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
+import { money } from '@/hooks/useMenuItems';
+import { useBranch } from '@/context/BranchContext';
 
-const DELIVERY = 0; // no hay delivery real todavía; se sirve en el local
-const TABLES = Array.from({ length: 14 }, (_, i) => String(i + 1));
+const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
+const PAY_LABELS = { tarjeta: 'Tarjeta de crédito', gift_card: 'Gift card', google_pay: 'Google Pay', apple_pay: 'Apple Pay' };
+const DAY_LABELS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
-const PAYMENT_METHODS = [
-  { id: 'google_pay', label: 'Google Pay', ready: false },
-  { id: 'apple_pay', label: 'Apple Pay', ready: false },
-  { id: 'gift_card', label: 'Gift Card', ready: true },
-  { id: 'tarjeta', label: 'Tarjeta de crédito', ready: true },
-];
+export default function EstadisticasPage() {
+  const { profile, isStaff } = useAuth();
+  const { branch, branchInfo } = useBranch();
+  const router = useRouter();
+  const [orders, setOrders] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [giftCards, setGiftCards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
-export default function CartDrawer() {
-  const { lines, subtotal, setQty, setNotes, removeItem, clear, tableNumber, setTableNumber, customerName, setCustomerName, drawerOpen, closeDrawer } = useCart();
-  const { profile, refreshProfile } = useAuth();
-  const { branch, branchInfo, setBranch } = useBranch();
-  const { showToast } = useToast();
-  const [promo, setPromo] = useState('');
-  const [guestGender, setGuestGender] = useState('');
-  const [guestAge, setGuestAge] = useState('');
-  const [placing, setPlacing] = useState(false);
-  const [placeError, setPlaceError] = useState('');
-  const [success, setSuccess] = useState(false);
+  useEffect(() => {
+    if (profile && !isStaff) router.push('/');
+  }, [profile, isStaff, router]);
 
-  const effectiveName = customerName || (profile ? profile.name : '') || '';
-  const total = subtotal + DELIVERY;
-
-  async function handlePay(method) {
-    if (!lines.length) return;
-    const chosen = PAYMENT_METHODS.find((m) => m.id === method);
-    if (!chosen.ready) {
-      showToast(`${chosen.label} llega pronto — por ahora paga con tarjeta de crédito.`);
-      return;
-    }
-    if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
-    if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
-    if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
-    if (!profile) {
-      if (!guestGender) { setPlaceError('Elige una opción de sexo antes de continuar.'); return; }
-      if (!guestAge || Number(guestAge) < 1 || Number(guestAge) > 120) { setPlaceError('Escribe una edad válida antes de continuar.'); return; }
-    }
-
-    if (method === 'gift_card') {
-      if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
-      if ((profile.gift_card_balance || 0) < total) {
-        setPlaceError(`No te alcanza el balance de gift card (tienes ${money(profile.gift_card_balance || 0)}, el total es ${money(total)}). Elige otro método o completa el pago con tarjeta.`);
-        return;
+  useEffect(() => {
+    async function load() {
+      setLoadError('');
+      if (!BARRO_CONFIGURED) { setLoading(false); return; }
+      try {
+        let ordersQuery = sb.from('orders').select('*');
+        if (branch) ordersQuery = ordersQuery.eq('branch', branch);
+        const [ordersRes, profilesRes, itemsRes, giftRes] = await Promise.all([
+          ordersQuery,
+          sb.from('profiles').select('*').eq('role', 'cliente'),
+          sb.from('menu_items').select('id, name, category, cost, price'),
+          sb.from('gift_cards').select('*'),
+        ]);
+        const firstError = ordersRes.error || profilesRes.error || itemsRes.error || giftRes.error;
+        if (firstError) throw firstError;
+        setOrders(ordersRes.data || []);
+        setProfiles(profilesRes.data || []);
+        setMenuItems(itemsRes.data || []);
+        setGiftCards(giftRes.data || []);
+      } catch (err) {
+        setLoadError(err.message || 'No se pudieron cargar las estadísticas.');
+      } finally {
+        setLoading(false);
       }
     }
+    load();
+  }, [branch]);
 
-    setPlaceError('');
-    setPlacing(true);
+  const stats = useMemo(() => {
+    const totalRevenue = orders.reduce((s, o) => s + Number(o.subtotal || 0), 0);
+    const totalOrders = orders.length;
+    const avgTicket = totalOrders ? totalRevenue / totalOrders : 0;
 
-    if (method === 'gift_card' && BARRO_CONFIGURED) {
-      const { error: payError } = await sb.rpc('pay_with_gift_card', { amount_input: total });
-      if (payError) { setPlaceError(payError.message.replace('exception: ', '')); setPlacing(false); return; }
-    }
+    const itemMap = {};
+    orders.forEach((o) => (o.items || []).forEach((it) => {
+      const key = it.id || it.name;
+      if (!itemMap[key]) itemMap[key] = { id: it.id, name: it.name, qty: 0, revenue: 0 };
+      itemMap[key].qty += it.qty;
+      itemMap[key].revenue += it.qty * it.price;
+    }));
+    const soldArr = Object.values(itemMap);
+    const bestSellers = [...soldArr].sort((a, b) => b.qty - a.qty).slice(0, 5);
+    const soldIds = new Set(soldArr.map((i) => i.id).filter(Boolean));
+    const zeroItems = menuItems.filter((m) => !soldIds.has(m.id)).map((m) => ({ id: m.id, name: m.name, qty: 0, revenue: 0 }));
+    const worstSellers = [...soldArr, ...zeroItems].sort((a, b) => a.qty - b.qty).slice(0, 5);
 
-    const payload = {
-      customer_name: effectiveName.trim(),
-      table_number: tableNumber,
-      items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '' })),
-      subtotal,
-      payment_method: method,
-      user_id: profile ? profile.id : null,
-      branch,
-      customer_gender: profile ? (profile.gender || null) : guestGender,
-      customer_age: profile ? (profile.age || null) : Number(guestAge),
+    const catById = {}; menuItems.forEach((m) => { catById[m.id] = m.category; });
+    const catMap = {};
+    orders.forEach((o) => (o.items || []).forEach((it) => {
+      const cat = catById[it.id] || 'Otros';
+      catMap[cat] = (catMap[cat] || 0) + it.qty * it.price;
+    }));
+    const categories = Object.entries(catMap).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+
+    const payMap = {};
+    orders.forEach((o) => { const m = o.payment_method || 'otro'; payMap[m] = (payMap[m] || 0) + 1; });
+    const payments = Object.entries(payMap).map(([k, value]) => ({ label: PAY_LABELS[k] || k, value })).sort((a, b) => b.value - a.value);
+
+    // sexo y edad: se toman de cada pedido (customer_gender/customer_age), no del
+    // perfil directamente, porque así se incluye también a quienes piden como invitados.
+    const genderMap = {};
+    orders.forEach((o) => { const g = o.customer_gender || 'sin_dato'; genderMap[g] = (genderMap[g] || 0) + 1; });
+    const genders = Object.entries(genderMap).map(([k, value]) => ({ label: GENDER_LABELS[k] || k, value })).sort((a, b) => b.value - a.value);
+
+    const ageBuckets = { '< 18': 0, '18–24': 0, '25–34': 0, '35–44': 0, '45–54': 0, '55+': 0, 'Sin dato': 0 };
+    orders.forEach((o) => {
+      const a = o.customer_age;
+      if (!a) ageBuckets['Sin dato']++;
+      else if (a < 18) ageBuckets['< 18']++;
+      else if (a <= 24) ageBuckets['18–24']++;
+      else if (a <= 34) ageBuckets['25–34']++;
+      else if (a <= 44) ageBuckets['35–44']++;
+      else if (a <= 54) ageBuckets['45–54']++;
+      else ageBuckets['55+']++;
+    });
+    const ages = Object.entries(ageBuckets).map(([label, value]) => ({ label, value }));
+
+    const accountOrders = orders.filter((o) => o.user_id).length;
+    const guestOrders = totalOrders - accountOrders;
+
+    const hourCounts = Array(24).fill(0);
+    orders.forEach((o) => { const h = new Date(o.created_at).getHours(); hourCounts[h]++; });
+
+    const days = [];
+    for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0, 0, 0, 0); days.push(d); }
+    const dayRevenue = days.map((d) => {
+      const next = new Date(d); next.setDate(next.getDate() + 1);
+      const revenue = orders
+        .filter((o) => { const t = new Date(o.created_at); return t >= d && t < next; })
+        .reduce((s, o) => s + Number(o.subtotal || 0), 0);
+      return { label: DAY_LABELS[d.getDay()], value: revenue };
+    });
+
+    const gcSoldCount = giftCards.length;
+    const gcSoldAmount = giftCards.reduce((s, g) => s + Number(g.amount || 0), 0);
+    const gcRedeemedCount = giftCards.filter((g) => g.status === 'canjeada').length;
+    const gcActiveBalance = giftCards.filter((g) => g.status === 'activa').reduce((s, g) => s + Number(g.amount || 0), 0);
+
+    let totalCost = 0;
+    const costById = {}; menuItems.forEach((m) => { costById[m.id] = Number(m.cost || 0); });
+    orders.forEach((o) => (o.items || []).forEach((it) => { totalCost += (costById[it.id] || 0) * it.qty; }));
+    const hasCostData = menuItems.some((m) => Number(m.cost || 0) > 0);
+    const profit = totalRevenue - totalCost;
+
+    return {
+      totalRevenue, totalOrders, avgTicket, bestSellers, worstSellers, categories, payments,
+      genders, ages, accountOrders, guestOrders, hourCounts, dayRevenue,
+      gcSoldCount, gcSoldAmount, gcRedeemedCount, gcActiveBalance,
+      hasCostData, profit, totalClients: profiles.length,
     };
+  }, [orders, profiles, menuItems, giftCards]);
 
-    if (BARRO_CONFIGURED) {
-      const { error } = await sb.from('orders').insert(payload);
-      if (error) { setPlaceError('No se pudo enviar el pedido: ' + error.message); setPlacing(false); return; }
-    }
-
-    if (method === 'gift_card') await refreshProfile();
-
-    setPlacing(false);
-    setSuccess(true);
-    clear();
-    setTimeout(() => { setSuccess(false); closeDrawer(); }, 2600);
-  }
-
-  function handleClose() {
-    if (success) return; // deja que la animación termine
-    closeDrawer();
-  }
+  if (!profile || !isStaff) return null;
 
   return (
-    <AnimatePresence>
-      {drawerOpen && (
-        <motion.div
-          className="overlay show"
-          style={{ alignItems: 'flex-end' }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
-        >
-          <motion.div
-            className="modal cart-modal"
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-          >
-            {success ? (
-              <div className="order-success">
-                <motion.div
-                  className="order-check"
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 16, delay: 0.05 }}
-                >
-                  <motion.svg viewBox="0 0 24 24" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 0.25 }}>
-                    <path d="M5 13l4 4L19 7" />
-                  </motion.svg>
-                </motion.div>
-                <motion.h3 initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                  ¡Muchas gracias por tu compra!
-                </motion.h3>
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-                  Tu pedido ya va camino a la mesa {tableNumber}.
-                </motion.p>
+    <section className="ordenes-page">
+      <div className="wrap">
+        <div className="section-head" style={{ marginBottom: 26 }}>
+          <p className="eyebrow">Panel del dueño</p>
+          <h2 style={{ fontSize: 24 }}>Estadísticas</h2>
+          <p>{branchInfo ? `Ventas y pedidos de ${branchInfo.full}. Los clientes y gift cards son del negocio completo.` : 'Un vistazo a cómo le está yendo al local.'}</p>
+        </div>
+
+        {loading ? (
+          <p className="empty-note">Cargando estadísticas…</p>
+        ) : loadError ? (
+          <div className="form-msg show error">No se pudieron cargar las estadísticas: {loadError}</div>
+        ) : stats.totalOrders === 0 ? (
+          <p className="empty-note">Todavía no hay suficientes pedidos para mostrar estadísticas.</p>
+        ) : (
+          <>
+            <div className="kpi-grid">
+              <KpiCard label="Ventas totales" value={money(stats.totalRevenue)} />
+              <KpiCard label="Pedidos" value={stats.totalOrders} />
+              <KpiCard label="Ticket promedio" value={money(Math.round(stats.avgTicket))} />
+              <KpiCard label="Clientes registrados" value={stats.totalClients} />
+              {stats.hasCostData && <KpiCard label="Ganancia estimada" value={money(Math.round(stats.profit))} highlight />}
+            </div>
+
+            <StatSection title="Ventas de los últimos 7 días">
+              <MiniBarChart data={stats.dayRevenue} formatValue={(v) => money(Math.round(v))} />
+            </StatSection>
+
+            <div className="stat-two-col">
+              <StatSection title="Platos más vendidos">
+                <BarList items={stats.bestSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" />
+              </StatSection>
+              <StatSection title="Platos menos vendidos">
+                <BarList items={stats.worstSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" tint="salado" />
+              </StatSection>
+            </div>
+
+            <StatSection title="Ventas por categoría">
+              <BarList items={stats.categories} formatValue={(v) => money(Math.round(v))} tint="tarde" />
+            </StatSection>
+
+            <div className="stat-two-col">
+              <StatSection title="Métodos de pago">
+                <BarList items={stats.payments} suffix=" pedidos" tint="experiencia" />
+              </StatSection>
+              <StatSection title="Cuentas vs. invitados">
+                <BarList
+                  items={[{ label: 'Con cuenta', value: stats.accountOrders }, { label: 'Invitados', value: stats.guestOrders }]}
+                  suffix=" pedidos"
+                  tint="manana"
+                />
+              </StatSection>
+            </div>
+
+            <div className="stat-two-col">
+              <StatSection title="Sexo de quienes piden">
+                <BarList items={stats.genders} suffix=" pedidos" tint="salado" />
+              </StatSection>
+              <StatSection title="Edad de quienes piden">
+                <BarList items={stats.ages} suffix=" pedidos" tint="tarde" />
+              </StatSection>
+            </div>
+
+            <StatSection title="Horas con más pedidos">
+              <MiniBarChart
+                data={stats.hourCounts.map((v, h) => ({ label: h % 3 === 0 ? `${h}h` : '', value: v }))}
+                formatValue={(v) => `${v} pedido${v === 1 ? '' : 's'}`}
+                dense
+              />
+            </StatSection>
+
+            <StatSection title="Gift cards">
+              <div className="kpi-grid">
+                <KpiCard label="Vendidas" value={stats.gcSoldCount} small />
+                <KpiCard label="Monto vendido" value={money(stats.gcSoldAmount)} small />
+                <KpiCard label="Canjeadas" value={stats.gcRedeemedCount} small />
+                <KpiCard label="Balance activo" value={money(stats.gcActiveBalance)} small />
               </div>
-            ) : (
-              <>
-                <div className="modal-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 60 }}>
-                  <h3 style={{ margin: 0 }}>Carrito</h3>
-                  {lines.length > 0 && (
-                    <button type="button" className="icon-btn" aria-label="Vaciar carrito" onClick={clear}>
-                      <svg className="icon" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" /></svg>
-                    </button>
-                  )}
-                </div>
-                <button type="button" className="modal-close" onClick={handleClose} aria-label="Cerrar">
-                  <svg className="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
-                </button>
+            </StatSection>
 
-                <div className="modal-body">
-                  {lines.length === 0 ? (
-                    <p className="empty-note">Tu carrito está vacío. Agrega algo desde el menú.</p>
-                  ) : (
-                    <>
-                      <div className="cart-lines">
-                        {lines.map((l) => (
-                          <div className="cart-line-block" key={l.id}>
-                            <div className="cart-line">
-                              <div className="cart-line-photo">
-                                {l.image_url ? <img src={l.image_url} alt={l.name} /> : null}
-                              </div>
-                              <div className="cart-line-body">
-                                <h4>{l.name}</h4>
-                                <span className="cart-line-price">{money(l.price)}</span>
-                              </div>
-                              <div className="qty-stepper">
-                                <button type="button" onClick={() => setQty(l.id, l.qty - 1)} aria-label="Menos">–</button>
-                                <span>{l.qty}</span>
-                                <button type="button" onClick={() => setQty(l.id, l.qty + 1)} aria-label="Más">+</button>
-                              </div>
-                              <button type="button" className="cart-line-remove" onClick={() => removeItem(l.id)} aria-label="Quitar">
-                                <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
-                              </button>
-                            </div>
-                            <input
-                              type="text"
-                              className="cart-line-notes"
-                              placeholder="Alguna nota para este producto (ej. sin azúcar)…"
-                              value={l.notes || ''}
-                              onChange={(e) => setNotes(l.id, e.target.value)}
-                            />
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="checkout-fields">
-                        <div className="field">
-                          <label htmlFor="cartName">Tu nombre</label>
-                          <input id="cartName" type="text" placeholder="¿A nombre de quién?" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
-                        </div>
-                        <div className="field">
-                          <label htmlFor="cartTable">Tu mesa</label>
-                          <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
-                            <option value="">Elige tu mesa…</option>
-                            {TABLES.map((t) => <option key={t} value={t}>Mesa {t}</option>)}
-                          </select>
-                        </div>
-                        {!branch && (
-                          <div className="field">
-                            <label htmlFor="cartBranch">Sucursal</label>
-                            <select id="cartBranch" value={branch || ''} onChange={(e) => setBranch(e.target.value)}>
-                              <option value="">Elige la sucursal…</option>
-                              {BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.full}</option>)}
-                            </select>
-                          </div>
-                        )}
-                        {!profile && (
-                          <div className="field-row">
-                            <div className="field">
-                              <label htmlFor="cartGender">Sexo</label>
-                              <select id="cartGender" value={guestGender} onChange={(e) => setGuestGender(e.target.value)}>
-                                <option value="">Elige…</option>
-                                <option value="femenino">Femenino</option>
-                                <option value="masculino">Masculino</option>
-                                <option value="prefiero_no_decir">Prefiero no decir</option>
-                              </select>
-                            </div>
-                            <div className="field">
-                              <label htmlFor="cartAge">Edad</label>
-                              <input id="cartAge" type="number" min="1" max="120" inputMode="numeric" placeholder="Ej. 28" value={guestAge} onChange={(e) => setGuestAge(e.target.value)} />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      {branch && (
-                        <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Pidiendo en: {branchInfo?.full}</p>
-                      )}
-
-                      <div className="promo-row">
-                        <input type="text" placeholder="Código promocional" value={promo} onChange={(e) => setPromo(e.target.value)} />
-                        <button type="button" className="btn btn-ghost btn-sm" onClick={() => showToast('Los códigos promocionales llegan pronto.')}>Aplicar</button>
-                      </div>
-
-                      <div className="cart-totals">
-                        <div><span>Subtotal</span><span>{money(subtotal)}</span></div>
-                        <div><span>Entrega</span><span>{DELIVERY === 0 ? 'En el local' : money(DELIVERY)}</span></div>
-                        <div className="cart-total-final"><span>Total</span><span>{money(subtotal + DELIVERY)}</span></div>
-                      </div>
-
-                      {placeError && <div className="form-msg show error" style={{ marginTop: 14 }}>{placeError}</div>}
-
-                      <p className="pay-label">
-                        Elige cómo pagar
-                        {profile && <span className="muted" style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}> · tu balance de gift card: {money(profile.gift_card_balance || 0)}</span>}
-                      </p>
-                      <div className="pay-grid">
-                        {PAYMENT_METHODS.map((m) => (
-                          <button
-                            key={m.id}
-                            type="button"
-                            className={`pay-btn${m.ready ? ' ready' : ''}`}
-                            disabled={placing}
-                            onClick={() => handlePay(m.id)}
-                          >
-                            {m.label}
-                            {!m.ready && <span className="pay-soon">Próximamente</span>}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </>
+            {!stats.hasCostData && (
+              <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>
+                Tip: agrégale un costo a tus productos (al editarlos en el menú) para ver aquí la ganancia estimada, no solo las ventas.
+              </p>
             )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function KpiCard({ label, value, highlight, small }) {
+  return (
+    <motion.div
+      className={`kpi-card${highlight ? ' highlight' : ''}${small ? ' small' : ''}`}
+      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
+    >
+      <span className="kpi-label">{label}</span>
+      <span className="kpi-value">{value}</span>
+    </motion.div>
+  );
+}
+
+function StatSection({ title, children }) {
+  return (
+    <div className="stat-section">
+      <h3>{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function BarList({ items, suffix = '', formatValue, tint = 'manana' }) {
+  const max = Math.max(1, ...items.map((i) => i.value));
+  if (!items.length) return <p className="empty-note">Sin datos todavía.</p>;
+  return (
+    <div className="bar-list">
+      {items.map((it, i) => (
+        <div className="bar-list-row" key={i}>
+          <span className="bar-list-label">{it.label}</span>
+          <div className="bar-list-track">
+            <motion.div
+              className="bar-list-fill"
+              style={{ background: `var(--tint-${tint}-deep)` }}
+              initial={{ width: 0 }}
+              animate={{ width: `${(it.value / max) * 100}%` }}
+              transition={{ duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+            />
+          </div>
+          <span className="bar-list-value">{formatValue ? formatValue(it.value) : `${it.value}${suffix}`}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function MiniBarChart({ data, formatValue, dense }) {
+  const max = Math.max(1, ...data.map((d) => d.value));
+  return (
+    <div className={`mini-chart${dense ? ' dense' : ''}`}>
+      {data.map((d, i) => (
+        <div className="mini-chart-col" key={i} title={formatValue ? formatValue(d.value) : d.value}>
+          <div className="mini-chart-bar-wrap">
+            <motion.div
+              className="mini-chart-bar"
+              initial={{ height: 0 }}
+              animate={{ height: `${(d.value / max) * 100}%` }}
+              transition={{ duration: 0.5, delay: i * 0.02 }}
+            />
+          </div>
+          <span className="mini-chart-label">{d.label}</span>
+        </div>
+      ))}
+    </div>
   );
 }
