@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
+import { useGiftCardDesigns } from '@/hooks/useGiftCardDesigns';
 import Modal from './Modal';
 
 const STEP = 300;
@@ -16,11 +17,18 @@ function generateCode() {
 }
 
 export default function GiftCardGiftModal({ onClose, onDone }) {
+  const { designs } = useGiftCardDesigns();
+  const globalDesigns = designs.filter((d) => d.scope === 'global');
   const [email, setEmail] = useState('');
   const [amount, setAmount] = useState(MIN_AMOUNT);
+  const [designId, setDesignId] = useState(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
   const [result, setResult] = useState(null); // {code, amount, email}
+
+  useEffect(() => {
+    if (!designId && globalDesigns[0]) setDesignId(globalDesigns[0].id);
+  }, [globalDesigns, designId]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -37,6 +45,7 @@ export default function GiftCardGiftModal({ onClose, onDone }) {
       is_gift: true,
       recipient_email: cleanEmail,
       buyer_name: 'El Extraño José',
+      design_id: designId || null,
     });
     setBusy(false);
     if (error) { setMsg({ text: error.message, type: 'error' }); return; }
@@ -53,9 +62,6 @@ export default function GiftCardGiftModal({ onClose, onDone }) {
           </div>
           <h3>¡Listo, la regalaste!</h3>
           <p>Se le regaló una gift card de {money(result.amount)} a <b>{result.email}</b>.</p>
-          <p className="muted" style={{ marginTop: 6, fontSize: 12.5 }}>
-            Si tiene cuenta con ese correo, le va a salir una notificación con sonido. Si no, va a poder verla en cuanto se registre con ese mismo correo.
-          </p>
           <button type="button" className="btn btn-amber btn-block" style={{ marginTop: 20 }} onClick={onClose}>Listo</button>
         </div>
       ) : (
@@ -71,6 +77,33 @@ export default function GiftCardGiftModal({ onClose, onDone }) {
                 <label htmlFor="giftEmail">Correo del destinatario</label>
                 <input id="giftEmail" type="email" placeholder="cliente@correo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
+
+              {globalDesigns.length > 0 && (
+                <div className="field">
+                  <label>Diseño</label>
+                  <div className="offers-wrap" style={{ margin: 0 }}>
+                    <div className="offers-track">
+                      {globalDesigns.map((d) => (
+                        <button
+                          type="button"
+                          key={d.id}
+                          className={`offer-card design-pick${designId === d.id ? ' selected' : ''}`}
+                          onClick={() => setDesignId(d.id)}
+                        >
+                          <div className="ph"><img className="real" src={d.image_url} alt={d.name} /></div>
+                          <div className="offer-content"><h3 style={{ fontSize: 15 }}>{d.name}</h3></div>
+                          {designId === d.id && (
+                            <span className="design-pick-check">
+                              <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg>
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="field">
                 <label>Monto</label>
                 <div className="pd-price-row" style={{ justifyContent: 'flex-start' }}>
