@@ -16,24 +16,8 @@ import AvatarLibraryManager from '@/components/AvatarLibraryManager';
 import TableManager from '@/components/TableManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
-import BranchGate from '@/components/BranchGate';
-import { useBranch } from '@/context/BranchContext';
+import BranchSwitcher from '@/components/BranchSwitcher';
 
-function BranchSwitcher() {
-  const { branchInfo } = useBranch();
-  const [switching, setSwitching] = useState(false);
-  return (
-    <>
-      <div className="branch-indicator">
-        <span>📍 {branchInfo ? branchInfo.full : 'Sin sucursal elegida'}</span>
-        <button type="button" onClick={() => setSwitching(true)}>Cambiar</button>
-      </div>
-      <AnimatePresence>
-        {switching && <BranchGate allowClose onClose={() => setSwitching(false)} />}
-      </AnimatePresence>
-    </>
-  );
-}
 
 
 
