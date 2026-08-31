@@ -16,9 +16,9 @@ export function AuthProvider({ children }) {
     if (!session) { setProfile(null); return; }
     const { data, error } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
     if (error || !data) {
-      setProfile({ id: session.user.id, name: session.user.email, role: 'cliente' });
+      setProfile({ id: session.user.id, name: session.user.email, role: 'cliente', email: session.user.email });
     } else {
-      setProfile({ ...data, name: (data.name && data.name.trim()) ? data.name : session.user.email });
+      setProfile({ ...data, name: (data.name && data.name.trim()) ? data.name : session.user.email, email: session.user.email });
     }
   }, []);
 
