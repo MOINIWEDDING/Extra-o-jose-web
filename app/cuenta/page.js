@@ -13,6 +13,7 @@ import GiftCardDesignManager from '@/components/GiftCardDesignManager';
 import Avatar from '@/components/Avatar';
 import AvatarPicker from '@/components/AvatarPicker';
 import AvatarLibraryManager from '@/components/AvatarLibraryManager';
+import TableManager from '@/components/TableManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 import BranchGate from '@/components/BranchGate';
@@ -132,7 +133,7 @@ function ClientView({ profile, logout }) {
                 <div key={order.id} className="order-card">
                   <div className="order-card-top">
                     <div>
-                      <h4>Mesa {order.table_number}</h4>
+                      <h4>{order.table_number}</h4>
                       <span className="order-meta">{timeAgo(order.created_at)}</span>
                     </div>
                     <span className="order-price">{money(order.subtotal)}</span>
@@ -349,6 +350,11 @@ function StaffView({ profile, logout }) {
           </div>
           <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Los clientes eligen entre estas fotos — ellos no pueden subir las suyas.</p>
           <AvatarLibraryManager />
+        </Reveal>
+
+        <Reveal delay={0.24}>
+          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Mesas</h3></div>
+          <TableManager />
         </Reveal>
 
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={logout}>Cerrar sesión</button>
