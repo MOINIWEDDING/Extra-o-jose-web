@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
+import BranchSwitcher from './BranchSwitcher';
 
 const DEFAULT_PHOTO = 'https://images.unsplash.com/photo-1758900450186-e829f72d25fb?q=80&w=1200&auto=format&fit=crop';
 
@@ -55,6 +56,10 @@ export default function AuthGate() {
           <button type="button" className="btn btn-amber btn-block" onClick={() => openAuth('signup', 'cliente')}>Regístrate</button>
           <button type="button" className="btn btn-ghost btn-block" onClick={() => openAuth('login', 'cliente')}>Inicia sesión</button>
           <button type="button" className="authgate-link" onClick={() => router.push('/')}>Continuar como invitado</button>
+        </div>
+
+        <div style={{ marginTop: 22, display: 'flex', justifyContent: 'center' }}>
+          <BranchSwitcher light />
         </div>
       </motion.div>
     </motion.section>
