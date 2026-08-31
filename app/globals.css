@@ -462,7 +462,7 @@ header{display:none;}
 .giftcard-actions{display:flex; gap:10px; margin-top:16px;}
 .giftcard-actions .btn{flex:1; justify-content:center;}
 .giftcard-inventory{display:flex; flex-direction:column; gap:10px;}
-.giftcard-item{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;}
+.giftcard-item{display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px; width:100%; text-align:left; cursor:pointer; font-family:inherit; color:inherit;}
 .giftcard-item-code{display:block; font-family:var(--font-display); font-size:14px; font-weight:700; letter-spacing:.5px;}
 .giftcard-item-date{display:block; font-size:11px; color:var(--ink-soft); margin-top:2px;}
 .giftcard-item-amount{display:block; font-size:15px; font-weight:700; color:var(--amber-deep);}
