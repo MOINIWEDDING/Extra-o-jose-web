@@ -139,6 +139,7 @@ function GiftCardBanners({ cards, onSelect }) {
               <div className="ph">
                 {gc.design?.image_url && <img className="real" src={gc.design.image_url} alt="" />}
               </div>
+              <img src="/logo-white.png" alt="" className="card-logo-mark" />
               <div className="offer-content">
                 <span className="giftcard-slide-status">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
                 <span className="giftcard-slide-code">{gc.code}</span>
