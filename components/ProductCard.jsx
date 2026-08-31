@@ -89,6 +89,7 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
         )}
 
         <div className="p-info" style={{ '--tint-deep': `var(--tint-${tint}-deep)` }}>
+          <img src="/logo-white.png" alt="" className="card-logo-mark" />
           <h4>{item.name}</h4>
           {tags.length > 0 && (
             <div className="p-tags">{tags.map((t) => <span key={t}>{t}</span>)}</div>
