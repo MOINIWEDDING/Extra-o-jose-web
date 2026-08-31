@@ -241,7 +241,7 @@ function StaffView({ profile, logout }) {
         <Reveal delay={0.2}>
           <div className="home-section-top" style={{ marginTop: 34 }}>
             <h3>Diseños de gift card</h3>
-            <button type="button" className="see-all" onClick={() => setGifting(true)}>Regalar una</button>
+            <button type="button" className="pill-btn-dark" onClick={() => setGifting(true)}>Regalar una</button>
           </div>
           <GiftCardDesignManager />
         </Reveal>
