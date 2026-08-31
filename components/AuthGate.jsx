@@ -48,8 +48,8 @@ export default function AuthGate() {
         animate={{ y: 0, opacity: 1, scale: 1 }}
         transition={{ duration: 0.45, delay: 0.1, ease: [0.22, 0.61, 0.36, 1] }}
       >
-        <div className="authgate-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></svg>
+        <div className="authgate-icon authgate-icon-logo">
+          <img src="/logo.png" alt="El Extraño José" />
         </div>
         <h2>Bienvenido a El Extraño José</h2>
         <p>Guarda tus favoritos, tu carrito y tu balance de gift card.</p>
