@@ -202,8 +202,10 @@ function GiftCardsList() {
         >
           <div className="order-card-top">
             <div>
-              <h4>{gc.buyer_name || 'Cliente'}</h4>
-              <span className="order-meta">{gc.code} · {timeAgo(gc.created_at)}</span>
+              <h4>{gc.is_gift ? 'EL EXTRAÑO JOSÉ REGALÓ UNA GIFT CARD' : (gc.buyer_name || 'Cliente')}</h4>
+              <span className="order-meta">
+                {gc.is_gift ? `a ${gc.recipient_email}` : gc.code} · {timeAgo(gc.created_at)}
+              </span>
             </div>
             <span className="order-price">{money(gc.amount)}</span>
           </div>
