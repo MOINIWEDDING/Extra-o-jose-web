@@ -15,6 +15,8 @@ import CartDrawer from '@/components/CartDrawer';
 import FloatingCartButton from '@/components/FloatingCartButton';
 import OrderNotifier from '@/components/OrderNotifier';
 import GiftCardNotifier from '@/components/GiftCardNotifier';
+import GiftReceivedNotifier from '@/components/GiftReceivedNotifier';
+import OrderStatusNotifier from '@/components/OrderStatusNotifier';
 import BranchGateWrapper from '@/components/BranchGateWrapper';
 
 const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-outfit', display: 'swap' });
@@ -50,6 +52,8 @@ export default function RootLayout({ children }) {
                     <CartDrawer />
                     <OrderNotifier />
                     <GiftCardNotifier />
+                    <GiftReceivedNotifier />
+                    <OrderStatusNotifier />
                     <BranchGateWrapper />
                   </BranchProvider>
                 </OrdersNotifyProvider>
