@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
-import { useBranch, BRANCHES } from '@/context/BranchContext';
+import { useBranch } from '@/context/BranchContext';
+import { useTables } from '@/hooks/useTables';
 import { money } from '@/hooks/useMenuItems';
 import { useToast } from '@/context/ToastContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 
 const DELIVERY = 0; // no hay delivery real todavía; se sirve en el local
-const TABLES = Array.from({ length: 14 }, (_, i) => String(i + 1));
 
 const PAYMENT_METHODS = [
   { id: 'google_pay', label: 'Google Pay', ready: false },
@@ -21,7 +21,8 @@ const PAYMENT_METHODS = [
 export default function CartDrawer() {
   const { lines, subtotal, setQty, setNotes, removeItem, clear, tableNumber, setTableNumber, customerName, setCustomerName, drawerOpen, closeDrawer } = useCart();
   const { profile, refreshProfile } = useAuth();
-  const { branch, branchInfo, setBranch } = useBranch();
+  const { branch, branchInfo } = useBranch();
+  const { tables } = useTables(branch);
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
   const [guestGender, setGuestGender] = useState('');
@@ -123,7 +124,7 @@ export default function CartDrawer() {
                   ¡Muchas gracias por tu compra!
                 </motion.h3>
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-                  Tu pedido ya va camino a la mesa {tableNumber}.
+                  Tu pedido ya va camino a {tableNumber}.
                 </motion.p>
               </div>
             ) : (
@@ -185,18 +186,9 @@ export default function CartDrawer() {
                           <label htmlFor="cartTable">Tu mesa</label>
                           <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
                             <option value="">Elige tu mesa…</option>
-                            {TABLES.map((t) => <option key={t} value={t}>Mesa {t}</option>)}
+                            {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
                           </select>
                         </div>
-                        {!branch && (
-                          <div className="field">
-                            <label htmlFor="cartBranch">Sucursal</label>
-                            <select id="cartBranch" value={branch || ''} onChange={(e) => setBranch(e.target.value)}>
-                              <option value="">Elige la sucursal…</option>
-                              {BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.full}</option>)}
-                            </select>
-                          </div>
-                        )}
                         {!profile && (
                           <div className="field-row">
                             <div className="field">
