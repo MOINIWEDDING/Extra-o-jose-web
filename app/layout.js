@@ -6,6 +6,7 @@ import { CartProvider } from '@/context/CartContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OrdersNotifyProvider } from '@/context/OrdersNotifyContext';
 import { BranchProvider } from '@/context/BranchContext';
+import { GuestInfoProvider } from '@/context/GuestInfoContext';
 import BodyAdminSync from '@/components/BodyAdminSync';
 import StaffBanner from '@/components/StaffBanner';
 import Header from '@/components/Header';
@@ -42,19 +43,21 @@ export default function RootLayout({ children }) {
               <ToastProvider>
                 <OrdersNotifyProvider>
                   <BranchProvider>
-                    <BodyAdminSync />
-                    <StaffBanner />
-                    <Header />
-                    {children}
-                    <Tabbar />
-                    <FloatingCartButton />
-                    <AuthModal />
-                    <CartDrawer />
-                    <OrderNotifier />
-                    <GiftCardNotifier />
-                    <GiftReceivedNotifier />
-                    <OrderStatusNotifier />
-                    <BranchGateWrapper />
+                    <GuestInfoProvider>
+                      <BodyAdminSync />
+                      <StaffBanner />
+                      <Header />
+                      {children}
+                      <Tabbar />
+                      <FloatingCartButton />
+                      <AuthModal />
+                      <CartDrawer />
+                      <OrderNotifier />
+                      <GiftCardNotifier />
+                      <GiftReceivedNotifier />
+                      <OrderStatusNotifier />
+                      <BranchGateWrapper />
+                    </GuestInfoProvider>
                   </BranchProvider>
                 </OrdersNotifyProvider>
               </ToastProvider>
