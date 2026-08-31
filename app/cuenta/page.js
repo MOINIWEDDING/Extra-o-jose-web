@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -133,25 +133,41 @@ function ClientView({ profile, logout }) {
 }
 
 function GiftCardBanners({ cards, onSelect }) {
+  const trackRef = useRef(null);
+  const [index, setIndex] = useState(0);
+
+  function onScroll() {
+    const el = trackRef.current;
+    if (!el) return;
+    setIndex(Math.round(el.scrollLeft / el.clientWidth));
+  }
+
   return (
     <>
       <div className="home-section-top" style={{ marginTop: 30 }}>
         <h3>Tus gift cards</h3>
       </div>
-      <div className="giftcard-inventory">
-        {cards.map((gc) => (
-          <button type="button" key={gc.id} className="giftcard-item" onClick={() => onSelect(gc)}>
-            <div>
-              <span className="giftcard-item-code">{gc.code}</span>
-              <span className="giftcard-item-date">{new Date(gc.created_at).toLocaleDateString('es-DO')}</span>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <span className="giftcard-item-amount">{money(gc.amount)}</span>
-              <span className={`giftcard-item-status${gc.status === 'activa' ? ' active' : ''}`}>{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
-            </div>
-          </button>
-        ))}
+      <div className="offers-wrap" style={{ margin: '0 -20px' }}>
+        <div className="offers-track" ref={trackRef} onScroll={onScroll}>
+          {cards.map((gc) => (
+            <button type="button" key={gc.id} className="offer-card giftcard-slide" onClick={() => onSelect(gc)}>
+              <div className="ph">
+                {gc.design?.image_url && <img className="real" src={gc.design.image_url} alt="" />}
+              </div>
+              <div className="offer-content">
+                <span className="giftcard-slide-status">{gc.status === 'activa' ? 'Activa' : 'Canjeada'}</span>
+                <span className="giftcard-slide-code">{gc.code}</span>
+                <span className="giftcard-slide-amount">{money(gc.amount)}</span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
+      {cards.length > 1 && (
+        <div className="offers-dots">
+          {cards.map((_, i) => <span key={i} className={i === index ? 'active' : ''} />)}
+        </div>
+      )}
     </>
   );
 }
