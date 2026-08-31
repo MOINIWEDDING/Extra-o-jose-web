@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
+import { BRANCHES } from '@/context/BranchContext';
 import AuthGate from '@/components/AuthGate';
 import Reveal from '@/components/Reveal';
 
@@ -13,6 +14,17 @@ const ORDER_STATUS_LABELS = {
   lista: 'Lista',
   entregada: 'Entregada',
 };
+
+const PAY_LABELS = {
+  tarjeta: 'Tarjeta de crédito',
+  gift_card: 'Tarjeta de regalo',
+  google_pay: 'Google Pay',
+  apple_pay: 'Apple Pay',
+};
+
+function branchName(id) {
+  return BRANCHES.find((b) => b.id === id)?.full || id;
+}
 
 function timeAgo(dateStr) {
   const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
@@ -85,7 +97,7 @@ function MyOrders({ profile }) {
                 <div className="order-card-top">
                   <div>
                     <h4>{order.table_number}</h4>
-                    <span className="order-meta">{timeAgo(order.created_at)}</span>
+                    <span className="order-meta">{order.branch ? branchName(order.branch) : ''} · {timeAgo(order.created_at)}</span>
                   </div>
                   <span className="order-price">{money(order.subtotal)}</span>
                 </div>
@@ -98,7 +110,7 @@ function MyOrders({ profile }) {
                   ))}
                 </ul>
                 <div className="order-card-bottom">
-                  <span className="order-pay">{order.payment_method === 'tarjeta' ? 'Tarjeta de crédito' : order.payment_method}</span>
+                  <span className="order-pay">{PAY_LABELS[order.payment_method] || order.payment_method}</span>
                   <span className={`order-status-badge status-${order.status}`}>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
                 </div>
               </div>
