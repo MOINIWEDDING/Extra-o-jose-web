@@ -130,7 +130,7 @@ function OrdersList() {
           <div className="order-card-top">
             <div>
               <h4>{order.customer_name}</h4>
-              <span className="order-meta">Mesa {order.table_number} · {timeAgo(order.created_at)}</span>
+              <span className="order-meta">{order.table_number} · {timeAgo(order.created_at)}</span>
             </div>
             <span className="order-price">{money(order.subtotal)}</span>
           </div>
