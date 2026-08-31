@@ -15,6 +15,12 @@ const STATUS_LABELS = {
   entregada: 'Entregada',
 };
 const STATUS_ORDER = ['nueva', 'en_preparacion', 'lista', 'entregada'];
+const PAY_LABELS = {
+  tarjeta: 'Tarjeta de crédito',
+  gift_card: 'Tarjeta de regalo',
+  google_pay: 'Google Pay',
+  apple_pay: 'Apple Pay',
+};
 
 function timeAgo(dateStr) {
   const diff = Math.max(0, Date.now() - new Date(dateStr).getTime());
@@ -145,7 +151,7 @@ function OrdersList() {
           </ul>
 
           <div className="order-card-bottom">
-            <span className="order-pay">{order.payment_method === 'tarjeta' ? 'Tarjeta de crédito' : order.payment_method}</span>
+            <span className="order-pay">{PAY_LABELS[order.payment_method] || order.payment_method}</span>
             <select
               className="order-status"
               value={order.status}
