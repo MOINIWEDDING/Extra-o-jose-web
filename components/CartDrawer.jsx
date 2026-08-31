@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useBranch } from '@/context/BranchContext';
+import { useGuestInfo } from '@/context/GuestInfoContext';
 import { useTables } from '@/hooks/useTables';
 import { money } from '@/hooks/useMenuItems';
 import { useToast } from '@/context/ToastContext';
@@ -23,6 +24,7 @@ export default function CartDrawer() {
   const { profile, refreshProfile } = useAuth();
   const { branch, branchInfo } = useBranch();
   const { tables } = useTables(branch);
+  const guestInfo = useGuestInfo();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
   const [guestGender, setGuestGender] = useState('');
@@ -30,6 +32,12 @@ export default function CartDrawer() {
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Si ya se recolectó al entrar (invitado que ya pasó por la pantalla de
+  // sucursal), se usa eso; si por algo falta, se pide aquí como respaldo.
+  const effectiveGender = profile ? profile.gender : (guestInfo.gender || guestGender);
+  const effectiveAge = profile ? profile.age : (guestInfo.age || Number(guestAge) || null);
+  const needsGuestFieldsFallback = !profile && !(guestInfo.gender && guestInfo.age);
 
   const effectiveName = customerName || (profile ? profile.name : '') || '';
   const total = subtotal + DELIVERY;
@@ -44,7 +52,7 @@ export default function CartDrawer() {
     if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
     if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
-    if (!profile) {
+    if (!profile && needsGuestFieldsFallback) {
       if (!guestGender) { setPlaceError('Elige una opción de sexo antes de continuar.'); return; }
       if (!guestAge || Number(guestAge) < 1 || Number(guestAge) > 120) { setPlaceError('Escribe una edad válida antes de continuar.'); return; }
     }
@@ -73,8 +81,8 @@ export default function CartDrawer() {
       payment_method: method,
       user_id: profile ? profile.id : null,
       branch,
-      customer_gender: profile ? (profile.gender || null) : guestGender,
-      customer_age: profile ? (profile.age || null) : Number(guestAge),
+      customer_gender: effectiveGender || null,
+      customer_age: effectiveAge || null,
     };
 
     if (BARRO_CONFIGURED) {
@@ -189,7 +197,7 @@ export default function CartDrawer() {
                             {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
                           </select>
                         </div>
-                        {!profile && (
+                        {needsGuestFieldsFallback && (
                           <div className="field-row">
                             <div className="field">
                               <label htmlFor="cartGender">Sexo</label>
