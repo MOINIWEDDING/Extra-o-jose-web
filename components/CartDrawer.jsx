@@ -24,6 +24,8 @@ export default function CartDrawer() {
   const { branch, branchInfo, setBranch } = useBranch();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
+  const [guestGender, setGuestGender] = useState('');
+  const [guestAge, setGuestAge] = useState('');
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -41,6 +43,10 @@ export default function CartDrawer() {
     if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
     if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
+    if (!profile) {
+      if (!guestGender) { setPlaceError('Elige una opción de sexo antes de continuar.'); return; }
+      if (!guestAge || Number(guestAge) < 1 || Number(guestAge) > 120) { setPlaceError('Escribe una edad válida antes de continuar.'); return; }
+    }
 
     if (method === 'gift_card') {
       if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
@@ -66,6 +72,8 @@ export default function CartDrawer() {
       payment_method: method,
       user_id: profile ? profile.id : null,
       branch,
+      customer_gender: profile ? (profile.gender || null) : guestGender,
+      customer_age: profile ? (profile.age || null) : Number(guestAge),
     };
 
     if (BARRO_CONFIGURED) {
@@ -187,6 +195,23 @@ export default function CartDrawer() {
                               <option value="">Elige la sucursal…</option>
                               {BRANCHES.map((b) => <option key={b.id} value={b.id}>{b.full}</option>)}
                             </select>
+                          </div>
+                        )}
+                        {!profile && (
+                          <div className="field-row">
+                            <div className="field">
+                              <label htmlFor="cartGender">Sexo</label>
+                              <select id="cartGender" value={guestGender} onChange={(e) => setGuestGender(e.target.value)}>
+                                <option value="">Elige…</option>
+                                <option value="femenino">Femenino</option>
+                                <option value="masculino">Masculino</option>
+                                <option value="prefiero_no_decir">Prefiero no decir</option>
+                              </select>
+                            </div>
+                            <div className="field">
+                              <label htmlFor="cartAge">Edad</label>
+                              <input id="cartAge" type="number" min="1" max="120" inputMode="numeric" placeholder="Ej. 28" value={guestAge} onChange={(e) => setGuestAge(e.target.value)} />
+                            </div>
                           </div>
                         )}
                       </div>
