@@ -566,6 +566,21 @@ header{display:none;}
 .avatar-lib-add svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.8;}
 
 /* =========================================================
+   MESAS (administrables por sucursal)
+   ========================================================= */
+.table-manager-list{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;}
+.table-chip{display:flex; align-items:center; gap:8px; background:#fff; border:1px solid var(--line); border-radius:100px; padding:8px 8px 8px 16px; font-size:13px; font-weight:600;}
+.table-chip-del{width:22px; height:22px; border-radius:50%; border:none; background:var(--cream-2); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); flex-shrink:0;}
+.table-chip-del:hover{background:#f8e2d8; color:var(--err);}
+.table-chip-del svg{width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2.4;}
+.table-chip-confirm{display:flex; gap:4px;}
+.table-chip-confirm button{font-size:11px; font-weight:700; border:none; border-radius:100px; padding:5px 10px;}
+.table-chip-confirm button:first-child{background:var(--err); color:#fff;}
+.table-chip-confirm button:last-child{background:var(--cream-2); color:var(--ink);}
+.table-add-form{display:flex; gap:8px;}
+.table-add-form input{flex:1; border:1px solid var(--line); border-radius:12px; padding:11px 14px; font-size:13.5px; font-family:inherit;}
+
+/* =========================================================
    ESTADÍSTICAS
    ========================================================= */
 .kpi-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:36px;}
