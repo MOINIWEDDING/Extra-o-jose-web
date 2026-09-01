@@ -4,8 +4,13 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo } 
 const CartContext = createContext(null);
 const STORAGE_KEY = 'ej-cart-v1';
 
+function makeLineKey(itemId, selectedOptions) {
+  const optKey = (selectedOptions || []).map((o) => `${o.group}:${o.label}`).sort().join('|');
+  return `${itemId}::${optKey}`;
+}
+
 export function CartProvider({ children }) {
-  const [lines, setLines] = useState([]); // [{id, name, price, image_url, qty, notes}]
+  const [lines, setLines] = useState([]); // [{lineKey, id, name, price, unitPrice, image_url, qty, notes, is_beverage, options}]
   const [tableNumber, setTableNumber] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -29,31 +34,37 @@ export function CartProvider({ children }) {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ lines, tableNumber, customerName })); } catch (e) { /* ignore */ }
   }, [lines, tableNumber, customerName, loaded]);
 
-  const addItem = useCallback((item, qty = 1) => {
+  // selectedOptions: [{group, label, price}] — ya elegidas (leche, sirup, tamaño, etc.)
+  const addItem = useCallback((item, qty = 1, selectedOptions = []) => {
+    const unitPrice = item.price + selectedOptions.reduce((s, o) => s + (o.price || 0), 0);
+    const lineKey = makeLineKey(item.id, selectedOptions);
     setLines((prev) => {
-      const idx = prev.findIndex((l) => l.id === item.id);
+      const idx = prev.findIndex((l) => l.lineKey === lineKey);
       if (idx >= 0) {
         const next = [...prev];
         next[idx] = { ...next[idx], qty: next[idx].qty + qty };
         return next;
       }
-      return [...prev, { id: item.id, name: item.name, price: item.price, image_url: item.image_url, qty, notes: '', is_beverage: !!item.is_beverage }];
+      return [...prev, {
+        lineKey, id: item.id, name: item.name, price: unitPrice, image_url: item.image_url,
+        qty, notes: '', is_beverage: !!item.is_beverage, options: selectedOptions,
+      }];
     });
     setDrawerOpen(true);
   }, []);
 
-  const setQty = useCallback((id, qty) => {
+  const setQty = useCallback((lineKey, qty) => {
     setLines((prev) => {
-      if (qty <= 0) return prev.filter((l) => l.id !== id);
-      return prev.map((l) => (l.id === id ? { ...l, qty } : l));
+      if (qty <= 0) return prev.filter((l) => l.lineKey !== lineKey);
+      return prev.map((l) => (l.lineKey === lineKey ? { ...l, qty } : l));
     });
   }, []);
 
-  const setNotes = useCallback((id, notes) => {
-    setLines((prev) => prev.map((l) => (l.id === id ? { ...l, notes } : l)));
+  const setNotes = useCallback((lineKey, notes) => {
+    setLines((prev) => prev.map((l) => (l.lineKey === lineKey ? { ...l, notes } : l)));
   }, []);
 
-  const removeItem = useCallback((id) => setLines((prev) => prev.filter((l) => l.id !== id)), []);
+  const removeItem = useCallback((lineKey) => setLines((prev) => prev.filter((l) => l.lineKey !== lineKey)), []);
 
   const clear = useCallback(() => {
     setLines([]);
