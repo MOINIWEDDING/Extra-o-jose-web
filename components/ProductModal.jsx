@@ -14,6 +14,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
   const [tags, setTags] = useState(item ? (item.tags || '') : '');
   const [description, setDescription] = useState(item ? (item.description || '') : '');
   const [featured, setFeatured] = useState(item ? !!item.featured : false);
+  const [isBeverage, setIsBeverage] = useState(item ? !!item.is_beverage : false);
   const [msg, setMsg] = useState({ text: '', type: '' });
 
   useEffect(() => { if (item && item.image_url) uploader.setUrl(item.image_url); }, []); // eslint-disable-line
@@ -24,7 +25,7 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
     if (!name.trim() || Number.isNaN(priceNum)) { setMsg({ text: 'Completa el nombre y el precio.', type: 'error' }); return; }
     if (uploader.uploading) { setMsg({ text: 'Espera a que la foto termine de subir.', type: 'error' }); return; }
     if (!BARRO_CONFIGURED) { setMsg({ text: 'Conecta Supabase para guardar cambios de verdad.', type: 'error' }); return; }
-    const payload = { name: name.trim(), price: priceNum, cost: parseFloat(cost) || 0, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured };
+    const payload = { name: name.trim(), price: priceNum, cost: parseFloat(cost) || 0, category, image_url: uploader.url, tags: tags.trim(), description: description.trim(), featured, is_beverage: isBeverage };
     let error;
     if (item) {
       payload.updated_at = new Date().toISOString();
@@ -71,6 +72,10 @@ export default function ProductModal({ item, defaultCategory, categories, onClos
           <div className="field" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 18 }}>
             <input id="pFeatured" type="checkbox" style={{ width: 'auto' }} checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
             <label htmlFor="pFeatured" style={{ margin: 0, textTransform: 'none', fontSize: 13, letterSpacing: 0, fontWeight: 500, color: 'var(--ink)' }}>Marcar como favorito</label>
+          </div>
+          <div className="field" style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+            <input id="pBeverage" type="checkbox" style={{ width: 'auto' }} checked={isBeverage} onChange={(e) => setIsBeverage(e.target.checked)} />
+            <label htmlFor="pBeverage" style={{ margin: 0, textTransform: 'none', fontSize: 13, letterSpacing: 0, fontWeight: 500, color: 'var(--ink)' }}>Es café o bebida (para promociones como el Early Bird)</label>
           </div>
           {msg.text && <div className={`form-msg show ${msg.type}`}>{msg.text}</div>}
           <div className="modal-actions">

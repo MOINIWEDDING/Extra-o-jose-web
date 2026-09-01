@@ -13,6 +13,7 @@ export default function EarlyBirdManager() {
   const [startTime, setStartTime] = useState('07:00');
   const [endTime, setEndTime] = useState('09:00');
   const [prize, setPrize] = useState('Un café gratis');
+  const [discountMode, setDiscountMode] = useState('ninguno'); // 'ninguno' | 'cualquier_bebida' | 'especifico'
   const [prizeItemId, setPrizeItemId] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
@@ -25,6 +26,9 @@ export default function EarlyBirdManager() {
       setEndTime(settings.end_time?.slice(0, 5) || '09:00');
       setPrize(settings.prize_description || 'Un café gratis');
       setPrizeItemId(settings.prize_item_id || '');
+      if (settings.discount_any_beverage) setDiscountMode('cualquier_bebida');
+      else if (settings.prize_item_id) setDiscountMode('especifico');
+      else setDiscountMode('ninguno');
     }
   }, [settings]);
 
@@ -47,7 +51,8 @@ export default function EarlyBirdManager() {
     const { error } = await sb.from('early_bird_settings').upsert({
       branch, enabled, start_time: startTime, end_time: endTime,
       prize_description: prize.trim() || 'Un café gratis',
-      prize_item_id: prizeItemId || null,
+      prize_item_id: discountMode === 'especifico' ? (prizeItemId || null) : null,
+      discount_any_beverage: discountMode === 'cualquier_bebida',
       updated_at: new Date().toISOString(),
     });
     setBusy(false);
@@ -82,15 +87,31 @@ export default function EarlyBirdManager() {
       </div>
 
       <div className="field">
-        <label htmlFor="ebPrizeItem">Producto que se descuenta</label>
-        <select id="ebPrizeItem" value={prizeItemId} onChange={(e) => setPrizeItemId(e.target.value)}>
-          <option value="">Ninguno (solo aviso, sin descuento automático)</option>
-          {items.map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
+        <label htmlFor="ebDiscountMode">Descuento automático</label>
+        <select id="ebDiscountMode" value={discountMode} onChange={(e) => setDiscountMode(e.target.value)}>
+          <option value="ninguno">Ninguno (solo aviso, sin descuento)</option>
+          <option value="cualquier_bebida">Cualquier café o bebida en el pedido</option>
+          <option value="especifico">Un producto específico</option>
         </select>
-        <span className="up-hint" style={{ display: 'block', marginTop: 6 }}>
-          Si el ganador tiene este producto en su pedido, se le descuenta solo. Si no lo pidió, igual gana, pero no hay nada que descontar.
-        </span>
       </div>
+
+      {discountMode === 'especifico' && (
+        <div className="field">
+          <label htmlFor="ebPrizeItem">Producto</label>
+          <select id="ebPrizeItem" value={prizeItemId} onChange={(e) => setPrizeItemId(e.target.value)}>
+            <option value="">Elige un producto…</option>
+            {items.map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
+          </select>
+        </div>
+      )}
+
+      <span className="up-hint" style={{ display: 'block', marginBottom: 14 }}>
+        {discountMode === 'cualquier_bebida'
+          ? 'Se descuenta la bebida más barata marcada como "café o bebida" que el ganador tenga en su pedido. Marca esa opción al editar cada producto en el Menú.'
+          : discountMode === 'especifico'
+            ? 'Si el ganador tiene este producto en su pedido, se le descuenta solo.'
+            : 'El ganador se registra igual, pero no se descuenta nada automáticamente.'}
+      </span>
 
       <div className="field">
         <label htmlFor="ebPrize">Texto del premio (para el aviso)</label>

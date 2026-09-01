@@ -74,8 +74,17 @@ export default function CartDrawer() {
       if (ebData) {
         ebOutcome = ebData.outcome;
         if (ebData.prize_description) ebPrizeDescription = ebData.prize_description;
-        if (ebOutcome === 'winner' && ebData.prize_item_id) {
-          const prizeLine = lines.find((l) => l.id === ebData.prize_item_id);
+        if (ebOutcome === 'winner') {
+          let prizeLine = null;
+          if (ebData.discount_any_beverage) {
+            // se descuenta la bebida más barata del pedido (si tiene más de una)
+            const beverageLines = lines.filter((l) => l.is_beverage);
+            if (beverageLines.length) {
+              prizeLine = beverageLines.reduce((cheapest, l) => (l.price < cheapest.price ? l : cheapest), beverageLines[0]);
+            }
+          } else if (ebData.prize_item_id) {
+            prizeLine = lines.find((l) => l.id === ebData.prize_item_id) || null;
+          }
           if (prizeLine) {
             finalSubtotal = Math.max(0, subtotal - prizeLine.price);
             ebDiscountApplied = true;
