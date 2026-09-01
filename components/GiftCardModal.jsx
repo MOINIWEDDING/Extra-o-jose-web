@@ -13,10 +13,8 @@ const MIN_AMOUNT = 300;
 const MAX_AMOUNT = 3000;
 
 const PAYMENT_METHODS = [
-  { id: 'google_pay', label: 'Google Pay', ready: false },
-  { id: 'apple_pay', label: 'Apple Pay', ready: false },
   { id: 'gift_card', label: 'Gift Card', ready: false },
-  { id: 'tarjeta', label: 'Tarjeta de crédito', ready: true },
+  { id: 'en_cafeteria', label: 'Pagar en la cafetería', ready: true },
 ];
 
 // Código generado al vuelo, nunca sacado de una lista guardada de antemano.
