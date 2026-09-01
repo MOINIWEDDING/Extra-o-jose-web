@@ -16,6 +16,7 @@ import AvatarPicker from '@/components/AvatarPicker';
 import AvatarLibraryManager from '@/components/AvatarLibraryManager';
 import TableManager from '@/components/TableManager';
 import EarlyBirdManager from '@/components/EarlyBirdManager';
+import TaxSettingsManager from '@/components/TaxSettingsManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 import BranchSwitcher from '@/components/BranchSwitcher';
@@ -268,6 +269,12 @@ function StaffView({ profile, logout }) {
           <div className="home-section-top" style={{ marginTop: 34 }}><h3>Early Bird · café gratis</h3></div>
           <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>El primero que pida dentro de este horario se gana el premio. Se reinicia solo cada día.</p>
           <EarlyBirdManager />
+        </Reveal>
+
+        <Reveal delay={0.28}>
+          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Impuestos y porcientos</h3></div>
+          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Se suman automáticamente al precio de los productos cuando alguien paga desde la app.</p>
+          <TaxSettingsManager />
         </Reveal>
 
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={logout}>Cerrar sesión</button>
