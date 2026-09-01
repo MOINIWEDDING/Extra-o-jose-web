@@ -14,7 +14,8 @@ const MAX_AMOUNT = 3000;
 
 const PAYMENT_METHODS = [
   { id: 'gift_card', label: 'Gift Card', ready: false },
-  { id: 'en_cafeteria', label: 'Pagar en la cafetería', ready: true },
+  { id: 'efectivo', label: 'Efectivo', ready: true },
+  { id: 'tarjeta', label: 'Tarjeta', ready: true },
 ];
 
 // Código generado al vuelo, nunca sacado de una lista guardada de antemano.

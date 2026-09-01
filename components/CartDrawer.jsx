@@ -15,7 +15,8 @@ const DELIVERY = 0; // no hay delivery; se sirve en el local
 
 const PAYMENT_METHODS = [
   { id: 'gift_card', label: 'Gift Card', ready: true },
-  { id: 'en_cafeteria', label: 'Pagar en la cafetería', ready: true },
+  { id: 'efectivo', label: 'Efectivo', ready: true },
+  { id: 'tarjeta', label: 'Tarjeta', ready: true },
 ];
 
 export default function CartDrawer() {
@@ -321,6 +322,9 @@ export default function CartDrawer() {
                           </button>
                         ))}
                       </div>
+                      <p className="muted" style={{ fontSize: 11.5, marginTop: 8 }}>
+                        Efectivo y tarjeta se cobran en persona en la cafetería — solo estás avisando cómo vas a pagar.
+                      </p>
                     </>
                   )}
                 </div>
