@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useBranch } from '@/context/BranchContext';
 import { useGuestInfo } from '@/context/GuestInfoContext';
 import { useTables } from '@/hooks/useTables';
+import { useTaxSettings } from '@/hooks/useTaxSettings';
 import { money } from '@/hooks/useMenuItems';
 import { useToast } from '@/context/ToastContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
@@ -24,6 +25,7 @@ export default function CartDrawer() {
   const { profile, refreshProfile } = useAuth();
   const { branch, branchInfo } = useBranch();
   const { tables } = useTables(branch);
+  const { charges: taxCharges, totalPercent: taxPercent } = useTaxSettings(branch);
   const guestInfo = useGuestInfo();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
@@ -41,7 +43,8 @@ export default function CartDrawer() {
   const effectiveAge = profile ? profile.age : guestInfo.age;
 
   const effectiveName = customerName || (profile ? profile.name : '') || '';
-  const total = subtotal + DELIVERY;
+  const taxAmount = Math.round((subtotal * taxPercent) / 100);
+  const total = subtotal + taxAmount + DELIVERY;
 
   async function handlePay(method) {
     if (!lines.length) return;
@@ -95,7 +98,8 @@ export default function CartDrawer() {
       }
     }
 
-    const finalTotal = finalSubtotal + DELIVERY;
+    const finalTaxAmount = Math.round((finalSubtotal * taxPercent) / 100);
+    const finalTotal = finalSubtotal + finalTaxAmount + DELIVERY;
 
     if (method === 'gift_card') {
       if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); setPlacing(false); return; }
@@ -116,6 +120,7 @@ export default function CartDrawer() {
       table_number: orderType === 'pickup' ? 'Pick up' : tableNumber,
       items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '', options: l.options || [] })),
       subtotal: finalSubtotal,
+      tax_amount: finalTaxAmount,
       payment_method: method,
       user_id: profile ? profile.id : null,
       branch,
@@ -298,8 +303,11 @@ export default function CartDrawer() {
 
                       <div className="cart-totals">
                         <div><span>Subtotal</span><span>{money(subtotal)}</span></div>
+                        {taxCharges.map((c, i) => (
+                          <div key={i}><span>{c.label} ({c.percent}%)</span><span>{money(Math.round((subtotal * (Number(c.percent) || 0)) / 100))}</span></div>
+                        ))}
                         <div><span>Entrega</span><span>{DELIVERY === 0 ? 'En el local' : money(DELIVERY)}</span></div>
-                        <div className="cart-total-final"><span>Total</span><span>{money(subtotal + DELIVERY)}</span></div>
+                        <div className="cart-total-final"><span>Total</span><span>{money(total)}</span></div>
                       </div>
 
                       {placeError && <div className="form-msg show error" style={{ marginTop: 14 }}>{placeError}</div>}
