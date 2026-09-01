@@ -149,9 +149,6 @@ function OrdersList() {
               </li>
             ))}
           </ul>
-          {order.tax_amount > 0 && (
-            <p className="muted" style={{ fontSize: 11.5, marginTop: -4, marginBottom: 10 }}>Incluye {money(order.tax_amount)} de impuesto.</p>
-          )}
 
           <div className="order-card-bottom">
             <span className="order-pay">{PAY_LABELS[order.payment_method] || order.payment_method}</span>
