@@ -149,6 +149,11 @@ function OrdersList() {
               </li>
             ))}
           </ul>
+          {order.party_size > 1 && (
+            <p className="muted" style={{ fontSize: 11.5, marginTop: -4, marginBottom: 10 }}>
+              Dividida entre {order.party_size}: {money(Math.round((order.subtotal + (order.tax_amount || 0)) / order.party_size))} c/u
+            </p>
+          )}
 
           <div className="order-card-bottom">
             <span className="order-pay">{PAY_LABELS[order.payment_method] || order.payment_method}</span>
