@@ -1,5 +1,4 @@
-import { Suspense } from 'react';
-import ProductBrowser from '@/components/ProductBrowser';
+import MenuCarta from '@/components/MenuCarta';
 
 export const metadata = { title: 'Menú — El Extraño José' };
 
@@ -8,9 +7,7 @@ export default function MenuPage() {
     <>
       <section className="menu-page-body" style={{ paddingTop: 28 }}>
         <div className="wrap">
-          <Suspense fallback={null}>
-            <ProductBrowser />
-          </Suspense>
+          <MenuCarta />
         </div>
       </section>
 
