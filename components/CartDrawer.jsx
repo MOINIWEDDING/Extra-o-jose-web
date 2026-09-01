@@ -28,10 +28,12 @@ export default function CartDrawer() {
   const guestInfo = useGuestInfo();
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
+  const [orderType, setOrderType] = useState(null); // 'pickup' | 'dine_in' | null
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
   const [earlyBirdResult, setEarlyBirdResult] = useState(null); // {type:'winner'|'in_window_no_win', prize, discountApplied} | null
+  const [lastOrderSummary, setLastOrderSummary] = useState(null); // {orderType, tableNumber} — copia para el mensaje de éxito
 
   // El sexo/edad del invitado se recolectan al entrar (después de "Continuar
   // como invitado"), nunca aquí en el checkout — si por algo faltan, el pedido
@@ -49,7 +51,8 @@ export default function CartDrawer() {
       showToast(`${chosen.label} llega pronto — por ahora paga con tarjeta de crédito.`);
       return;
     }
-    if (!tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
+    if (!orderType) { setPlaceError('Elige si es pick up o para comer aquí antes de continuar.'); return; }
+    if (orderType === 'dine_in' && !tableNumber) { setPlaceError('Elige tu mesa antes de continuar.'); return; }
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
     if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
 
@@ -111,7 +114,7 @@ export default function CartDrawer() {
 
     const payload = {
       customer_name: effectiveName.trim(),
-      table_number: tableNumber,
+      table_number: orderType === 'pickup' ? 'Pick up' : tableNumber,
       items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '' })),
       subtotal: finalSubtotal,
       payment_method: method,
@@ -134,7 +137,9 @@ export default function CartDrawer() {
 
     setPlacing(false);
     setSuccess(true);
+    setLastOrderSummary({ orderType, tableNumber });
     clear();
+    setOrderType(null);
     if (!ebOutcome) {
       setTimeout(() => { setSuccess(false); closeDrawer(); }, 2600);
     }
@@ -188,7 +193,7 @@ export default function CartDrawer() {
                   ¡Muchas gracias por tu compra!
                 </motion.h3>
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-                  Tu pedido ya va camino a {tableNumber}.
+                  {lastOrderSummary?.orderType === 'pickup' ? 'Tu pedido está listo para recoger en el local.' : `Tu pedido ya va camino a ${lastOrderSummary?.tableNumber}.`}
                 </motion.p>
               </div>
               )
@@ -247,13 +252,38 @@ export default function CartDrawer() {
                           <label htmlFor="cartName">Tu nombre</label>
                           <input id="cartName" type="text" placeholder="¿A nombre de quién?" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
                         </div>
+
                         <div className="field">
-                          <label htmlFor="cartTable">Tu mesa</label>
-                          <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
-                            <option value="">Elige tu mesa…</option>
-                            {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
-                          </select>
+                          <label>¿Cómo lo quieres?</label>
+                          <div className="order-type-row">
+                            <button
+                              type="button"
+                              className={`order-type-btn${orderType === 'pickup' ? ' active' : ''}`}
+                              onClick={() => setOrderType('pickup')}
+                            >
+                              <svg viewBox="0 0 24 24"><path d="M20 8l-8-5-8 5v8l8 5 8-5z" /><path d="M12 3v18M4 8l8 5 8-5" /></svg>
+                              Pick up
+                            </button>
+                            <button
+                              type="button"
+                              className={`order-type-btn${orderType === 'dine_in' ? ' active' : ''}`}
+                              onClick={() => setOrderType('dine_in')}
+                            >
+                              <svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z" /><path d="M9 8h6M9 12h6M9 16h4" /></svg>
+                              Comer aquí
+                            </button>
+                          </div>
                         </div>
+
+                        {orderType === 'dine_in' && (
+                          <div className="field">
+                            <label htmlFor="cartTable">Tu mesa</label>
+                            <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
+                              <option value="">Elige tu mesa…</option>
+                              {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
+                            </select>
+                          </div>
+                        )}
                       </div>
                       {branch && (
                         <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>Pidiendo en: {branchInfo?.full}</p>
