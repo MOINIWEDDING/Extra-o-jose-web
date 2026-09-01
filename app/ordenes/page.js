@@ -16,10 +16,8 @@ const STATUS_LABELS = {
 };
 const STATUS_ORDER = ['nueva', 'en_preparacion', 'lista', 'entregada'];
 const PAY_LABELS = {
-  tarjeta: 'Tarjeta de crédito',
+  en_cafeteria: 'Pagar en la cafetería',
   gift_card: 'Tarjeta de regalo',
-  google_pay: 'Google Pay',
-  apple_pay: 'Apple Pay',
 };
 
 function timeAgo(dateStr) {
