@@ -37,7 +37,7 @@ export function CartProvider({ children }) {
         next[idx] = { ...next[idx], qty: next[idx].qty + qty };
         return next;
       }
-      return [...prev, { id: item.id, name: item.name, price: item.price, image_url: item.image_url, qty, notes: '' }];
+      return [...prev, { id: item.id, name: item.name, price: item.price, image_url: item.image_url, qty, notes: '', is_beverage: !!item.is_beverage }];
     });
     setDrawerOpen(true);
   }, []);
