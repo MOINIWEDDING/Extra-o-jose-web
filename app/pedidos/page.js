@@ -16,10 +16,9 @@ const ORDER_STATUS_LABELS = {
 };
 
 const PAY_LABELS = {
-  tarjeta: 'Tarjeta de crédito',
+  efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta',
   gift_card: 'Tarjeta de regalo',
-  google_pay: 'Google Pay',
-  apple_pay: 'Apple Pay',
 };
 
 function branchName(id) {
