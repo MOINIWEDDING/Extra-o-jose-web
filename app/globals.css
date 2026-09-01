@@ -675,6 +675,11 @@ header{display:none;}
    CARTA DEL MENÚ (texto, sin fotos)
    ========================================================= */
 .carta{padding-bottom:20px;}
+.carta-search{display:flex; align-items:center; gap:10px; background:#fff; border:1.5px solid var(--line); border-radius:100px; padding:12px 18px; box-shadow:var(--shadow-soft);}
+.carta-search svg{width:18px; height:18px; stroke:var(--ink-soft); fill:none; stroke-width:2; flex-shrink:0;}
+.carta-search input{flex:1; border:none; outline:none; background:none; font-family:inherit; font-size:14.5px; color:var(--ink); padding:0;}
+.carta-search input::placeholder{color:var(--ink-soft);}
+.carta-search:focus-within{border-color:var(--amber);}
 .carta-section{margin-top:40px;}
 .carta-section:first-of-type{margin-top:0;}
 .carta-header{display:flex; align-items:center; justify-content:center; gap:10px; text-align:center;}
