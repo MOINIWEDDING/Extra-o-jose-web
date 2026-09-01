@@ -18,6 +18,10 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
 
   function handleAdd(e) {
     e.stopPropagation();
+    if (Array.isArray(item.options) && item.options.length > 0) {
+      setDetailOpen(true); // hay que elegir opciones (leche, sirup, tamaño…) antes de agregar
+      return;
+    }
     addItem(item);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 700);

@@ -9,11 +9,19 @@ export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
   const { addItem } = useCart();
   const { isFav, toggle } = useFavorites();
   const [qty, setQty] = useState(1);
+  const options = Array.isArray(item.options) ? item.options : [];
+  const [selected, setSelected] = useState(() => options.map((g) => ({ group: g.name, ...g.choices[0] })));
   const tags = (item.tags || '').split(',').map((t) => t.trim()).filter(Boolean);
   const fav = isFav(item.id);
 
+  const unitPrice = item.price + selected.reduce((s, o) => s + (o.price || 0), 0);
+
+  function chooseOption(groupName, choice) {
+    setSelected((prev) => prev.map((o) => (o.group === groupName ? { group: groupName, ...choice } : o)));
+  }
+
   function handleAdd() {
-    addItem(item, qty);
+    addItem(item, qty, selected);
     onClose();
   }
 
@@ -47,13 +55,34 @@ export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
             <p className="pd-sub">{item.category}{tags.length ? ` · ${tags.join(', ')}` : ''}</p>
 
             <div className="pd-price-row">
-              <span className="pd-price">{money(item.price)}</span>
+              <span className="pd-price">{money(unitPrice)}</span>
               <div className="qty-stepper">
                 <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Menos">–</button>
                 <span>{qty}</span>
                 <button type="button" onClick={() => setQty((q) => q + 1)} aria-label="Más">+</button>
               </div>
             </div>
+
+            {options.map((group) => (
+              <div key={group.name} className="pd-options-group">
+                <h3 className="pd-section-title">{group.name}</h3>
+                <div className="pd-options-choices">
+                  {group.choices.map((choice) => {
+                    const isActive = selected.find((o) => o.group === group.name)?.label === choice.label;
+                    return (
+                      <button
+                        type="button"
+                        key={choice.label}
+                        className={`pd-option-pill${isActive ? ' active' : ''}`}
+                        onClick={() => chooseOption(group.name, choice)}
+                      >
+                        {choice.label}{choice.price > 0 ? ` +${money(choice.price)}` : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
 
             <h3 className="pd-section-title">Descripción</h3>
             <p className="pd-desc">

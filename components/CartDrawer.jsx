@@ -115,7 +115,7 @@ export default function CartDrawer() {
     const payload = {
       customer_name: effectiveName.trim(),
       table_number: orderType === 'pickup' ? 'Pick up' : tableNumber,
-      items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '' })),
+      items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '', options: l.options || [] })),
       subtotal: finalSubtotal,
       payment_method: method,
       user_id: profile ? profile.id : null,
@@ -218,21 +218,24 @@ export default function CartDrawer() {
                     <>
                       <div className="cart-lines">
                         {lines.map((l) => (
-                          <div className="cart-line-block" key={l.id}>
+                          <div className="cart-line-block" key={l.lineKey}>
                             <div className="cart-line">
                               <div className="cart-line-photo">
                                 {l.image_url ? <img src={l.image_url} alt={l.name} /> : null}
                               </div>
                               <div className="cart-line-body">
                                 <h4>{l.name}</h4>
+                                {l.options && l.options.length > 0 && (
+                                  <span className="cart-line-options">{l.options.map((o) => o.label).join(' · ')}</span>
+                                )}
                                 <span className="cart-line-price">{money(l.price)}</span>
                               </div>
                               <div className="qty-stepper">
-                                <button type="button" onClick={() => setQty(l.id, l.qty - 1)} aria-label="Menos">–</button>
+                                <button type="button" onClick={() => setQty(l.lineKey, l.qty - 1)} aria-label="Menos">–</button>
                                 <span>{l.qty}</span>
-                                <button type="button" onClick={() => setQty(l.id, l.qty + 1)} aria-label="Más">+</button>
+                                <button type="button" onClick={() => setQty(l.lineKey, l.qty + 1)} aria-label="Más">+</button>
                               </div>
-                              <button type="button" className="cart-line-remove" onClick={() => removeItem(l.id)} aria-label="Quitar">
+                              <button type="button" className="cart-line-remove" onClick={() => removeItem(l.lineKey)} aria-label="Quitar">
                                 <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
                               </button>
                             </div>
@@ -241,7 +244,7 @@ export default function CartDrawer() {
                               className="cart-line-notes"
                               placeholder="Alguna nota para este producto (ej. sin azúcar)…"
                               value={l.notes || ''}
-                              onChange={(e) => setNotes(l.id, e.target.value)}
+                              onChange={(e) => setNotes(l.lineKey, e.target.value)}
                             />
                           </div>
                         ))}

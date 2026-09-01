@@ -48,7 +48,7 @@ export default function HomeContent() {
 
       <section style={{ paddingTop: 0 }}>
         <div className="wrap">
-          <CategoryCarousels limit={6} showAddCategory />
+          <CategoryCarousels limit={null} showAddCategory />
         </div>
       </section>
     </>
