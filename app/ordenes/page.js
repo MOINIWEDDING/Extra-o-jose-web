@@ -16,7 +16,8 @@ const STATUS_LABELS = {
 };
 const STATUS_ORDER = ['nueva', 'en_preparacion', 'lista', 'entregada'];
 const PAY_LABELS = {
-  en_cafeteria: 'Pagar en la cafetería',
+  efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta',
   gift_card: 'Tarjeta de regalo',
 };
 
