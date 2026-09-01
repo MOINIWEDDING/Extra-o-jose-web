@@ -592,6 +592,13 @@ header{display:none;}
 .table-add-form{display:flex; gap:8px;}
 .table-add-form input{flex:1; border:1px solid var(--line); border-radius:12px; padding:11px 14px; font-size:13.5px; font-family:inherit;}
 
+.tax-rows{display:flex; flex-direction:column; gap:8px; margin-bottom:12px;}
+.tax-row{display:flex; align-items:center; gap:8px;}
+.tax-row input[type="text"]{flex:1; border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13.5px; font-family:inherit;}
+.tax-percent-field{display:flex; align-items:center; gap:4px; border:1px solid var(--line); border-radius:12px; padding:10px 12px; width:90px;}
+.tax-percent-field input{width:100%; border:none; outline:none; font-size:13.5px; font-family:inherit;}
+.tax-percent-field span{font-size:13px; color:var(--ink-soft); font-weight:600;}
+
 /* =========================================================
    ESTADÍSTICAS
    ========================================================= */
