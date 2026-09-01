@@ -30,11 +30,12 @@ export default function CartDrawer() {
   const { showToast } = useToast();
   const [promo, setPromo] = useState('');
   const [orderType, setOrderType] = useState(null); // 'pickup' | 'dine_in' | null
+  const [partySize, setPartySize] = useState(1);
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
   const [earlyBirdResult, setEarlyBirdResult] = useState(null); // {type:'winner'|'in_window_no_win', prize, discountApplied} | null
-  const [lastOrderSummary, setLastOrderSummary] = useState(null); // {orderType, tableNumber} — copia para el mensaje de éxito
+  const [lastOrderSummary, setLastOrderSummary] = useState(null); // {orderType, tableNumber, partySize, total} — copia para el mensaje de éxito
 
   // El sexo/edad del invitado se recolectan al entrar (después de "Continuar
   // como invitado"), nunca aquí en el checkout — si por algo faltan, el pedido
@@ -126,6 +127,7 @@ export default function CartDrawer() {
       branch,
       customer_gender: effectiveGender || null,
       customer_age: effectiveAge || null,
+      party_size: orderType === 'dine_in' ? partySize : 1,
     };
 
     if (BARRO_CONFIGURED) {
@@ -139,12 +141,15 @@ export default function CartDrawer() {
 
     if (method === 'gift_card') await refreshProfile();
 
+    const effectivePartySize = orderType === 'dine_in' ? partySize : 1;
+
     setPlacing(false);
     setSuccess(true);
-    setLastOrderSummary({ orderType, tableNumber });
+    setLastOrderSummary({ orderType, tableNumber, partySize: effectivePartySize, total: finalTotal });
     clear();
     setOrderType(null);
-    if (!ebOutcome) {
+    setPartySize(1);
+    if (!ebOutcome && effectivePartySize <= 1) {
       setTimeout(() => { setSuccess(false); closeDrawer(); }, 2600);
     }
   }
@@ -199,6 +204,19 @@ export default function CartDrawer() {
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
                   {lastOrderSummary?.orderType === 'pickup' ? 'Tu pedido está listo para recoger en el local.' : `Tu pedido ya va camino a ${lastOrderSummary?.tableNumber}.`}
                 </motion.p>
+                {lastOrderSummary?.partySize > 1 && (
+                  <motion.div
+                    className="split-bill-box"
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                  >
+                    <span className="eyebrow">Cuenta dividida entre {lastOrderSummary.partySize}</span>
+                    <div className="split-bill-row">
+                      <span>{money(lastOrderSummary.total)} ÷ {lastOrderSummary.partySize} personas</span>
+                      <span className="split-bill-each">{money(Math.round(lastOrderSummary.total / lastOrderSummary.partySize))} c/u</span>
+                    </div>
+                    <button type="button" className="btn btn-amber btn-block" style={{ marginTop: 16 }} onClick={() => { setSuccess(false); closeDrawer(); }}>Listo</button>
+                  </motion.div>
+                )}
               </div>
               )
             ) : (
@@ -283,13 +301,23 @@ export default function CartDrawer() {
                         </div>
 
                         {orderType === 'dine_in' && (
-                          <div className="field">
-                            <label htmlFor="cartTable">Tu mesa</label>
-                            <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
-                              <option value="">Elige tu mesa…</option>
-                              {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
-                            </select>
-                          </div>
+                          <>
+                            <div className="field">
+                              <label htmlFor="cartTable">Tu mesa</label>
+                              <select id="cartTable" value={tableNumber} onChange={(e) => setTableNumber(e.target.value)}>
+                                <option value="">Elige tu mesa…</option>
+                                {tables.map((t) => <option key={t.id} value={t.label}>{t.label}</option>)}
+                              </select>
+                            </div>
+                            <div className="field">
+                              <label htmlFor="cartPartySize">¿Cuántos son en la mesa?</label>
+                              <div className="qty-stepper">
+                                <button type="button" onClick={() => setPartySize((n) => Math.max(1, n - 1))} aria-label="Menos">–</button>
+                                <span>{partySize}</span>
+                                <button type="button" onClick={() => setPartySize((n) => Math.min(20, n + 1))} aria-label="Más">+</button>
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
                       {branch && (
