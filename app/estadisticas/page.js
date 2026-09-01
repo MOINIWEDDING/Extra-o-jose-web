@@ -8,7 +8,7 @@ import { money } from '@/hooks/useMenuItems';
 import { useBranch } from '@/context/BranchContext';
 
 const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
-const PAY_LABELS = { tarjeta: 'Tarjeta de crédito', gift_card: 'Tarjeta de regalo', google_pay: 'Google Pay', apple_pay: 'Apple Pay' };
+const PAY_LABELS = { tarjeta: 'Tarjeta de crédito', gift_card: 'Gift card', google_pay: 'Google Pay', apple_pay: 'Apple Pay' };
 const DAY_LABELS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
 
 export default function EstadisticasPage() {
