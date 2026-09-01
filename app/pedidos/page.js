@@ -99,7 +99,7 @@ function MyOrders({ profile }) {
                     <h4>{order.table_number}</h4>
                     <span className="order-meta">{order.branch ? branchName(order.branch) : ''} · {timeAgo(order.created_at)}</span>
                   </div>
-                  <span className="order-price">{money(order.subtotal)}</span>
+                  <span className="order-price">{money(order.subtotal + (order.tax_amount || 0))}</span>
                 </div>
                 <ul className="order-items">
                   {(order.items || []).map((it, i) => (
@@ -109,6 +109,9 @@ function MyOrders({ profile }) {
                     </li>
                   ))}
                 </ul>
+                {order.tax_amount > 0 && (
+                  <p className="muted" style={{ fontSize: 11.5, marginTop: -4, marginBottom: 10 }}>Incluye {money(order.tax_amount)} de impuesto.</p>
+                )}
                 <div className="order-card-bottom">
                   <span className="order-pay">{PAY_LABELS[order.payment_method] || order.payment_method}</span>
                   <span className={`order-status-badge status-${order.status}`}>{ORDER_STATUS_LABELS[order.status] || order.status}</span>
