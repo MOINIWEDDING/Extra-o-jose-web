@@ -9,6 +9,7 @@ import { useTables } from '@/hooks/useTables';
 import { money } from '@/hooks/useMenuItems';
 import { useToast } from '@/context/ToastContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
+import EarlyBirdResult from './EarlyBirdResult';
 
 const DELIVERY = 0; // no hay delivery real todavía; se sirve en el local
 
@@ -30,6 +31,7 @@ export default function CartDrawer() {
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [earlyBirdResult, setEarlyBirdResult] = useState(null); // {type:'winner'|'in_window_no_win', prize, discountApplied} | null
 
   // El sexo/edad del invitado se recolectan al entrar (después de "Continuar
   // como invitado"), nunca aquí en el checkout — si por algo faltan, el pedido
@@ -51,19 +53,50 @@ export default function CartDrawer() {
     if (!effectiveName.trim()) { setPlaceError('Escribe tu nombre antes de continuar.'); return; }
     if (!branch) { setPlaceError('Elige la sucursal antes de continuar.'); return; }
 
+    setPlaceError('');
+    setPlacing(true);
+    setEarlyBirdResult(null);
+
+    // Se intenta el Early Bird ANTES de cobrar, para que si gana y el premio
+    // aplica, el descuento ya esté restado del total antes de procesar el pago.
+    let ebOutcome = null;
+    let ebPrizeDescription = 'un café gratis';
+    let ebDiscountApplied = false;
+    let finalSubtotal = subtotal;
+
+    if (BARRO_CONFIGURED) {
+      const { data: ebData } = await sb.rpc('try_claim_early_bird', {
+        branch_input: branch,
+        order_id_input: null,
+        customer_name_input: effectiveName.trim(),
+        user_id_input: profile ? profile.id : null,
+      });
+      if (ebData) {
+        ebOutcome = ebData.outcome;
+        if (ebData.prize_description) ebPrizeDescription = ebData.prize_description;
+        if (ebOutcome === 'winner' && ebData.prize_item_id) {
+          const prizeLine = lines.find((l) => l.id === ebData.prize_item_id);
+          if (prizeLine) {
+            finalSubtotal = Math.max(0, subtotal - prizeLine.price);
+            ebDiscountApplied = true;
+          }
+        }
+      }
+    }
+
+    const finalTotal = finalSubtotal + DELIVERY;
+
     if (method === 'gift_card') {
-      if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); return; }
-      if ((profile.gift_card_balance || 0) < total) {
-        setPlaceError(`No te alcanza el balance de gift card (tienes ${money(profile.gift_card_balance || 0)}, el total es ${money(total)}). Elige otro método o completa el pago con tarjeta.`);
+      if (!profile) { setPlaceError('Inicia sesión para pagar con tu gift card.'); setPlacing(false); return; }
+      if ((profile.gift_card_balance || 0) < finalTotal) {
+        setPlaceError(`No te alcanza el balance de gift card (tienes ${money(profile.gift_card_balance || 0)}, el total es ${money(finalTotal)}). Elige otro método o completa el pago con tarjeta.`);
+        setPlacing(false);
         return;
       }
     }
 
-    setPlaceError('');
-    setPlacing(true);
-
     if (method === 'gift_card' && BARRO_CONFIGURED) {
-      const { error: payError } = await sb.rpc('pay_with_gift_card', { amount_input: total });
+      const { error: payError } = await sb.rpc('pay_with_gift_card', { amount_input: finalTotal });
       if (payError) { setPlaceError(payError.message.replace('exception: ', '')); setPlacing(false); return; }
     }
 
@@ -71,7 +104,7 @@ export default function CartDrawer() {
       customer_name: effectiveName.trim(),
       table_number: tableNumber,
       items: lines.map((l) => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, notes: l.notes || '' })),
-      subtotal,
+      subtotal: finalSubtotal,
       payment_method: method,
       user_id: profile ? profile.id : null,
       branch,
@@ -84,16 +117,28 @@ export default function CartDrawer() {
       if (error) { setPlaceError('No se pudo enviar el pedido: ' + error.message); setPlacing(false); return; }
     }
 
+    if (ebOutcome === 'winner' || ebOutcome === 'in_window_no_win') {
+      setEarlyBirdResult({ type: ebOutcome, prize: ebPrizeDescription, discountApplied: ebDiscountApplied });
+    }
+
     if (method === 'gift_card') await refreshProfile();
 
     setPlacing(false);
     setSuccess(true);
     clear();
-    setTimeout(() => { setSuccess(false); closeDrawer(); }, 2600);
+    if (!ebOutcome) {
+      setTimeout(() => { setSuccess(false); closeDrawer(); }, 2600);
+    }
   }
 
   function handleClose() {
     if (success) return; // deja que la animación termine
+    closeDrawer();
+  }
+
+  function handleEarlyBirdClose() {
+    setEarlyBirdResult(null);
+    setSuccess(false);
     closeDrawer();
   }
 
@@ -112,6 +157,14 @@ export default function CartDrawer() {
             transition={{ type: 'spring', stiffness: 320, damping: 32 }}
           >
             {success ? (
+              earlyBirdResult ? (
+                <EarlyBirdResult
+                  type={earlyBirdResult.type}
+                  prize={earlyBirdResult.prize}
+                  discountApplied={earlyBirdResult.discountApplied}
+                  onClose={handleEarlyBirdClose}
+                />
+              ) : (
               <div className="order-success">
                 <motion.div
                   className="order-check"
@@ -129,6 +182,7 @@ export default function CartDrawer() {
                   Tu pedido ya va camino a {tableNumber}.
                 </motion.p>
               </div>
+              )
             ) : (
               <>
                 <div className="modal-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingRight: 60 }}>
