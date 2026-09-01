@@ -599,6 +599,11 @@ header{display:none;}
 .tax-percent-field input{width:100%; border:none; outline:none; font-size:13.5px; font-family:inherit;}
 .tax-percent-field span{font-size:13px; color:var(--ink-soft); font-weight:600;}
 
+.split-bill-box{margin-top:22px; background:var(--cream-2); border-radius:var(--radius-lg); padding:18px 20px; text-align:left;}
+.split-bill-row{display:flex; align-items:baseline; justify-content:space-between; margin-top:8px; gap:10px;}
+.split-bill-row > span:first-child{font-size:13px; color:var(--ink-soft);}
+.split-bill-each{font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--amber-deep); white-space:nowrap;}
+
 /* =========================================================
    ESTADÍSTICAS
    ========================================================= */
