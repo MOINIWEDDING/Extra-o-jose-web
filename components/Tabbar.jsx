@@ -18,16 +18,21 @@ const STAFF_TABS = [
   { href: '/estadisticas', label: 'Estadísticas', icon: <><path d="M4 20V10M11 20V4M18 20v-7" /></> },
 ];
 
+const COMENSAL_TABS = [
+  { href: '/ordenes', label: 'Órdenes', icon: <><path d="M6 3h9l3 3v15H6z" /><path d="M9 8h6M9 12h6M9 16h4" /></>, badge: true },
+];
+
 export default function Tabbar() {
   const pathname = usePathname();
-  const { profile, isStaff } = useAuth();
+  const { profile, isStaff, isComensal } = useAuth();
   const { unseenCount } = useOrdersNotify();
 
   // En la pantalla de bienvenida/login (Cuenta sin sesión) no mostramos la barra,
   // para que se sienta como una pantalla propia, sin navegación detrás.
   if (pathname === '/cuenta' && !profile) return null;
 
-  const tabs = [...(isStaff ? STAFF_TABS : GUEST_TABS), { href: '/cuenta', label: 'Cuenta', icon: <><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></> }];
+  const baseTabs = isStaff ? STAFF_TABS : isComensal ? COMENSAL_TABS : GUEST_TABS;
+  const tabs = [...baseTabs, { href: '/cuenta', label: 'Cuenta', icon: <><circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" /></> }];
 
   return (
     <nav className="tabbar">

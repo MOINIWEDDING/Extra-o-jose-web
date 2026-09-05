@@ -20,13 +20,17 @@ const STAFF_LINKS = [
   { href: '/estadisticas', label: 'Estadísticas' },
 ];
 
+const COMENSAL_LINKS = [
+  { href: '/ordenes', label: 'Órdenes', badge: true },
+];
+
 export default function Header() {
   const pathname = usePathname();
   const { count, openDrawer } = useCart();
-  const { profile, isStaff } = useAuth();
+  const { profile, isStaff, isComensal } = useAuth();
   const { unseenCount } = useOrdersNotify();
   const [solid, setSolid] = useState(false);
-  const links = isStaff ? STAFF_LINKS : GUEST_LINKS;
+  const links = isStaff ? STAFF_LINKS : isComensal ? COMENSAL_LINKS : GUEST_LINKS;
 
   useEffect(() => {
     function onScroll() { setSolid(window.scrollY > 40); }

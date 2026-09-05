@@ -7,11 +7,11 @@ import { playNotificationSound } from '@/lib/notificationSound';
 import { money } from '@/hooks/useMenuItems';
 
 export default function GiftCardNotifier() {
-  const { isStaff } = useAuth();
+  const { isStaff, isComensal } = useAuth();
   const { showToast } = useToast();
 
   useEffect(() => {
-    if (!isStaff || !BARRO_CONFIGURED) return undefined;
+    if ((!isStaff && !isComensal) || !BARRO_CONFIGURED) return undefined;
 
     const channel = sb
       .channel('gift-cards-realtime')
@@ -35,7 +35,7 @@ export default function GiftCardNotifier() {
       .subscribe();
 
     return () => { sb.removeChannel(channel); };
-  }, [isStaff, showToast]);
+  }, [isStaff, isComensal, showToast]);
 
   return null;
 }

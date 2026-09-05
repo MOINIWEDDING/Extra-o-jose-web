@@ -9,13 +9,13 @@ import { playNotificationSound } from '@/lib/notificationSound';
 import { money } from '@/hooks/useMenuItems';
 
 export default function OrderNotifier() {
-  const { isStaff } = useAuth();
+  const { isStaff, isComensal } = useAuth();
   const { branch } = useBranch();
   const { showToast } = useToast();
   const { notifyNewOrder } = useOrdersNotify();
 
   useEffect(() => {
-    if (!isStaff || !BARRO_CONFIGURED || !branch) return undefined;
+    if ((!isStaff && !isComensal) || !BARRO_CONFIGURED || !branch) return undefined;
 
     const channel = sb
       .channel(`orders-realtime-${branch}`)
@@ -29,7 +29,7 @@ export default function OrderNotifier() {
       .subscribe();
 
     return () => { sb.removeChannel(channel); };
-  }, [isStaff, branch, showToast, notifyNewOrder]);
+  }, [isStaff, isComensal, branch, showToast, notifyNewOrder]);
 
   return null;
 }
