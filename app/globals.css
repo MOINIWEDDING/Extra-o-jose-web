@@ -599,10 +599,44 @@ header{display:none;}
 .tax-percent-field input{width:100%; border:none; outline:none; font-size:13.5px; font-family:inherit;}
 .tax-percent-field span{font-size:13px; color:var(--ink-soft); font-weight:600;}
 
+/* =========================================================
+   TEXTO EDITABLE (Nosotros y futuras páginas)
+   ========================================================= */
+.editable-text-wrap{position:relative; display:block; width:100%;}
+.editable-text-wrap.inline{display:inline-block; width:auto;}
+.editable-text-pencil{
+  position:absolute; top:-6px; right:-6px; width:26px; height:26px; border-radius:50%;
+  background:var(--amber); color:#fff; display:flex; align-items:center; justify-content:center;
+  border:2px solid #fff; box-shadow:var(--shadow-soft); opacity:0; transition:opacity .15s;
+}
+.editable-text-wrap:hover .editable-text-pencil, .editable-text-wrap:focus-within .editable-text-pencil{opacity:1;}
+.editable-text-pencil svg{width:12px; height:12px; stroke:currentColor; fill:none; stroke-width:2;}
+.editable-text-editing{display:block; width:100%;}
+.editable-text-editing.inline{display:inline-block; width:auto;}
+.editable-text-editing textarea, .editable-text-editing input{
+  width:100%; border:1.5px solid var(--amber); border-radius:10px; padding:10px 12px;
+  font-family:inherit; font-size:inherit; line-height:inherit; color:inherit; background:#fff;
+}
+.editable-text-actions{display:flex; gap:8px; margin-top:8px;}
+.editable-text-actions button{font-size:12px; font-weight:700; border:none; border-radius:100px; padding:7px 16px; background:var(--amber); color:#fff;}
+.editable-text-actions button.ghost{background:var(--cream-2); color:var(--ink);}
+
 .split-bill-box{margin-top:22px; background:var(--cream-2); border-radius:var(--radius-lg); padding:18px 20px; text-align:left;}
 .split-bill-row{display:flex; align-items:baseline; justify-content:space-between; margin-top:8px; gap:10px;}
 .split-bill-row > span:first-child{font-size:13px; color:var(--ink-soft);}
 .split-bill-each{font-family:var(--font-display); font-size:20px; font-weight:700; color:var(--amber-deep); white-space:nowrap;}
+
+.split-pay-list{display:flex; flex-direction:column; gap:10px;}
+.split-pay-row{display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 14px; flex-wrap:wrap;}
+.split-pay-person{font-size:13px; font-weight:700; color:var(--ink); flex-shrink:0;}
+.split-pay-options{display:flex; gap:6px; flex-wrap:wrap;}
+.split-pay-pill{border:1.5px solid var(--line); border-radius:100px; padding:6px 12px; font-size:11.5px; font-weight:700; color:var(--ink-soft); background:#fff;}
+.split-pay-pill.active{border-color:var(--amber); background:var(--amber); color:#fff;}
+
+.split-bill-note{background:var(--cream-2); border-radius:12px; padding:10px 14px; margin-bottom:12px;}
+.split-bill-note .eyebrow{margin-bottom:6px;}
+.split-bill-note-row{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); padding:2px 0;}
+.split-bill-note-row span:last-child{font-weight:700; color:var(--ink);}
 
 /* =========================================================
    ESTADÍSTICAS
