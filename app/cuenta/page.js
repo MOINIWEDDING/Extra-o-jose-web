@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -25,11 +26,37 @@ import BranchSwitcher from '@/components/BranchSwitcher';
 
 
 export default function CuentaPage() {
-  const { profile, isStaff, logout } = useAuth();
+  const { profile, isStaff, isComensal, logout } = useAuth();
 
   if (!profile) return <AuthGate />;
   if (isStaff) return <StaffView profile={profile} logout={logout} />;
+  if (isComensal) return <ComensalView profile={profile} logout={logout} />;
   return <ClientView profile={profile} logout={logout} />;
+}
+
+function ComensalView({ profile, logout }) {
+  return (
+    <section className="cuenta-page">
+      <div className="wrap">
+        <Reveal className="profile-card">
+          <Avatar profile={profile} />
+          <div>
+            <h3>{profile.name}</h3>
+            <span className="role-tag">Comensal</span>
+          </div>
+        </Reveal>
+
+        <BranchSwitcher />
+
+        <p className="muted" style={{ fontSize: 13, marginTop: 20 }}>
+          Tu cuenta solo tiene acceso a Órdenes — ahí puedes ver y actualizar los pedidos de la sucursal que tengas activa.
+        </p>
+        <Link href="/ordenes" className="btn btn-amber btn-block" style={{ marginTop: 16 }}>Ir a Órdenes</Link>
+
+        <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 12 }} onClick={logout}>Cerrar sesión</button>
+      </div>
+    </section>
+  );
 }
 
 function ClientView({ profile, logout }) {
