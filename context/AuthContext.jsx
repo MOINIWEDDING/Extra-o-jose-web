@@ -30,6 +30,8 @@ export function AuthProvider({ children }) {
   }, [refreshProfile]);
 
   const isStaff = !!profile && profile.role === 'staff';
+  const isComensal = !!profile && profile.role === 'comensal';
+  const canManageOrders = isStaff || isComensal;
 
   const openAuth = useCallback((m, r) => { setMode(m); setRole(r); setModalOpen(true); }, []);
   const closeAuth = useCallback(() => setModalOpen(false), []);
@@ -59,7 +61,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      profile, isStaff, modalOpen, mode, role, setMode, setRole,
+      profile, isStaff, isComensal, canManageOrders, modalOpen, mode, role, setMode, setRole,
       openAuth, closeAuth, login, signup, logout, refreshProfile,
     }}>
       {children}
