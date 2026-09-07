@@ -185,7 +185,7 @@ section{padding:46px 0;}
 /* ---------- pilares ---------- */
 .pilares{background:var(--cream-2);}
 .pilar-grid{display:flex; flex-direction:column; gap:14px;}
-.pilar-card{background:var(--cream); border-radius:var(--radius-lg); padding:24px;}
+.pilar-card{position:relative; background:var(--cream); border-radius:var(--radius-lg); padding:24px;}
 .pilar-num{font-family:var(--font-display); font-size:38px; font-weight:600; color:var(--amber); line-height:1;}
 .pilar-card h3{font-size:20px; margin-top:10px;}
 .pilar-card p{margin-top:10px; font-size:14px; line-height:1.6; color:var(--ink-soft);}
@@ -621,6 +621,33 @@ header{display:none;}
 .editable-text-actions button{font-size:12px; font-weight:700; border:none; border-radius:100px; padding:7px 16px; background:var(--amber); color:#fff;}
 .editable-text-actions button.ghost{background:var(--cream-2); color:var(--ink);}
 
+/* =========================================================
+   NOSOTROS — agregar/borrar (galería, pilares, cultura)
+   ========================================================= */
+.ph-delete{position:absolute; top:10px; left:10px; z-index:3; width:32px; height:32px; border-radius:50%; background:rgba(20,14,8,0.55); color:#fff; border:none; display:flex; align-items:center; justify-content:center;}
+.ph-delete svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2.2;}
+.ph-delete-confirm{position:absolute; top:10px; left:10px; z-index:3; display:flex; gap:6px;}
+.ph-delete-confirm button{font-size:11px; font-weight:700; border:none; border-radius:100px; padding:7px 12px;}
+.ph-delete-confirm button:first-child{background:var(--err); color:#fff;}
+.ph-delete-confirm button:last-child{background:#fff; color:var(--ink);}
+
+.ph-add{border:2px dashed var(--line); background:var(--cream-2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--ink-soft); cursor:pointer;}
+.ph-add svg{width:26px; height:26px; stroke:currentColor; fill:none; stroke-width:1.6;}
+
+.pilar-add, .cultura-add{border:2px dashed var(--line); background:transparent; display:flex; flex-direction:row; align-items:center; justify-content:center; gap:8px; color:var(--ink-soft); font-size:13.5px; font-weight:700; cursor:pointer;}
+.pilar-add svg, .cultura-add svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8;}
+.pilar-add{min-height:140px;}
+.cultura-add{padding:20px;}
+
+.inline-edit-h3, .inline-edit-h4, .inline-edit-tag, .inline-edit-p{
+  width:100%; border:1.5px solid var(--amber); border-radius:10px; padding:8px 10px;
+  font-family:inherit; background:#fff; color:var(--ink); margin-top:6px; margin-bottom:4px;
+}
+.inline-edit-h3{font-size:17px; font-weight:700;}
+.inline-edit-h4{font-size:15px; font-weight:700;}
+.inline-edit-tag{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; width:auto;}
+.inline-edit-p{font-size:13.5px; line-height:1.6; resize:vertical;}
+
 .split-bill-box{margin-top:22px; background:var(--cream-2); border-radius:var(--radius-lg); padding:18px 20px; text-align:left;}
 .split-bill-row{display:flex; align-items:baseline; justify-content:space-between; margin-top:8px; gap:10px;}
 .split-bill-row > span:first-child{font-size:13px; color:var(--ink-soft);}
@@ -754,6 +781,12 @@ header{display:none;}
 .pd-option-pill.active{border-color:var(--amber); background:var(--amber); color:#fff;}
 
 .cart-line-options{display:block; font-size:11px; color:var(--ink-soft); margin-top:1px;}
+
+.editable-button-wrap{position:relative;}
+.editable-button-admin{display:flex; gap:8px; margin-top:8px;}
+.editable-button-admin button{font-size:11.5px; font-weight:700; border:none; border-radius:100px; padding:6px 14px; background:var(--cream-2); color:var(--ink);}
+.editable-button-form{background:var(--cream-2); border-radius:14px; padding:16px; margin-top:8px;}
+.editable-button-form .field{margin-bottom:10px;}
 
 /* =========================================================
    EARLY BIRD (café gratis al primero del día)
