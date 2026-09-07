@@ -304,6 +304,12 @@ function StaffView({ profile, logout }) {
           <TaxSettingsManager />
         </Reveal>
 
+        <Reveal delay={0.3}>
+          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Página &quot;Nosotros&quot;</h3></div>
+          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>Esa página no está en tu barra de navegación, pero puedes editarle el texto y las fotos desde aquí.</p>
+          <Link href="/nosotros" className="pill-btn-dark">Editar página de Nosotros</Link>
+        </Reveal>
+
         <button type="button" className="btn btn-ghost btn-block" style={{ marginTop: 20 }} onClick={logout}>Cerrar sesión</button>
       </div>
     </section>
