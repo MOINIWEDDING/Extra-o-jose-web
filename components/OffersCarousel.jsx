@@ -10,8 +10,8 @@ import Reveal from './Reveal';
 
 function demoOffers() {
   return [
-    { id: 'o1', title: 'Cata guiada este fin de semana', subtitle: 'Tres orígenes dominicanos, guiada por la barra.', image_url: 'https://images.unsplash.com/photo-1758945185175-3d54780cd8d0?q=80&w=1200&auto=format&fit=crop', cta_text: 'Reservar', cta_link: '/menu#experiencias' },
-    { id: 'o2', title: 'Grano dominicano, recién tostado', subtitle: 'Prueba el V60 de la casa.', image_url: 'https://images.unsplash.com/photo-1753837787691-84a06d715d24?q=80&w=1200&auto=format&fit=crop', cta_text: 'Ver menú', cta_link: '/menu#buenos-dias' },
+    { id: 'o1', title: 'Costillas Baby Back importadas', subtitle: 'Ahumadas low & slow, disponibilidad limitada.', image_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1200&auto=format&fit=crop', cta_text: 'Ver menú', cta_link: '/menu' },
+    { id: 'o2', title: 'Happy hour de cócteles', subtitle: 'Pregunta por las promociones del día en barra.', image_url: 'https://images.unsplash.com/photo-1548899278-41c14dcddc69?q=80&w=1200&auto=format&fit=crop', cta_text: 'Ver menú', cta_link: '/menu' },
   ];
 }
 
