@@ -7,6 +7,7 @@ import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OrdersNotifyProvider } from '@/context/OrdersNotifyContext';
 import { BranchProvider } from '@/context/BranchContext';
 import { GuestInfoProvider } from '@/context/GuestInfoContext';
+import { FEATURES } from '@/lib/features';
 import BodyAdminSync from '@/components/BodyAdminSync';
 import StaffBanner from '@/components/StaffBanner';
 import Header from '@/components/Header';
@@ -49,13 +50,13 @@ export default function RootLayout({ children }) {
                       <Header />
                       {children}
                       <Tabbar />
-                      <FloatingCartButton />
+                      {FEATURES.ordering && <FloatingCartButton />}
                       <AuthModal />
-                      <CartDrawer />
-                      <OrderNotifier />
-                      <GiftCardNotifier />
-                      <GiftReceivedNotifier />
-                      <OrderStatusNotifier />
+                      {FEATURES.ordering && <CartDrawer />}
+                      {FEATURES.ordering && <OrderNotifier />}
+                      {FEATURES.giftCards && <GiftCardNotifier />}
+                      {FEATURES.giftCards && <GiftReceivedNotifier />}
+                      {FEATURES.ordering && <OrderStatusNotifier />}
                       <BranchGateWrapper />
                     </GuestInfoProvider>
                   </BranchProvider>
