@@ -4,26 +4,24 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
+import { FEATURES } from '@/lib/features';
 import OffersCarousel from './OffersCarousel';
 import CategoryCarousels from './CategoryCarousels';
 import ProductIcon from './ProductIcon';
 import Reveal from './Reveal';
 
-const SEEN_KEY = 'ej-welcome-seen';
-
 export default function HomeContent() {
   const { categories } = useCategories();
-  const { profile } = useAuth();
+  const { isStaff, isComensal } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    let seen = false;
-    try { seen = window.sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) { /* ignore */ }
-    if (!profile && !seen) {
-      try { window.sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) { /* ignore */ }
-      router.push('/cuenta');
-    }
-  }, [profile, router]);
+    // A clientes e invitados ya no se les manda a la pantalla de inicio de
+    // sesión al entrar — eso queda solo para cuando entren a "Cuenta" por
+    // su cuenta. Aquí, directo al menú (el dueño/comensal ven Inicio normal).
+    if (isStaff || isComensal) return;
+    if (!FEATURES.ordering) router.push('/menu');
+  }, [isStaff, isComensal, router]);
 
   return (
     <>
