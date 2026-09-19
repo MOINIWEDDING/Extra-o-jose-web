@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
 import { useBranch } from '@/context/BranchContext';
+import { FEATURES } from '@/lib/features';
 
 const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
 const PAY_LABELS = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', gift_card: 'Tarjeta de regalo' };
@@ -212,14 +213,16 @@ export default function EstadisticasPage() {
               />
             </StatSection>
 
-            <StatSection title="Gift cards">
-              <div className="kpi-grid">
-                <KpiCard label="Vendidas" value={stats.gcSoldCount} small />
-                <KpiCard label="Monto vendido" value={money(stats.gcSoldAmount)} small />
-                <KpiCard label="Canjeadas" value={stats.gcRedeemedCount} small />
-                <KpiCard label="Balance activo" value={money(stats.gcActiveBalance)} small />
-              </div>
-            </StatSection>
+            {FEATURES.giftCards && (
+              <StatSection title="Gift cards">
+                <div className="kpi-grid">
+                  <KpiCard label="Vendidas" value={stats.gcSoldCount} small />
+                  <KpiCard label="Monto vendido" value={money(stats.gcSoldAmount)} small />
+                  <KpiCard label="Canjeadas" value={stats.gcRedeemedCount} small />
+                  <KpiCard label="Balance activo" value={money(stats.gcActiveBalance)} small />
+                </div>
+              </StatSection>
+            )}
 
             {!stats.hasCostData && (
               <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>
