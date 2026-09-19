@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { money } from '@/hooks/useMenuItems';
+import { FEATURES } from '@/lib/features';
 
 export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
   const { addItem } = useCart();
@@ -56,11 +57,13 @@ export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
 
             <div className="pd-price-row">
               <span className="pd-price">{money(unitPrice)}</span>
-              <div className="qty-stepper">
-                <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Menos">–</button>
-                <span>{qty}</span>
-                <button type="button" onClick={() => setQty((q) => q + 1)} aria-label="Más">+</button>
-              </div>
+              {FEATURES.ordering && (
+                <div className="qty-stepper">
+                  <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="Menos">–</button>
+                  <span>{qty}</span>
+                  <button type="button" onClick={() => setQty((q) => q + 1)} aria-label="Más">+</button>
+                </div>
+              )}
             </div>
 
             {options.map((group) => (
@@ -92,11 +95,13 @@ export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
             </p>
           </div>
 
-          <div className="pd-cta-wrap">
-            <motion.button whileTap={{ scale: 0.92 }} type="button" className="pd-cta" onClick={handleAdd} aria-label="Agregar al carrito">
-              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
-            </motion.button>
-          </div>
+          {FEATURES.ordering && (
+            <div className="pd-cta-wrap">
+              <motion.button whileTap={{ scale: 0.92 }} type="button" className="pd-cta" onClick={handleAdd} aria-label="Agregar al carrito">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+              </motion.button>
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
