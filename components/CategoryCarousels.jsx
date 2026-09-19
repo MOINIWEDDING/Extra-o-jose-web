@@ -162,6 +162,11 @@ function CategorySection({ category, items, allCount, limited, outOfStockIds, on
               </button>
             )}
           </div>
+          {!isEmpty && !atEnd && (
+            <span className="carousel-more-hint" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+            </span>
+          )}
           {!isEmpty && (
             <button type="button" className="carousel-arrow right" disabled={atEnd} aria-label="Siguiente" onClick={() => scrollBy('right')}>
               <svg className="icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
