@@ -7,6 +7,7 @@ import { useOrdersNotify } from '@/context/OrdersNotifyContext';
 import { useBranch } from '@/context/BranchContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
+import { FEATURES } from '@/lib/features';
 
 const STATUS_LABELS = {
   nueva: 'Nueva',
@@ -55,12 +56,14 @@ export default function OrdenesPage() {
           <p>{branchInfo ? `Mostrando ${branchInfo.full}.` : 'Los pedidos y las gift cards llegan aquí en tiempo real, con sonido incluido.'}</p>
         </div>
 
-        <div className="tabs" style={{ marginBottom: 26 }}>
-          <button type="button" className={`tab${tab === 'pedidos' ? ' active' : ''}`} onClick={() => setTab('pedidos')}>Pedidos</button>
-          <button type="button" className={`tab${tab === 'giftcards' ? ' active' : ''}`} onClick={() => setTab('giftcards')}>Gift Cards</button>
-        </div>
+        {FEATURES.giftCards && (
+          <div className="tabs" style={{ marginBottom: 26 }}>
+            <button type="button" className={`tab${tab === 'pedidos' ? ' active' : ''}`} onClick={() => setTab('pedidos')}>Pedidos</button>
+            <button type="button" className={`tab${tab === 'giftcards' ? ' active' : ''}`} onClick={() => setTab('giftcards')}>Gift Cards</button>
+          </div>
+        )}
 
-        {tab === 'pedidos' ? <OrdersList /> : <GiftCardsList />}
+        {tab === 'pedidos' || !FEATURES.giftCards ? <OrdersList /> : <GiftCardsList />}
       </div>
     </section>
   );
