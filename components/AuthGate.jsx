@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
+import { FEATURES } from '@/lib/features';
 import BranchSwitcher from './BranchSwitcher';
 import GuestInfoGate from './GuestInfoGate';
 
@@ -32,6 +33,14 @@ export default function AuthGate() {
     return () => document.body.classList.remove('no-tabbar-padding');
   }, []);
 
+  function handleGuestContinue() {
+    if (FEATURES.guestProfiling) {
+      setAskingGuestInfo(true);
+    } else {
+      router.push('/menu');
+    }
+  }
+
   return (
     <motion.section
       className="authgate"
@@ -52,12 +61,12 @@ export default function AuthGate() {
           <img src="/logo.png" alt="El Extraño José" />
         </div>
         <h2>Bienvenido a El Extraño José</h2>
-        <p>Guarda tus favoritos, tu carrito y tu balance de gift card.</p>
+        <p>Guarda tus favoritos y entérate de las novedades del menú.</p>
 
         <div className="authgate-actions">
           <button type="button" className="btn btn-amber btn-block" onClick={() => openAuth('signup', 'cliente')}>Regístrate</button>
           <button type="button" className="btn btn-ghost btn-block" onClick={() => openAuth('login', 'cliente')}>Inicia sesión</button>
-          <button type="button" className="authgate-link" onClick={() => setAskingGuestInfo(true)}>Continuar como invitado</button>
+          <button type="button" className="authgate-link" onClick={handleGuestContinue}>Continuar como invitado</button>
         </div>
 
         <div style={{ marginTop: 22, display: 'flex', justifyContent: 'center' }}>
@@ -66,7 +75,7 @@ export default function AuthGate() {
       </motion.div>
 
       <AnimatePresence>
-        {askingGuestInfo && <GuestInfoGate onDone={() => router.push('/')} />}
+        {askingGuestInfo && <GuestInfoGate onDone={() => router.push('/menu')} />}
       </AnimatePresence>
     </motion.section>
   );
