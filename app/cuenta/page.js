@@ -21,6 +21,7 @@ import TaxSettingsManager from '@/components/TaxSettingsManager';
 import Reveal from '@/components/Reveal';
 import AuthGate from '@/components/AuthGate';
 import BranchSwitcher from '@/components/BranchSwitcher';
+import { FEATURES } from '@/lib/features';
 
 
 
@@ -69,7 +70,7 @@ function ClientView({ profile, logout }) {
   const [viewingCard, setViewingCard] = useState(null);
 
   const loadGiftCards = useCallback(async () => {
-    if (!BARRO_CONFIGURED) return;
+    if (!FEATURES.giftCards || !BARRO_CONFIGURED) return;
     // Se hace en dos pasos (en vez de un "join" embebido) para que nunca se
     // pierda una tarjeta por culpa de permisos sobre un diseño relacionado.
     const { data: cards, error } = await sb
@@ -106,17 +107,19 @@ function ClientView({ profile, logout }) {
 
         <BranchSwitcher />
 
-        <Reveal className="giftcard-card" delay={0.08}>
-          <img src="/logo-white.png" alt="" className="card-logo-mark" />
-          <span className="eyebrow" style={{ color: 'rgba(243,236,221,0.75)' }}>Balance de gift card</span>
-          <h3>{money(profile.gift_card_balance || 0)}</h3>
-          <div className="giftcard-actions">
-            <button type="button" className="btn btn-amber btn-sm" onClick={() => setGiftModal('buy')}>Comprar</button>
-            <button type="button" className="btn btn-ghost-light btn-sm" onClick={() => setGiftModal('redeem')}>Canjear</button>
-          </div>
-        </Reveal>
+        {FEATURES.giftCards && (
+          <Reveal className="giftcard-card" delay={0.08}>
+            <img src="/logo-white.png" alt="" className="card-logo-mark" />
+            <span className="eyebrow" style={{ color: 'rgba(243,236,221,0.75)' }}>Balance de gift card</span>
+            <h3>{money(profile.gift_card_balance || 0)}</h3>
+            <div className="giftcard-actions">
+              <button type="button" className="btn btn-amber btn-sm" onClick={() => setGiftModal('buy')}>Comprar</button>
+              <button type="button" className="btn btn-ghost-light btn-sm" onClick={() => setGiftModal('redeem')}>Canjear</button>
+            </div>
+          </Reveal>
+        )}
 
-        {giftCards.length > 0 && (
+        {FEATURES.giftCards && giftCards.length > 0 && (
           <GiftCardBanners cards={giftCards} onSelect={setViewingCard} />
         )}
 
@@ -136,10 +139,10 @@ function ClientView({ profile, logout }) {
       </div>
 
       <AnimatePresence>
-        {giftModal && (
+        {FEATURES.giftCards && giftModal && (
           <GiftCardModal mode={giftModal} onClose={() => setGiftModal(null)} onDone={loadGiftCards} />
         )}
-        {viewingCard && (
+        {FEATURES.giftCards && viewingCard && (
           <GiftCardDetailModal card={viewingCard} onClose={() => setViewingCard(null)} />
         )}
       </AnimatePresence>
@@ -269,15 +272,17 @@ function StaffView({ profile, logout }) {
           <OffersCarousel />
         </Reveal>
 
-        <Reveal delay={0.2}>
-          <div className="home-section-top" style={{ marginTop: 34 }}>
-            <h3>Diseños de gift card</h3>
-            <button type="button" className="pill-btn-dark" onClick={() => setGifting(true)}>Regalar una</button>
-          </div>
-          <GiftCardDesignManager />
-        </Reveal>
+        {FEATURES.giftCards && (
+          <Reveal delay={0.2}>
+            <div className="home-section-top" style={{ marginTop: 34 }}>
+              <h3>Diseños de gift card</h3>
+              <button type="button" className="pill-btn-dark" onClick={() => setGifting(true)}>Regalar una</button>
+            </div>
+            <GiftCardDesignManager />
+          </Reveal>
+        )}
 
-        {gifting && <GiftCardGiftModal onClose={() => setGifting(false)} onDone={() => {}} />}
+        {FEATURES.giftCards && gifting && <GiftCardGiftModal onClose={() => setGifting(false)} onDone={() => {}} />}
 
         <Reveal delay={0.22}>
           <div className="home-section-top" style={{ marginTop: 34 }}>
@@ -287,16 +292,20 @@ function StaffView({ profile, logout }) {
           <AvatarLibraryManager />
         </Reveal>
 
-        <Reveal delay={0.24}>
-          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Mesas</h3></div>
-          <TableManager />
-        </Reveal>
+        {FEATURES.ordering && (
+          <Reveal delay={0.24}>
+            <div className="home-section-top" style={{ marginTop: 34 }}><h3>Mesas</h3></div>
+            <TableManager />
+          </Reveal>
+        )}
 
-        <Reveal delay={0.26}>
-          <div className="home-section-top" style={{ marginTop: 34 }}><h3>Early Bird · café gratis</h3></div>
-          <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>El primero que pida dentro de este horario se gana el premio. Se reinicia solo cada día.</p>
-          <EarlyBirdManager />
-        </Reveal>
+        {FEATURES.earlyBird && (
+          <Reveal delay={0.26}>
+            <div className="home-section-top" style={{ marginTop: 34 }}><h3>Early Bird · café gratis</h3></div>
+            <p className="muted" style={{ fontSize: 13, marginBottom: 14 }}>El primero que pida dentro de este horario se gana el premio. Se reinicia solo cada día.</p>
+            <EarlyBirdManager />
+          </Reveal>
+        )}
 
         <Reveal delay={0.28}>
           <div className="home-section-top" style={{ marginTop: 34 }}><h3>Impuestos y porcientos</h3></div>
