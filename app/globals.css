@@ -160,6 +160,9 @@ section{padding:46px 0;}
 .admin-on .p-admin{display:flex;}
 .p-admin .icon-btn{width:38px; height:38px; border-radius:50%; border:none; background:rgba(255,255,255,0.94); display:flex; align-items:center; justify-content:center; color:var(--ink); box-shadow:var(--shadow-soft);}
 .p-admin .icon-btn.danger{color:var(--err);}
+.p-admin .icon-btn.active-warn{background:var(--amber); color:#fff;}
+.p-out-of-stock{opacity:.55;}
+.p-out-badge{position:absolute; left:50%; bottom:12px; transform:translateX(-50%); background:rgba(200,60,40,0.85); backdrop-filter:blur(6px); color:#fff; font-size:10px; padding:6px 14px; border-radius:100px; font-weight:700; text-transform:uppercase; white-space:nowrap; z-index:2;}
 .p-info{position:relative; background:var(--tint-deep); color:#fff; padding:16px 18px 18px; display:flex; flex-direction:column; border-radius:0 0 var(--radius-lg) var(--radius-lg);}
 .p-info-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
 .p-info-top h4{font-size:18px; color:#fff; line-height:1.25;}
@@ -767,6 +770,11 @@ header{display:none;}
 .carta-item-price{font-weight:700; font-size:14.5px; color:var(--amber-deep); white-space:nowrap;}
 .carta-item-desc{margin-top:4px; font-size:12.5px; line-height:1.5; color:var(--ink-soft);}
 .carta-item-admin{display:flex; gap:6px; flex-shrink:0; margin-top:2px;}
+.carta-item-admin .icon-btn{width:26px; height:26px; border-radius:50%; border:none; background:var(--cream-2); display:flex; align-items:center; justify-content:center; color:var(--ink);}
+.carta-item-admin .icon-btn.danger{color:var(--err);}
+.carta-item-admin .icon-btn.active-warn{background:var(--amber); color:#fff;}
+.carta-item-out{opacity:.55;}
+.carta-item-out-label{display:block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--err); margin-top:2px;}
 .carta-add-link{display:block; margin-top:6px; background:none; border:none; color:var(--amber-deep); font-size:13px; font-weight:700; text-decoration:underline;}
 .carta-footnote{margin-top:40px; text-align:center; font-size:12px; font-style:italic; color:var(--ink-soft);}
 
