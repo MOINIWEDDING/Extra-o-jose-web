@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
 import { BRANCHES } from '@/context/BranchContext';
+import { FEATURES } from '@/lib/features';
 import AuthGate from '@/components/AuthGate';
 import Reveal from '@/components/Reveal';
 
@@ -37,9 +38,25 @@ function timeAgo(dateStr) {
 export default function PedidosPage() {
   const { profile, isStaff } = useAuth();
 
+  if (!FEATURES.ordering) return <OrderingPausedNote />;
   if (!profile) return <AuthGate />;
   if (isStaff) return <StaffRedirectNote />;
   return <MyOrders profile={profile} />;
+}
+
+function OrderingPausedNote() {
+  return (
+    <section className="cuenta-page">
+      <div className="wrap">
+        <div className="section-head">
+          <p className="eyebrow">Pedidos</p>
+          <h2 style={{ fontSize: 22 }}>Por ahora no se puede pedir desde la web</h2>
+          <p>Estamos ajustando esta parte. Mientras tanto, puedes ver el menú y pedir directo en el local.</p>
+        </div>
+        <Link href="/menu" className="btn btn-amber btn-block" style={{ marginTop: 20 }}>Ver el menú</Link>
+      </div>
+    </section>
+  );
 }
 
 function StaffRedirectNote() {
