@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { useAuth } from '@/context/AuthContext';
+import { useBranch } from '@/context/BranchContext';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { useCategories } from '@/hooks/useCategories';
+import { useOutOfStock } from '@/hooks/useOutOfStock';
 import ProductCard from './ProductCard';
 import ProductModal from './ProductModal';
 import ProductIcon from './ProductIcon';
@@ -14,14 +16,20 @@ import Reveal from './Reveal';
 
 export default function CategoryCarousels({ limit = null, showAddCategory = true }) {
   const { isStaff } = useAuth();
+  const { branch } = useBranch();
   const { categories, reload: reloadCategories } = useCategories();
   const { items, reload: reloadItems } = useMenuItems();
+  const { outOfStockIds, toggle: toggleStock } = useOutOfStock(branch);
 
   const [editingItem, setEditingItem] = useState(null); // {item, defaultCategory} | null
   const [editingCategory, setEditingCategory] = useState(null); // category | 'new' | null
 
+  // los clientes no ven los productos marcados sin stock en esta sucursal;
+  // el dueño sí los sigue viendo (atenuados), para poder reactivarlos.
+  const visibleItems = isStaff ? items : items.filter((i) => !outOfStockIds.has(i.id));
+
   const categoriesWithItems = limit
-    ? categories.filter((c) => items.some((i) => i.category === c.name))
+    ? categories.filter((c) => visibleItems.some((i) => i.category === c.name))
     : categories;
 
   async function reload() { await Promise.all([reloadItems(), reloadCategories()]); }
@@ -32,9 +40,11 @@ export default function CategoryCarousels({ limit = null, showAddCategory = true
         <CategorySection
           key={cat.id}
           category={cat}
-          items={items.filter((i) => i.category === cat.name).slice(0, limit || undefined)}
-          allCount={items.filter((i) => i.category === cat.name).length}
+          items={visibleItems.filter((i) => i.category === cat.name).slice(0, limit || undefined)}
+          allCount={visibleItems.filter((i) => i.category === cat.name).length}
           limited={!!limit}
+          outOfStockIds={outOfStockIds}
+          onToggleStock={toggleStock}
           onAddProduct={() => setEditingItem({ item: null, defaultCategory: cat.name })}
           onEditProduct={(item) => setEditingItem({ item, defaultCategory: cat.name })}
           onEditCategory={() => setEditingCategory(cat)}
@@ -73,7 +83,7 @@ export default function CategoryCarousels({ limit = null, showAddCategory = true
   );
 }
 
-function CategorySection({ category, items, allCount, limited, onAddProduct, onEditProduct, onEditCategory, onDeletedItem }) {
+function CategorySection({ category, items, allCount, limited, outOfStockIds, onToggleStock, onAddProduct, onEditProduct, onEditCategory, onDeletedItem }) {
   const { isStaff } = useAuth();
   const trackRef = useRef(null);
   const [atStart, setAtStart] = useState(true);
@@ -140,6 +150,8 @@ function CategorySection({ category, items, allCount, limited, onAddProduct, onE
                 tint={category.tint}
                 onEdit={isStaff ? onEditProduct : undefined}
                 onDelete={isStaff ? handleDelete : undefined}
+                onToggleStock={isStaff ? onToggleStock : undefined}
+                isOutOfStock={outOfStockIds?.has(item.id)}
                 showDivider={false}
               />
             ))}

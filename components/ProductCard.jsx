@@ -4,9 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { money } from '@/hooks/useMenuItems';
+import { FEATURES } from '@/lib/features';
 import ProductDetailModal from './ProductDetailModal';
 
-export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, showDivider = true }) {
+export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, onToggleStock, isOutOfStock = false, showDivider = true }) {
   const { addItem } = useCart();
   const { isFav, toggle } = useFavorites();
   const [confirming, setConfirming] = useState(false);
@@ -34,7 +35,7 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
   return (
     <>
       <motion.article
-        className="p-card"
+        className={`p-card${isOutOfStock ? ' p-out-of-stock' : ''}`}
         whileHover={{ y: -6 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
@@ -51,6 +52,7 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
           <div className="p-photo-tint" />
           <div className="p-photo-fade" />
           {item.featured && <span className="p-tagline">Favorito de la casa</span>}
+          {isOutOfStock && <span className="p-out-badge">Sin stock aquí</span>}
 
           <motion.button
             type="button"
@@ -62,8 +64,18 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
             <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.3-8.8C1.2 8 2.7 4.8 6 4.2c2-.4 3.7.5 6 2.6 2.3-2.1 4-3 6-2.6 3.3.6 4.8 3.8 3.3 7C19 15.6 12 20 12 20z" /></svg>
           </motion.button>
 
-          {(onEdit || onDelete) && (
+          {(onEdit || onDelete || onToggleStock) && (
             <div className="p-admin">
+              {onToggleStock && (
+                <button
+                  type="button"
+                  className={`icon-btn${isOutOfStock ? ' active-warn' : ''}`}
+                  aria-label={isOutOfStock ? 'Marcar disponible aquí' : 'Marcar sin stock aquí'}
+                  onClick={stop(() => onToggleStock(item))}
+                >
+                  <svg className="icon" style={{ width: 13, height: 13 }} viewBox="0 0 24 24"><path d="M3 8l9-5 9 5-9 5-9-5z" /><path d="M3 8v8l9 5 9-5V8M12 13v8" /></svg>
+                </button>
+              )}
               {onEdit && (
                 <button type="button" className="icon-btn" aria-label="Editar" onClick={stop(() => onEdit(item))}>
                   <svg className="icon" style={{ width: 13, height: 13 }} viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></svg>
@@ -101,15 +113,17 @@ export default function ProductCard({ item, tint = 'manana', onEdit, onDelete, s
           {showDivider && <div className="p-divider" />}
           <div className="p-bottom-row">
             <span className="p-price">{money(item.price)}</span>
-            <motion.button
-              type="button"
-              className={`p-plus${justAdded ? ' bump' : ''}`}
-              aria-label="Agregar al carrito"
-              whileTap={{ scale: 0.82 }}
-              onClick={handleAdd}
-            >
-              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
-            </motion.button>
+            {FEATURES.ordering && (
+              <motion.button
+                type="button"
+                className={`p-plus${justAdded ? ' bump' : ''}`}
+                aria-label="Agregar al carrito"
+                whileTap={{ scale: 0.82 }}
+                onClick={handleAdd}
+              >
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+              </motion.button>
+            )}
           </div>
         </div>
       </motion.article>
