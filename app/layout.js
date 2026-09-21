@@ -20,6 +20,7 @@ import GiftCardNotifier from '@/components/GiftCardNotifier';
 import GiftReceivedNotifier from '@/components/GiftReceivedNotifier';
 import OrderStatusNotifier from '@/components/OrderStatusNotifier';
 import BranchGateWrapper from '@/components/BranchGateWrapper';
+import { Analytics } from '@vercel/analytics/next';
 
 const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-outfit', display: 'swap' });
 const urbanist = Urbanist({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-urbanist', display: 'swap' });
@@ -65,6 +66,7 @@ export default function RootLayout({ children }) {
             </CartProvider>
           </FavoritesProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
