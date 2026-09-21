@@ -1,5 +1,6 @@
 import { Outfit, Urbanist } from 'next/font/google';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { CartProvider } from '@/context/CartContext';
@@ -65,6 +66,7 @@ export default function RootLayout({ children }) {
             </CartProvider>
           </FavoritesProvider>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
