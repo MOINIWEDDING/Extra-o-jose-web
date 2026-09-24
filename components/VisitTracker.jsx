@@ -7,7 +7,9 @@ export default function VisitTracker() {
   const { branch, ready } = useBranch();
 
   useEffect(() => {
-    if (!ready) return;
+    // esperamos a que ya haya una sucursal elegida — si registramos la visita
+    // antes, queda sin sucursal y nunca aparece al filtrar por una en Estadísticas.
+    if (!ready || !branch) return;
     trackVisit(branch);
   }, [ready, branch]);
 
