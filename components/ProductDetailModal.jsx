@@ -1,19 +1,27 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
+import { useBranch } from '@/context/BranchContext';
 import { money } from '@/hooks/useMenuItems';
 import { FEATURES } from '@/lib/features';
+import { trackProductView } from '@/lib/analytics';
 
 export default function ProductDetailModal({ item, tint = 'manana', onClose }) {
   const { addItem } = useCart();
   const { isFav, toggle } = useFavorites();
+  const { branch } = useBranch();
   const [qty, setQty] = useState(1);
   const options = Array.isArray(item.options) ? item.options : [];
   const [selected, setSelected] = useState(() => options.map((g) => ({ group: g.name, ...g.choices[0] })));
   const tags = (item.tags || '').split(',').map((t) => t.trim()).filter(Boolean);
   const fav = isFav(item.id);
+
+  useEffect(() => {
+    trackProductView(item.id, branch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id]);
 
   const unitPrice = item.price + selected.reduce((s, o) => s + (o.price || 0), 0);
 
