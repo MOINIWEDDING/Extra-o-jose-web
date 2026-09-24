@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { sb, BARRO_CONFIGURED } from '@/lib/supabaseClient';
 import { money } from '@/hooks/useMenuItems';
-import { useBranch } from '@/context/BranchContext';
+import { useBranch, BRANCHES } from '@/context/BranchContext';
 import { FEATURES } from '@/lib/features';
 
 const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
@@ -21,6 +21,7 @@ export default function EstadisticasPage() {
   const [menuItems, setMenuItems] = useState([]);
   const [giftCards, setGiftCards] = useState([]);
   const [totalVisits, setTotalVisits] = useState(0);
+  const [visitsByBranch, setVisitsByBranch] = useState([]); // [{label, value}] — todas las sucursales, sin filtrar
   const [productViews, setProductViews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -64,6 +65,24 @@ export default function EstadisticasPage() {
     }
     load();
   }, [branch]);
+
+  useEffect(() => {
+    // esta sí trae TODAS las sucursales a la vez, a propósito, para poder compararlas
+    async function loadBranchVisits() {
+      if (!BARRO_CONFIGURED) return;
+      const { data, error } = await sb.from('analytics_visits').select('branch');
+      if (error || !data) return;
+      const counts = {};
+      data.forEach((row) => {
+        const key = row.branch || 'sin_sucursal';
+        counts[key] = (counts[key] || 0) + 1;
+      });
+      const rows = BRANCHES.map((b) => ({ label: b.full, value: counts[b.id] || 0 }));
+      if (counts.sin_sucursal) rows.push({ label: 'Sin sucursal (antes del ajuste)', value: counts.sin_sucursal });
+      setVisitsByBranch(rows);
+    }
+    loadBranchVisits();
+  }, []);
 
   const stats = useMemo(() => {
     const totalRevenue = orders.reduce((s, o) => s + Number(o.subtotal || 0), 0);
@@ -180,6 +199,10 @@ export default function EstadisticasPage() {
               <KpiCard label="Visitas" value={totalVisits} highlight />
               <KpiCard label="Clientes registrados" value={stats.totalClients} />
             </div>
+
+            <StatSection title="Visitas por sucursal">
+              <BarList items={visitsByBranch} suffix=" visitas" tint="manana" />
+            </StatSection>
 
             <StatSection title="Productos más vistos">
               <BarList items={stats.topViewed} suffix=" vistas" tint="experiencia" />
