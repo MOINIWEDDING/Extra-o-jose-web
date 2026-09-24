@@ -20,6 +20,8 @@ export default function EstadisticasPage() {
   const [profiles, setProfiles] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [giftCards, setGiftCards] = useState([]);
+  const [totalVisits, setTotalVisits] = useState(0);
+  const [productViews, setProductViews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
@@ -34,18 +36,26 @@ export default function EstadisticasPage() {
       try {
         let ordersQuery = sb.from('orders').select('*');
         if (branch) ordersQuery = ordersQuery.eq('branch', branch);
-        const [ordersRes, profilesRes, itemsRes, giftRes] = await Promise.all([
+        let visitsQuery = sb.from('analytics_visits').select('id', { count: 'exact', head: true });
+        if (branch) visitsQuery = visitsQuery.eq('branch', branch);
+        let viewsQuery = sb.from('analytics_product_views').select('item_id');
+        if (branch) viewsQuery = viewsQuery.eq('branch', branch);
+        const [ordersRes, profilesRes, itemsRes, giftRes, visitsRes, viewsRes] = await Promise.all([
           ordersQuery,
           sb.from('profiles').select('*').eq('role', 'cliente'),
           sb.from('menu_items').select('id, name, category, cost, price'),
           sb.from('gift_cards').select('*'),
+          visitsQuery,
+          viewsQuery,
         ]);
-        const firstError = ordersRes.error || profilesRes.error || itemsRes.error || giftRes.error;
+        const firstError = ordersRes.error || profilesRes.error || itemsRes.error || giftRes.error || visitsRes.error || viewsRes.error;
         if (firstError) throw firstError;
         setOrders(ordersRes.data || []);
         setProfiles(profilesRes.data || []);
         setMenuItems(itemsRes.data || []);
         setGiftCards(giftRes.data || []);
+        setTotalVisits(visitsRes.count || 0);
+        setProductViews(viewsRes.data || []);
       } catch (err) {
         setLoadError(err.message || 'No se pudieron cargar las estadísticas.');
       } finally {
@@ -131,13 +141,23 @@ export default function EstadisticasPage() {
     const hasCostData = menuItems.some((m) => Number(m.cost || 0) > 0);
     const profit = totalRevenue - totalCost;
 
+    // productos más vistos: no depende de los pedidos, funciona aunque
+    // los pedidos por la web estén apagados.
+    const viewCounts = {};
+    productViews.forEach((v) => { if (v.item_id) viewCounts[v.item_id] = (viewCounts[v.item_id] || 0) + 1; });
+    const nameById = {}; menuItems.forEach((m) => { nameById[m.id] = m.name; });
+    const topViewed = Object.entries(viewCounts)
+      .map(([id, value]) => ({ label: nameById[id] || 'Producto eliminado', value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+
     return {
       totalRevenue, totalOrders, avgTicket, bestSellers, worstSellers, categories, payments,
       genders, ages, accountOrders, guestOrders, hourCounts, dayRevenue,
       gcSoldCount, gcSoldAmount, gcRedeemedCount, gcActiveBalance,
-      hasCostData, profit, totalClients: profiles.length,
+      hasCostData, profit, totalClients: profiles.length, topViewed,
     };
-  }, [orders, profiles, menuItems, giftCards]);
+  }, [orders, profiles, menuItems, giftCards, productViews]);
 
   if (!profile || !isStaff) return null;
 
@@ -154,80 +174,92 @@ export default function EstadisticasPage() {
           <p className="empty-note">Cargando estadísticas…</p>
         ) : loadError ? (
           <div className="form-msg show error">No se pudieron cargar las estadísticas: {loadError}</div>
-        ) : stats.totalOrders === 0 ? (
-          <p className="empty-note">Todavía no hay suficientes pedidos para mostrar estadísticas.</p>
         ) : (
           <>
             <div className="kpi-grid">
-              <KpiCard label="Ventas totales" value={money(stats.totalRevenue)} />
-              <KpiCard label="Pedidos" value={stats.totalOrders} />
-              <KpiCard label="Ticket promedio" value={money(Math.round(stats.avgTicket))} />
+              <KpiCard label="Visitas" value={totalVisits} highlight />
               <KpiCard label="Clientes registrados" value={stats.totalClients} />
-              {stats.hasCostData && <KpiCard label="Ganancia estimada" value={money(Math.round(stats.profit))} highlight />}
             </div>
 
-            <StatSection title="Ventas de los últimos 7 días">
-              <MiniBarChart data={stats.dayRevenue} formatValue={(v) => money(Math.round(v))} />
+            <StatSection title="Productos más vistos">
+              <BarList items={stats.topViewed} suffix=" vistas" tint="experiencia" />
             </StatSection>
 
-            <div className="stat-two-col">
-              <StatSection title="Platos más vendidos">
-                <BarList items={stats.bestSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" />
-              </StatSection>
-              <StatSection title="Platos menos vendidos">
-                <BarList items={stats.worstSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" tint="salado" />
-              </StatSection>
-            </div>
-
-            <StatSection title="Ventas por categoría">
-              <BarList items={stats.categories} formatValue={(v) => money(Math.round(v))} tint="tarde" />
-            </StatSection>
-
-            <div className="stat-two-col">
-              <StatSection title="Métodos de pago">
-                <BarList items={stats.payments} suffix=" pedidos" tint="experiencia" />
-              </StatSection>
-              <StatSection title="Cuentas vs. invitados">
-                <BarList
-                  items={[{ label: 'Con cuenta', value: stats.accountOrders }, { label: 'Invitados', value: stats.guestOrders }]}
-                  suffix=" pedidos"
-                  tint="manana"
-                />
-              </StatSection>
-            </div>
-
-            <div className="stat-two-col">
-              <StatSection title="Sexo de quienes piden">
-                <BarList items={stats.genders} suffix=" pedidos" tint="salado" />
-              </StatSection>
-              <StatSection title="Edad de quienes piden">
-                <BarList items={stats.ages} suffix=" pedidos" tint="tarde" />
-              </StatSection>
-            </div>
-
-            <StatSection title="Horas con más pedidos">
-              <MiniBarChart
-                data={stats.hourCounts.map((v, h) => ({ label: h % 3 === 0 ? `${h}h` : '', value: v }))}
-                formatValue={(v) => `${v} pedido${v === 1 ? '' : 's'}`}
-                dense
-              />
-            </StatSection>
-
-            {FEATURES.giftCards && (
-              <StatSection title="Gift cards">
+            {stats.totalOrders === 0 ? (
+              <p className="empty-note">Todavía no hay suficientes pedidos para mostrar estadísticas de ventas.</p>
+            ) : (
+              <>
                 <div className="kpi-grid">
-                  <KpiCard label="Vendidas" value={stats.gcSoldCount} small />
-                  <KpiCard label="Monto vendido" value={money(stats.gcSoldAmount)} small />
-                  <KpiCard label="Canjeadas" value={stats.gcRedeemedCount} small />
-                  <KpiCard label="Balance activo" value={money(stats.gcActiveBalance)} small />
+                  <KpiCard label="Ventas totales" value={money(stats.totalRevenue)} />
+                  <KpiCard label="Pedidos" value={stats.totalOrders} />
+                  <KpiCard label="Ticket promedio" value={money(Math.round(stats.avgTicket))} />
+                  {stats.hasCostData && <KpiCard label="Ganancia estimada" value={money(Math.round(stats.profit))} highlight />}
                 </div>
-              </StatSection>
-            )}
 
-            {!stats.hasCostData && (
-              <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>
-                Tip: agrégale un costo a tus productos (al editarlos en el menú) para ver aquí la ganancia estimada, no solo las ventas.
-              </p>
+                <StatSection title="Ventas de los últimos 7 días">
+                  <MiniBarChart data={stats.dayRevenue} formatValue={(v) => money(Math.round(v))} />
+                </StatSection>
+
+                <div className="stat-two-col">
+                  <StatSection title="Platos más vendidos">
+                    <BarList items={stats.bestSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" />
+                  </StatSection>
+                  <StatSection title="Platos menos vendidos">
+                    <BarList items={stats.worstSellers.map((i) => ({ label: i.name, value: i.qty }))} suffix=" vendidos" tint="salado" />
+                  </StatSection>
+                </div>
+
+                <StatSection title="Ventas por categoría">
+                  <BarList items={stats.categories} formatValue={(v) => money(Math.round(v))} tint="tarde" />
+                </StatSection>
+
+                <div className="stat-two-col">
+                  <StatSection title="Métodos de pago">
+                    <BarList items={stats.payments} suffix=" pedidos" tint="experiencia" />
+                  </StatSection>
+                  <StatSection title="Cuentas vs. invitados">
+                    <BarList
+                      items={[{ label: 'Con cuenta', value: stats.accountOrders }, { label: 'Invitados', value: stats.guestOrders }]}
+                      suffix=" pedidos"
+                      tint="manana"
+                    />
+                  </StatSection>
+                </div>
+
+                <div className="stat-two-col">
+                  <StatSection title="Sexo de quienes piden">
+                    <BarList items={stats.genders} suffix=" pedidos" tint="salado" />
+                  </StatSection>
+                  <StatSection title="Edad de quienes piden">
+                    <BarList items={stats.ages} suffix=" pedidos" tint="tarde" />
+                  </StatSection>
+                </div>
+
+                <StatSection title="Horas con más pedidos">
+                  <MiniBarChart
+                    data={stats.hourCounts.map((v, h) => ({ label: h % 3 === 0 ? `${h}h` : '', value: v }))}
+                    formatValue={(v) => `${v} pedido${v === 1 ? '' : 's'}`}
+                    dense
+                  />
+                </StatSection>
+
+                {FEATURES.giftCards && (
+                  <StatSection title="Gift cards">
+                    <div className="kpi-grid">
+                      <KpiCard label="Vendidas" value={stats.gcSoldCount} small />
+                      <KpiCard label="Monto vendido" value={money(stats.gcSoldAmount)} small />
+                      <KpiCard label="Canjeadas" value={stats.gcRedeemedCount} small />
+                      <KpiCard label="Balance activo" value={money(stats.gcActiveBalance)} small />
+                    </div>
+                  </StatSection>
+                )}
+
+                {!stats.hasCostData && (
+                  <p className="muted" style={{ fontSize: 12.5, marginTop: 8 }}>
+                    Tip: agrégale un costo a tus productos (al editarlos en el menú) para ver aquí la ganancia estimada, no solo las ventas.
+                  </p>
+                )}
+              </>
             )}
           </>
         )}
