@@ -11,11 +11,21 @@ import { FEATURES } from '@/lib/features';
 const GENDER_LABELS = { femenino: 'Femenino', masculino: 'Masculino', prefiero_no_decir: 'Prefiero no decir', sin_dato: 'Sin dato' };
 const PAY_LABELS = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', gift_card: 'Tarjeta de regalo' };
 const DAY_LABELS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const RANGE_LABELS = { day: 'Hoy', week: 'Esta semana', month: 'Este mes', all: 'Todo' };
+
+function rangeStartDate(range) {
+  const now = new Date();
+  if (range === 'day') { const d = new Date(now); d.setHours(0, 0, 0, 0); return d; }
+  if (range === 'week') { const d = new Date(now); d.setDate(d.getDate() - 7); return d; }
+  if (range === 'month') { const d = new Date(now); d.setDate(d.getDate() - 30); return d; }
+  return null; // 'all'
+}
 
 export default function EstadisticasPage() {
   const { profile, isStaff } = useAuth();
   const { branch, branchInfo } = useBranch();
   const router = useRouter();
+  const [range, setRange] = useState('all'); // 'day' | 'week' | 'month' | 'all'
   const [orders, setOrders] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
@@ -35,17 +45,23 @@ export default function EstadisticasPage() {
       setLoadError('');
       if (!BARRO_CONFIGURED) { setLoading(false); return; }
       try {
+        const rangeStart = rangeStartDate(range);
         let ordersQuery = sb.from('orders').select('*');
         if (branch) ordersQuery = ordersQuery.eq('branch', branch);
+        if (rangeStart) ordersQuery = ordersQuery.gte('created_at', rangeStart.toISOString());
         let visitsQuery = sb.from('analytics_visits').select('id', { count: 'exact', head: true });
         if (branch) visitsQuery = visitsQuery.eq('branch', branch);
+        if (rangeStart) visitsQuery = visitsQuery.gte('created_at', rangeStart.toISOString());
         let viewsQuery = sb.from('analytics_product_views').select('item_id');
         if (branch) viewsQuery = viewsQuery.eq('branch', branch);
+        if (rangeStart) viewsQuery = viewsQuery.gte('created_at', rangeStart.toISOString());
+        let giftQuery = sb.from('gift_cards').select('*');
+        if (rangeStart) giftQuery = giftQuery.gte('created_at', rangeStart.toISOString());
         const [ordersRes, profilesRes, itemsRes, giftRes, visitsRes, viewsRes] = await Promise.all([
           ordersQuery,
           sb.from('profiles').select('*').eq('role', 'cliente'),
           sb.from('menu_items').select('id, name, category, cost, price'),
-          sb.from('gift_cards').select('*'),
+          giftQuery,
           visitsQuery,
           viewsQuery,
         ]);
@@ -64,13 +80,16 @@ export default function EstadisticasPage() {
       }
     }
     load();
-  }, [branch]);
+  }, [branch, range]);
 
   useEffect(() => {
     // esta sí trae TODAS las sucursales a la vez, a propósito, para poder compararlas
     async function loadBranchVisits() {
       if (!BARRO_CONFIGURED) return;
-      const { data, error } = await sb.from('analytics_visits').select('branch');
+      const rangeStart = rangeStartDate(range);
+      let query = sb.from('analytics_visits').select('branch');
+      if (rangeStart) query = query.gte('created_at', rangeStart.toISOString());
+      const { data, error } = await query;
       if (error || !data) return;
       const counts = {};
       data.forEach((row) => {
@@ -82,7 +101,7 @@ export default function EstadisticasPage() {
       setVisitsByBranch(rows);
     }
     loadBranchVisits();
-  }, []);
+  }, [range]);
 
   const stats = useMemo(() => {
     const totalRevenue = orders.reduce((s, o) => s + Number(o.subtotal || 0), 0);
@@ -189,6 +208,19 @@ export default function EstadisticasPage() {
           <p>{branchInfo ? `Ventas y pedidos de ${branchInfo.full}. Los clientes y gift cards son del negocio completo.` : 'Un vistazo a cómo le está yendo al local.'}</p>
         </div>
 
+        <div className="range-tabs">
+          {Object.entries(RANGE_LABELS).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              className={`range-tab${range === key ? ' active' : ''}`}
+              onClick={() => setRange(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <p className="empty-note">Cargando estadísticas…</p>
         ) : loadError ? (
@@ -219,9 +251,11 @@ export default function EstadisticasPage() {
                   {stats.hasCostData && <KpiCard label="Ganancia estimada" value={money(Math.round(stats.profit))} highlight />}
                 </div>
 
-                <StatSection title="Ventas de los últimos 7 días">
-                  <MiniBarChart data={stats.dayRevenue} formatValue={(v) => money(Math.round(v))} />
-                </StatSection>
+                {range !== 'day' && (
+                  <StatSection title="Ventas de los últimos 7 días">
+                    <MiniBarChart data={stats.dayRevenue} formatValue={(v) => money(Math.round(v))} />
+                  </StatSection>
+                )}
 
                 <div className="stat-two-col">
                   <StatSection title="Platos más vendidos">
